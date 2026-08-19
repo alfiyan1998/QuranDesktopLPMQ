@@ -1,0 +1,33 @@
+<UserControl
+    x:Class="QuranKemenag.Views.MushafViewerView"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+    <!--
+        Area utama aplikasi. Di Tahap 7 nanti, area ini akan diisi kontrol
+        Image yang menampilkan halaman mushaf (001.png ... 604.png).
+        Untuk Tahap 2, masih berupa placeholder agar layout terlihat utuh.
+    -->
+    <Grid Background="{StaticResource NeutralBackgroundBrush}">
+        <Border Style="{StaticResource CardBorderStyle}"
+                HorizontalAlignment="Center"
+                VerticalAlignment="Center"
+                MinWidth="320"
+                MinHeight="420">
+            <StackPanel HorizontalAlignment="Center"
+                        VerticalAlignment="Center"
+                        Spacing="8">
+                <FontIcon Glyph="&#xE8A5;"
+                          FontSize="40"
+                          Foreground="{StaticResource LpmqGreenBrush}"
+                          HorizontalAlignment="Center" />
+                <TextBlock Text="Mushaf Viewer"
+                           Style="{StaticResource PageTitleTextStyle}"
+                           HorizontalAlignment="Center" />
+                <TextBlock Text="Halaman mushaf akan ditampilkan di sini (Tahap 7)"
+                           Style="{StaticResource SubtleTextStyle}"
+                           HorizontalAlignment="Center" />
+            </StackPanel>
+        </Border>
+    </Grid>
+</UserControl>

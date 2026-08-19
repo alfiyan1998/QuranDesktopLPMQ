@@ -1,0 +1,10 @@
+<Page
+    x:Class="QuranKemenag.Views.TestFontPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+    <Grid>
+        <!-- TestFontPage retained for debugging but intentionally left empty.
+             Experimental content removed so the page is inert when opened. -->
+    </Grid>
+</Page>

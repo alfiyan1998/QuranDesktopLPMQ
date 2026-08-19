@@ -1,0 +1,10 @@
+<UserControl
+    x:Class="QuranKemenag.Views.BookmarkView"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+    <Grid>
+        <TextBlock Text="Tampilan Bookmark" HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="20" />
+    </Grid>
+
+</UserControl>

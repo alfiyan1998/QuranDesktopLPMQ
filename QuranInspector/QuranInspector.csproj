@@ -1,0 +1,17 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+	<OutputType>Exe</OutputType>
+	<TargetFramework>net8.0</TargetFramework>
+	<ImplicitUsings>enable</ImplicitUsings>
+	<!-- Ensure the compiler uses the correct entry point if multiple mains are present for any reason -->
+	<StartupObject>QuranInspector.Program</StartupObject>
+	<Nullable>enable</Nullable>
+	<RootNamespace>QuranInspector</RootNamespace>
+  </PropertyGroup>
+
+  <ItemGroup>
+	<PackageReference Include="Microsoft.Data.Sqlite" Version="8.0.0" />
+  </ItemGroup>
+
+</Project>

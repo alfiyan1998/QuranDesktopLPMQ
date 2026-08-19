@@ -1,0 +1,115 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+	<PropertyGroup>
+		<!-- Output berupa aplikasi Windows (bukan console) -->
+		<OutputType>WinExe</OutputType>
+		<!-- Target .NET 8 dengan Windows SDK 10.0.19041 (Windows 10 versi 2004 ke atas) -->
+		<TargetFramework>net8.0-windows10.0.19041.0</TargetFramework>
+		<TargetPlatformMinVersion>10.0.17763.0</TargetPlatformMinVersion>
+		<RootNamespace>QuranKemenag</RootNamespace>
+		<!-- ApplicationIcon sengaja belum diaktifkan: file .ico belum tersedia di Tahap 1 -->
+		<Platforms>x86;x64;ARM64</Platforms>
+		<RuntimeIdentifiers>win-x86;win-x64;win-arm64</RuntimeIdentifiers>
+		<UseWinUI>true</UseWinUI>
+		<!-- Unpackaged app: tidak menggunakan MSIX, lebih sederhana untuk tahap belajar -->
+		<WindowsPackageType>None</WindowsPackageType>
+		<WindowsAppSDKSelfContained>true</WindowsAppSDKSelfContained>
+		<EnableMsixTooling>false</EnableMsixTooling>
+		<Nullable>enable</Nullable>
+		<ImplicitUsings>enable</ImplicitUsings>
+		<!-- Menyalin file appsettings.json ke folder output saat build -->
+		<ContentTargetFolders>.</ContentTargetFolders>
+		<UserSecretsId>8851a05f-2dab-4534-9510-f39c23e6ab0c</UserSecretsId>
+	</PropertyGroup>
+	<ItemGroup>
+		<None Remove="Controls\AyatCard.xaml" />
+		<None Remove="Controls\MushafPageView.xaml" />
+		<None Remove="Database\.gitkeep" />
+		<None Remove="Database\Indonesia2019.db" />
+		<None Remove="Database\quran.kemenag" />
+		<None Remove="Resources\Fonts.xaml" />
+		<None Remove="Views\ReaderView.xaml" />
+		<None Remove="Views\TestFontPage.xaml" />
+	</ItemGroup>
+	<!-- No explicit Page removals. All XAML files are included implicitly by the SDK. -->
+	<ItemGroup>
+		<PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.2" />
+		<PackageReference Include="Dapper" Version="2.1.79" />
+		<PackageReference Include="Microsoft.Extensions.Configuration.UserSecrets" Version="6.0.1" />
+		<PackageReference Include="Microsoft.WindowsAppSDK" Version="1.5.240311000" />
+		<PackageReference Include="Microsoft.Windows.SDK.BuildTools" Version="10.0.22621.756" />
+		<!-- Dependency injection abstraction for building a small DI container -->
+		<PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="8.0.0" />
+		<!-- SQLite provider used by DatabaseService -->
+		<PackageReference Include="Microsoft.Data.Sqlite" Version="8.0.0" />
+		<PackageReference Include="ObservableProperty" Version="1.0.1" />
+		<PackageReference Include="System.ObjectModel" Version="4.3.0" />
+	</ItemGroup>
+	<ItemGroup>
+		<Content Include="appsettings.json">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</Content>
+		<Content Include="C:\Users\user\Downloads\LPMQ IsepMisbah (3)\LPMQ IsepMisbah.ttf" Link="Assets\Fonts\LPMQ IsepMisbah.ttf" />
+		<Content Include="C:\Users\user\Downloads\LPMQ-ISYARAT.ttf" Link="Assets\Fonts\LPMQ-ISYARAT.ttf" />
+		<Content Include="C:\Users\user\Downloads\Lpmq_Hafs_01-Regular.ttf" Link="Assets\Fonts\Lpmq_Hafs_01-Regular.ttf" />
+		<Content Include="D:\Belajar\QuranKemenag\iluminasi\Hafs-Frame.png" Link="Assets\Images\Hafs\Hafs-Frame.png" />
+		<Content Include="D:\Belajar\QuranKemenag\iluminasi\Hafs-souraframe.png" Link="Assets\Images\Hafs\Hafs-souraframe.png" />
+		<Content Include="D:\Belajar\QuranKemenag\iluminasi\Hafs_Al-Baqara.png" Link="Assets\Images\Hafs\Hafs_Al-Baqara.png" />
+		<Content Include="D:\Belajar\QuranKemenag\iluminasi\Hafs_Al-Fatiha.png" Link="Assets\Images\Hafs\Hafs_Al-Fatiha.png" />
+		<!-- Ensure the font file placed under Assets/Fonts is copied to output so FontFamily resource can load it at runtime. -->
+		<!-- Use a linked font file from the developer's Downloads folder (existing on developer machine). The Link attribute exposes it under Assets\Fonts in the project. If you have the font locally inside the Assets/Fonts folder, replace this entry with the local path and remove the linked one. -->
+		<Content Include="Database\.gitkeep">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</Content>
+		<Content Include="Database\Backup\Indonesia2019.db" />
+		<Content Include="Database\Backup\msi_simbol.db">
+		  <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</Content>
+		<Content Include="Database\Backup\quran.kemenag">
+		  <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</Content>
+		<Content Include="Database\Indonesia2019.db" />
+		<Content Include="Database\quran.kemenag">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</Content>
+	</ItemGroup>
+	<!-- XAML files are included implicitly by the SDK; no explicit Page Include needed. -->
+	<ItemGroup>
+		<!-- Exclude the standalone QuranInspector console tool files from being compiled into the WinUI project. The QuranInspector folder lives under the solution root; SDK-style projects include **/*.cs by default, so we must explicitly remove those files from this project to avoid duplicate entry points. -->
+		<Compile Remove="QuranInspector\**\*.cs" />
+		<None Remove="QuranInspector\**\*" />
+		<Content Include="Database\msi_simbol.db">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</Content>
+	</ItemGroup>
+	<ItemGroup>
+	  <Page Update="Controls\MushafPageView.xaml">
+	    <Generator>MSBuild:Compile</Generator>
+	  </Page>
+	</ItemGroup>
+	<ItemGroup>
+		<Page Update="Views\TestFontPage.xaml">
+			<Generator>MSBuild:Compile</Generator>
+		</Page>
+	</ItemGroup>
+	<ItemGroup>
+		<Page Update="Resources\Fonts.xaml">
+			<Generator>MSBuild:Compile</Generator>
+		</Page>
+	</ItemGroup>
+	<ItemGroup>
+		<!-- No explicit None Update for XAML files. The SDK includes Page items implicitly. -->
+		<Page Update="Controls\AyatCard.xaml">
+			<Generator>MSBuild:Compile</Generator>
+		</Page>
+		<Page Update="Views\ReaderView.xaml">
+			<Generator>MSBuild:Compile</Generator>
+		</Page>
+		<!-- Ensure Fonts.xaml is compiled as a XAML Page so it can be loaded at runtime via ResourceDictionary Source -->
+		<Page Update="Resources\Fonts.xaml">
+			<Generator>MSBuild:Compile</Generator>
+		</Page>
+	</ItemGroup>
+	<ItemGroup>
+	  <Folder Include="Assets\Images\Hafs\" />
+	</ItemGroup>
+</Project>

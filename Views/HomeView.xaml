@@ -1,0 +1,197 @@
+<UserControl
+    x:Class="QuranKemenag.Views.HomeView"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+    <ScrollViewer
+        VerticalScrollBarVisibility="Auto">
+
+        <StackPanel
+            Padding="40"
+            Spacing="24">
+
+            <!-- HEADER -->
+
+            <StackPanel
+                Spacing="8">
+
+                <TextBlock
+                    Text="Quran Kemenag for Windows"
+                    FontSize="32"
+                    FontWeight="SemiBold"/>
+
+                <TextBlock
+                    Text="Mushaf Al-Qur'an Digital"
+                    FontSize="18"
+                    Opacity="0.7"/>
+
+                <TextBlock
+                    Text="Lajnah Pentashihan Mushaf Al-Qur'an"
+                    FontSize="15"
+                    Opacity="0.6"/>
+
+            </StackPanel>
+
+
+            <!-- STATISTIK -->
+
+            <Grid
+                ColumnSpacing="16">
+
+                <Grid.ColumnDefinitions>
+
+                    <ColumnDefinition
+                        Width="*"/>
+
+                    <ColumnDefinition
+                        Width="*"/>
+
+                </Grid.ColumnDefinitions>
+
+
+                <!-- SURAH -->
+
+                <Border
+                    Grid.Column="0"
+                    Padding="24"
+                    CornerRadius="12"
+                    Background="{ThemeResource CardBackgroundFillColorDefaultBrush}">
+
+                    <StackPanel
+                        Spacing="6">
+
+                        <TextBlock
+                            Text="114"
+                            FontSize="32"
+                            FontWeight="Bold"/>
+
+                        <TextBlock
+                            Text="Surah"
+                            FontSize="16"/>
+
+                    </StackPanel>
+
+                </Border>
+
+
+                <!-- JUZ -->
+
+                <Border
+                    Grid.Column="1"
+                    Padding="24"
+                    CornerRadius="12"
+                    Background="{ThemeResource CardBackgroundFillColorDefaultBrush}">
+
+                    <StackPanel
+                        Spacing="6">
+
+                        <TextBlock
+                            Text="30"
+                            FontSize="32"
+                            FontWeight="Bold"/>
+
+                        <TextBlock
+                            Text="Juz"
+                            FontSize="16"/>
+
+                    </StackPanel>
+
+                </Border>
+
+            </Grid>
+
+
+            <!-- TENTANG -->
+
+            <Border
+                Padding="24"
+                CornerRadius="12"
+                Background="{ThemeResource CardBackgroundFillColorDefaultBrush}">
+
+                <StackPanel
+                    Spacing="12">
+
+                    <TextBlock
+                        Text="Tentang Aplikasi"
+                        FontSize="20"
+                        FontWeight="SemiBold"/>
+
+                    <TextBlock
+                        Text="Quran Kemenag for Windows merupakan aplikasi Al-Qur'an digital yang dikembangkan untuk menyediakan akses Mushaf Al-Qur'an dalam lingkungan desktop Windows."
+                        TextWrapping="Wrap"
+                        FontSize="15"
+                        Opacity="0.8"/>
+
+                </StackPanel>
+
+            </Border>
+
+
+            <!-- PRODUK LPMQ -->
+
+            <StackPanel
+                Spacing="12">
+
+                <TextBlock
+                    Text="Produk LPMQ"
+                    FontSize="20"
+                    FontWeight="SemiBold"/>
+
+                <Border
+                    Padding="24"
+                    CornerRadius="12"
+                    Background="{ThemeResource CardBackgroundFillColorDefaultBrush}">
+
+                    <StackPanel
+                        Spacing="8">
+
+                        <TextBlock
+                            Text="Mushaf Al-Qur'an"
+                            FontSize="18"
+                            FontWeight="SemiBold"/>
+
+                        <TextBlock
+                            Text="Lajnah Pentashihan Mushaf Al-Qur'an"
+                            FontSize="14"
+                            Opacity="0.7"/>
+
+                    </StackPanel>
+
+                </Border>
+
+            </StackPanel>
+
+
+            <!-- INFORMASI -->
+
+            <Border
+                Padding="24"
+                CornerRadius="12"
+                Background="{ThemeResource CardBackgroundFillColorDefaultBrush}">
+
+                <StackPanel
+                    Spacing="8">
+
+                    <TextBlock
+                        Text="Informasi Aplikasi"
+                        FontSize="20"
+                        FontWeight="SemiBold"/>
+
+                    <TextBlock
+                        Text="Versi 1.0"
+                        FontSize="14"/>
+
+                    <TextBlock
+                        Text="Quran Kemenag for Windows"
+                        FontSize="14"
+                        Opacity="0.7"/>
+
+                </StackPanel>
+
+            </Border>
+
+        </StackPanel>
+
+    </ScrollViewer>
+
+</UserControl>

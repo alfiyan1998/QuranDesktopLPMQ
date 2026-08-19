@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ResourceDictionary
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+    <!--
+        Font resources for the application.
+        SymbolFontFamily points to the Lpmq_Hafs_01-Regular.ttf file placed under Assets/Fonts.
+        The part after the '#' should match the internal font family name as embedded in the TTF file.
+        If the rendered glyphs do not appear correctly, verify the family name using a font viewer
+        and adjust the string after the '#'.
+    -->
+
+    <FontFamily x:Key="SymbolFontFamily">ms-appx:///Assets/Fonts/Lpmq_Hafs_01-Regular.ttf#Lpmq_Hafs_01</FontFamily>
+
+</ResourceDictionary>

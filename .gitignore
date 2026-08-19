@@ -1,0 +1,23 @@
+# Visual Studio
+.vs/
+
+# Build
+bin/
+obj/
+
+# Rider
+.idea/
+
+# User files
+*.user
+*.suo
+
+# Backup
+*.tmp
+
+# Logs
+*.log
+
+# SQLite cache
+*.db-shm
+*.db-wal
