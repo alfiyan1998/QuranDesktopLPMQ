@@ -280,9 +280,9 @@ public static class HandwrittenLayoutEngine
         // -----------------------------------------------------------
         // LANGKAH 4 & 5 - LINE BREAK + ARAH BARIS (manual, tanpa BiDi)
         // -----------------------------------------------------------
-        double lineHeight = fontSize * lineHeightMultiplier;
+        double defaultLineHeight = fontSize * lineHeightMultiplier;
 
-        var currentLine = new HandwrittenLine { Height = lineHeight };
+        var currentLine = new HandwrittenLine { Height = defaultLineHeight };
         double x = availableWidth;
         double usedWidth = 0;
 
@@ -296,7 +296,7 @@ public static class HandwrittenLayoutEngine
             {
                 layout.Lines.Add(currentLine);
 
-                currentLine = new HandwrittenLine { Height = lineHeight };
+                currentLine = new HandwrittenLine { Height = defaultLineHeight };
                 x = availableWidth;
                 usedWidth = 0;
             }
@@ -316,6 +316,8 @@ public static class HandwrittenLayoutEngine
                     X = x,
                     Y = 0 // diisi di bawah, setelah tinggi tiap baris diketahui
                 });
+
+            currentLine.Height = Math.Max(currentLine.Height, glyph.Height);
 
             usedWidth += glyph.Width;
         }

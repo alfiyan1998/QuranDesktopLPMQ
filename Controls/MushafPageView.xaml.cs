@@ -307,7 +307,13 @@ public sealed partial class MushafPageView : UserControl
         double fontSize = PART_RichText.FontSize;
 
         double availableWidth =
-            PART_ContentFrame.ActualWidth;
+                PART_ContentHost.ActualWidth;
+
+        Debug.WriteLine(
+    $"[HANDWRITTEN SIZE] " +
+    $"Frame={PART_ContentFrame.ActualWidth:F1} " +
+    $"Host={PART_ContentHost.ActualWidth:F1} " +
+    $"Canvas={PART_HandwrittenCanvas.ActualWidth:F1}");
 
         if (availableWidth <= 0)
         {
@@ -377,7 +383,7 @@ public sealed partial class MushafPageView : UserControl
             return;
 
         _contentFrameSizeHandlerAttached = true;
-        PART_ContentFrame.SizeChanged += PART_ContentFrame_SizeChanged;
+        PART_ContentHost.SizeChanged += PART_ContentFrame_SizeChanged;
     }
 
 
@@ -385,7 +391,7 @@ public sealed partial class MushafPageView : UserControl
         object sender,
         SizeChangedEventArgs e)
     {
-        PART_ContentFrame.SizeChanged -= PART_ContentFrame_SizeChanged;
+        PART_ContentHost.SizeChanged -= PART_ContentFrame_SizeChanged;
         _contentFrameSizeHandlerAttached = false;
 
         if (_currentPage is not null)
