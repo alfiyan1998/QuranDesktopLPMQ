@@ -12,7 +12,8 @@ public interface IQuranPageService
     /// Mengelompokkan ayat berdasarkan nomor halaman.
     /// </summary>
     IReadOnlyList<QuranPage> BuildPages(
-        IReadOnlyList<Ayat> ayats);
+    IReadOnlyList<Ayat> ayats,
+    IReadOnlyList<Surah>? surahs = null);
 
     /// <summary>
     /// Mengambil satu halaman berdasarkan nomor halaman.
@@ -20,4 +21,6 @@ public interface IQuranPageService
     QuranPage? GetPage(
         IReadOnlyList<QuranPage> pages,
         int pageNumber);
+
+
 }

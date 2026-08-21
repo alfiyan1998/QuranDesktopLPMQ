@@ -1315,7 +1315,9 @@ public sealed partial class MainViewModel : ViewModelBase
 
         var pages =
             _quranPageService
-                .BuildPages(ayats);
+                .BuildPages(
+                    ayats,
+                    Surahs);
 
         Pages = pages;
 
@@ -1476,7 +1478,9 @@ public sealed partial class MainViewModel : ViewModelBase
              */
             var pages =
                 _quranPageService
-                    .BuildPages(ayats);
+                    .BuildPages(
+                        ayats,
+                        Surahs);
 
             var page =
                 pages.FirstOrDefault(
