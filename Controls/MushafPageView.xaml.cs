@@ -148,14 +148,14 @@ public sealed partial class MushafPageView : UserControl
     // Handwritten di method yang sama).
     // ==============================================================
     private void RenderComputerFont(
-        IReadOnlyList<Ayat> ayats,
-        IFontManager? manager)
+      IReadOnlyList<Ayat> ayats,
+      IFontManager? manager)
     {
         var paragraph =
             new Paragraph
             {
                 TextAlignment = TextAlignment.Justify,
-                LineHeight = PART_RichText.FontSize * 1.2
+                LineHeight = PART_RichText.FontSize * 2
             };
 
         const string RtlMark = "\u200F";
@@ -166,22 +166,21 @@ public sealed partial class MushafPageView : UserControl
                 continue;
 
             var arabicText =
-                ayat.Teks?.Trim()
-                ?? string.Empty;
+                RtlMark +
+                (ayat.Teks ?? string.Empty);
 
             if (string.IsNullOrWhiteSpace(arabicText))
                 continue;
 
+            // =========================
+            // TEKS AYAT
+            // =========================
+
             var run =
                 new Run
                 {
-                    Text =
-                        RtlMark +
-                        arabicText +
-                        RtlMark,
-
-                    FontSize =
-                        PART_RichText.FontSize
+                    Text = arabicText,
+                    FontSize = PART_RichText.FontSize
                 };
 
             ApplyAyatFont(
@@ -191,16 +190,64 @@ public sealed partial class MushafPageView : UserControl
 
             paragraph.Inlines.Add(run);
 
-            if (!string.IsNullOrWhiteSpace(ayat.ArabicAyatNumber))
+
+            // =========================
+            // NOMOR AYAT
+            // =========================
+
+            if (!string.IsNullOrWhiteSpace(
+                    ayat.ArabicAyatNumber))
             {
+                // Spasi sebelum nomor
                 paragraph.Inlines.Add(
-                    new Run { Text = " " });
+                    new Run
+                    {
+                        Text = " ",
+                        FontSize =
+                            PART_RichText.FontSize
+                    });
 
-                paragraph.Inlines.Add(
-                    BuildAyatNumberBadge(ayat, manager));
 
+                // Nomor ayat
+                var numberRun =
+                    new Run
+                    {
+                        Text =
+                            ayat.ArabicAyatNumber,
+
+                        FontSize =
+                            PART_RichText.FontSize * 0.72
+                    };
+
+
+                // Gunakan font Unicode
+                if (manager is not null)
+                {
+                    try
+                    {
+                        numberRun.FontFamily =
+                            manager.GetUnicodeFont();
+                    }
+                    catch (Exception ex)
+                    {
+                        Debug.WriteLine(
+                            $"[PAGE FONT] " +
+                            $"Fallback font " +
+                            $"(ayat number): {ex.Message}");
+                    }
+                }
+
+                paragraph.Inlines.Add(numberRun);
+
+
+                // Spasi setelah nomor
                 paragraph.Inlines.Add(
-                    new Run { Text = " " });
+                    new Run
+                    {
+                        Text = " ",
+                        FontSize =
+                            PART_RichText.FontSize
+                    });
             }
         }
 
@@ -227,75 +274,98 @@ public sealed partial class MushafPageView : UserControl
     // memakai LpmqGreenBrush yang sama dengan border halaman supaya
     // tetap serasi dengan tema aplikasi.
     // --------------------------------------------------------------
-    private InlineUIContainer BuildAyatNumberBadge(
-        Ayat ayat,
-        IFontManager? manager)
-    {
-        double bodyFontSize = PART_RichText.FontSize;
-        double badgeSize = Math.Max(20, bodyFontSize * 0.46);
-        double numberFontSize = badgeSize * 0.52;
+    //private InlineUIContainer BuildAyatNumberBadge(
+    //Ayat ayat,
+    //IFontManager? manager)
+    //{
+    //    double bodyFontSize = PART_RichText.FontSize;
 
-        var strokeBrush =
-            Application.Current.Resources.TryGetValue(
-                "LpmqGreenBrush",
-                out var brushResource) &&
-            brushResource is Brush resolvedBrush
-                ? resolvedBrush
-                : new SolidColorBrush(
-                    Windows.UI.Color.FromArgb(255, 15, 107, 60));
+    //    double badgeSize =
+    //            Math.Max(32, bodyFontSize * 0.68);
 
-        var ellipse =
-            new Ellipse
-            {
-                Width = badgeSize,
-                Height = badgeSize,
-                Stroke = strokeBrush,
-                StrokeThickness = 1.3,
-                Fill = new SolidColorBrush(Microsoft.UI.Colors.Transparent)
-            };
+    //    double numberFontSize = 18;
 
-        var numberText =
-            new TextBlock
-            {
-                Text = ayat.ArabicAyatNumber,
-                FontSize = numberFontSize,
-                Foreground = strokeBrush,
-                HorizontalAlignment = HorizontalAlignment.Center,
-                VerticalAlignment = VerticalAlignment.Center,
-                TextAlignment = TextAlignment.Center
-            };
+    //    var strokeBrush =
+    //        new SolidColorBrush(Microsoft.UI.Colors.Black);
 
-        // Digit Arab (Arabic-Indic) tidak butuh font Handwritten/
-        // Symbol khusus - font Unicode utama sudah cukup, tapi kita
-        // tetap pakai ApplyAyatFont supaya konsisten dengan sisa teks
-        // (mis. jika di masa depan proyek mengganti font Unicode).
-        try
-        {
-            if (manager is not null)
-            {
-                numberText.FontFamily = manager.GetUnicodeFont();
-            }
-        }
-        catch (Exception ex)
-        {
-            Debug.WriteLine(
-                $"[PAGE FONT] " +
-                $"Fallback font (ayat badge): {ex.Message}");
-        }
+    //    var ellipse =
+    //        new Ellipse
+    //        {
+    //            Width = badgeSize,
+    //            Height = badgeSize,
+    //            Stroke = strokeBrush,
+    //            StrokeThickness = 1.0,
+    //            Fill = new SolidColorBrush(
+    //                Microsoft.UI.Colors.Transparent)
+    //        };
 
-        var badge =
-            new Grid
-            {
-                Width = badgeSize,
-                Height = badgeSize
-            };
+    //    var numberText =
+    // new TextBlock
+    // {
+    //     Text = ayat.ArabicAyatNumber,
 
-        badge.Children.Add(ellipse);
-        badge.Children.Add(numberText);
+    //     FontSize = numberFontSize,
 
-        return new InlineUIContainer { Child = badge };
-    }
+    //     Foreground = strokeBrush,
 
+    //     HorizontalAlignment =
+    //         HorizontalAlignment.Center,
+
+    //     VerticalAlignment =
+    //         VerticalAlignment.Center,
+
+    //     TextAlignment =
+    //         TextAlignment.Center,
+
+    //     Padding = new Thickness(0),
+
+    //     Margin = new Thickness(0),
+
+    //     RenderTransform =
+    //         new ScaleTransform
+    //         {
+    //             ScaleX = 1.25,
+    //             ScaleY = 1.25
+    //         }
+    // };
+
+    //    try
+    //    {
+    //        if (manager is not null)
+    //        {
+    //            numberText.FontFamily =
+    //                manager.GetUnicodeFont();
+    //        }
+    //    }
+    //    catch (Exception ex)
+    //    {
+    //        Debug.WriteLine(
+    //            $"[PAGE FONT] " +
+    //            $"Fallback font (ayat badge): {ex.Message}");
+    //    }
+
+    //    var badge =
+    //new Grid
+    //{
+    //    Width = badgeSize,
+    //    Height = badgeSize,
+    //    Margin = new Thickness(3, 1, 3, 1),
+
+    //    RenderTransform =
+    //        new TranslateTransform
+    //        {
+    //            Y = 3
+    //        }
+    //};
+
+    //    badge.Children.Add(ellipse);
+    //    badge.Children.Add(numberText);
+
+    //    return new InlineUIContainer
+    //    {
+    //        Child = badge
+    //    };
+    //}
 
     // ==============================================================
     // MODE HANDWRITTEN (KodeFont != 0) - RENDERER BARU
@@ -425,4 +495,6 @@ public sealed partial class MushafPageView : UserControl
                 $"Fallback font: {ex.Message}");
         }
     }
+
+
 }
