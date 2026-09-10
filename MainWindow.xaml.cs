@@ -1,3 +1,4 @@
+using QuranKemenag.Services.Page;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
@@ -6,6 +7,7 @@ using QuranKemenag.Repositories;
 using QuranKemenag.Services;
 using QuranKemenag.ViewModels;
 using QuranKemenag.Views;
+using QuranKemenag.Views.Copy;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -20,10 +22,13 @@ namespace QuranKemenag;
 public sealed partial class MainWindow : Window
 {
     private bool _isInitialized;
+    private bool _isSidebarVisible = true;
 
     public MainWindow()
     {
         this.InitializeComponent();
+
+        //TestMushafLayout();
 
         Title = "Quran Kemenag for Windows";
 
@@ -108,12 +113,42 @@ public sealed partial class MainWindow : Window
                     Sidebar.JuzClicked -= Sidebar_JuzClicked;
                     Sidebar.JuzClicked += Sidebar_JuzClicked;
 
+                    // =====================================================
+                    // TOOLBAR
+                    // =====================================================
+
+                    Toolbar.SidebarToggleRequested -=
+                        Toolbar_SidebarToggleRequested;
+
+                    Toolbar.SidebarToggleRequested +=
+                        Toolbar_SidebarToggleRequested;
+
                     // Event ketika user memilih salah satu surah.
                     SurahView.SurahSelected -= SurahView_SurahSelected;
                     SurahView.SurahSelected += SurahView_SurahSelected;
 
                     JuzView.JuzSelected -= JuzView_JuzSelected;
                     JuzView.JuzSelected += JuzView_JuzSelected;
+
+                    // =====================================================
+                    // TOOLBAR SURAH
+                    // =====================================================
+
+                    Toolbar.SurahSelectionRequested -=
+                        Toolbar_SurahSelectionRequested;
+
+                    Toolbar.SurahSelectionRequested +=
+                        Toolbar_SurahSelectionRequested;
+
+                    // =====================================================
+                    // TOOLBAR COPY
+                    // =====================================================
+
+                    Toolbar.CopyRequested -=
+                        Toolbar_CopyRequested;
+
+                    Toolbar.CopyRequested +=
+                        Toolbar_CopyRequested;
                 }
                 catch { /* ignore if Sidebar not available yet */ }
             }
@@ -158,9 +193,32 @@ public sealed partial class MainWindow : Window
     }
 
     /// <summary>Menampilkan/menyembunyikan Sidebar saat tombol hamburger ditekan.</summary>
-    private void Toolbar_SidebarToggleRequested(object sender, RoutedEventArgs e)
+    /// <summary>
+    /// Menampilkan / menyembunyikan Sidebar
+    /// ketika tombol hamburger pada Toolbar ditekan.
+    /// </summary>
+    private void Toolbar_SidebarToggleRequested(
+    object sender,
+    RoutedEventArgs e)
     {
-        // Implementasi UI state yang sudah ada tetap sama (tidak diubah).
+        _isSidebarVisible = !_isSidebarVisible;
+
+        if (_isSidebarVisible)
+        {
+            Sidebar.Visibility =
+                Visibility.Visible;
+
+            SidebarColumn.Width =
+                new GridLength(220);
+        }
+        else
+        {
+            Sidebar.Visibility =
+                Visibility.Collapsed;
+
+            SidebarColumn.Width =
+                new GridLength(0);
+        }
     }
 
     private void Sidebar_HomeClicked(
@@ -176,10 +234,23 @@ public sealed partial class MainWindow : Window
         if (vm is null)
             return;
 
-        // Home bukan reader.
-        // Mode Ayat disiapkan untuk saat user kembali ke Reader.
+        Debug.WriteLine(
+            "[HOME] Kembali ke Home");
+
+        // =====================================================
+        // RESET READER CONTEXT
+        // =====================================================
+
+        vm.SelectedSurah = null;
+        vm.SelectedAyat = null;
+
+        // Pastikan tampilan kembali ke mode Ayat.
         vm.DisplayViewMode =
             QuranDisplayMode.Ayat;
+
+        // =====================================================
+        // TAMPILKAN HOME
+        // =====================================================
 
         ShowView(HomeView);
     }
@@ -196,6 +267,13 @@ public sealed partial class MainWindow : Window
 
         if (vm is null)
             return;
+
+        // =====================================================
+        // RESET READER CONTEXT
+        // =====================================================
+
+        vm.SelectedSurah = null;
+        vm.SelectedAyat = null;
 
         // Surah selalu dibuka sebagai daftar surah.
         vm.DisplayViewMode =
@@ -297,6 +375,13 @@ public sealed partial class MainWindow : Window
         if (vm is null)
             return;
 
+        // =====================================================
+        // RESET READER CONTEXT
+        // =====================================================
+
+        vm.SelectedSurah = null;
+        vm.SelectedAyat = null;
+
         try
         {
             Debug.WriteLine(
@@ -369,6 +454,13 @@ public sealed partial class MainWindow : Window
 
         if (vm is null)
             return;
+
+        // =====================================================
+        // RESET READER CONTEXT
+        // =====================================================
+
+        vm.SelectedSurah = null;
+        vm.SelectedAyat = null;
 
         Debug.WriteLine(
             "[JUZ NAVIGATION] Membuka daftar Juz");
@@ -520,4 +612,254 @@ public sealed partial class MainWindow : Window
                 ex.ToString());
         }
     }
+
+    private void TestMushafLayout()
+    {
+        var databasePath = Path.Combine(
+            AppContext.BaseDirectory,
+            "Database",
+            "mushaf_layout.db");
+
+        Debug.WriteLine("--------------------------------");
+        Debug.WriteLine("[MUSHAF] Test database layout");
+        Debug.WriteLine("--------------------------------");
+
+        if (!File.Exists(databasePath))
+        {
+            Debug.WriteLine(
+                "[MUSHAF] DATABASE TIDAK DITEMUKAN!");
+
+            return;
+        }
+
+        var repository =
+            new LayoutRepository(databasePath);
+
+        var lines =
+            repository.GetPageLines(3);
+
+        Debug.WriteLine(
+            $"[MUSHAF] Jumlah baris = {lines.Count}");
+
+        foreach (var line in lines)
+        {
+            Debug.WriteLine(
+                $"LINE {line.LineNumber} | " +
+                $"AYAT {line.VerseRange} | " +
+                $"WORDS {line.Words.Count}");
+
+            foreach (var word in line.Words)
+            {
+                Debug.WriteLine(
+                    $"   {word.WordOrder}. " +
+                    $"{word.Location} | " +
+                    $"{word.WordText}");
+            }
+        }
+
+        Debug.WriteLine("--------------------------------");
+    }
+
+    private async void Toolbar_SurahSelectionRequested(
+    object sender,
+    SelectionChangedEventArgs e)
+    {
+        if (e.AddedItems.Count == 0)
+            return;
+
+        if (App.Services is null)
+            return;
+
+        var vm =
+            App.Services.GetService<MainViewModel>();
+
+        if (vm is null)
+            return;
+
+        if (e.AddedItems[0] is not Surah surah)
+            return;
+
+        try
+        {
+            Debug.WriteLine(
+                "========================================");
+
+            Debug.WriteLine(
+                "[TOOLBAR SURAH] Surah dipilih");
+
+            Debug.WriteLine(
+                $"Surah = {surah.Id} - {surah.LatinName}");
+
+            // =====================================================
+            // 1. MODE AYAT
+            // =====================================================
+
+            vm.DisplayViewMode =
+                QuranDisplayMode.Ayat;
+
+            // =====================================================
+            // 2. PILIH SURAH
+            // =====================================================
+            //
+            // Ini akan memicu:
+            //
+            // OnSelectedSurahChanged()
+            //        ↓
+            // HandleSelectedSurahChangedAsync()
+            //        ↓
+            // LoadAyatAsync()
+            //
+
+            vm.SelectedSurah = surah;
+
+            // =====================================================
+            // 3. TUNGGU SAMPAI DATA AYAT SELESAI
+            // =====================================================
+            //
+            // Karena OnSelectedSurahChanged() menjalankan
+            // async secara fire-and-forget, kita load di sini
+            // secara eksplisit supaya kita tahu kapan selesai.
+            //
+
+            await vm.LoadAyatAsync(
+                surah.Id);
+
+            // =====================================================
+            // 4. PILIH AYAT PERTAMA
+            // =====================================================
+
+            var firstAyat =
+                vm.Ayats.FirstOrDefault();
+
+            if (firstAyat is not null)
+            {
+                vm.SelectedAyat =
+                    firstAyat;
+            }
+
+            // =====================================================
+            // 5. PINDAH KE READER
+            // =====================================================
+
+            ShowView(ReaderView);
+
+            Debug.WriteLine(
+                $"[TOOLBAR SURAH] Reader dibuka: " +
+                $"{surah.LatinName}");
+
+            Debug.WriteLine(
+                $"[TOOLBAR SURAH] " +
+                $"Jumlah ayat = {vm.Ayats.Count}");
+
+            Debug.WriteLine(
+                "========================================");
+        }
+        catch (Exception ex)
+        {
+            Debug.WriteLine(
+                "[TOOLBAR SURAH ERROR]");
+
+            Debug.WriteLine(
+                ex.ToString());
+        }
+    }
+
+    //private async void TestCopyDialogAsync()
+    //{
+    //    var dialog = new ContentDialog
+    //    {
+    //        XamlRoot = Content.XamlRoot,
+    //        Content = new CopyAyatDialog()
+    //    };
+
+    //    await dialog.ShowAsync();
+    //}
+
+    //private void TestCopyButton_Click(
+    //object sender,
+    //RoutedEventArgs e)
+    //{
+    //    TestCopyDialogAsync();
+    //}
+
+    private async void Toolbar_CopyRequested(
+    object sender,
+    RoutedEventArgs e)
+    {
+        try
+        {
+            // ============================================================
+            // BUAT COPY CONTROL
+            // ============================================================
+
+            var copyControl =
+                new CopyAyatDialog();
+
+
+            // ============================================================
+            // BUAT CONTENT DIALOG
+            // ============================================================
+
+            var dialog =
+                new ContentDialog
+                {
+                    Title = "",
+                    Content = copyControl,
+                    XamlRoot = Content.XamlRoot
+                };
+
+
+            // ============================================================
+            // TAMPILKAN
+            // ============================================================
+
+            await dialog.ShowAsync();
+
+
+            // ============================================================
+            // CEK HASIL
+            // ============================================================
+
+            if (!copyControl.IsCopyConfirmed)
+            {
+                Debug.WriteLine(
+                    "[COPY] User membatalkan copy.");
+
+                return;
+            }
+
+
+            // ============================================================
+            // HASIL COPY
+            // ============================================================
+
+            if (!string.IsNullOrWhiteSpace(
+                    copyControl.CopyResult))
+            {
+                Debug.WriteLine(
+                    "========== HASIL COPY ==========");
+
+                Debug.WriteLine(
+                    copyControl.CopyResult);
+
+                Debug.WriteLine(
+                    "========== AKHIR COPY ==========");
+            }
+        }
+        catch (Exception ex)
+        {
+            Debug.WriteLine(
+                "========================================");
+
+            Debug.WriteLine(
+                "[COPY DIALOG ERROR]");
+
+            Debug.WriteLine(
+                ex.ToString());
+
+            Debug.WriteLine(
+                "========================================");
+        }
+    }
+
 }

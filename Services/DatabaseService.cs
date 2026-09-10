@@ -2,6 +2,7 @@ using System;
 using System.IO;
 using System.Threading.Tasks;
 using Microsoft.Data.Sqlite;
+using System.Diagnostics;
 
 namespace QuranKemenag.Services;
 
@@ -51,6 +52,23 @@ public sealed class DatabaseService
     {
         string path = GetDatabasePath(type);
 
+        // ===== DIAGNOSTIK SEMENTARA =====
+        // Menampilkan path fisik LENGKAP dan kapan file terakhir diubah,
+        // supaya kita bisa pastikan aplikasi membaca file yang benar-benar
+        // sudah Anda update (bukan salinan lama di folder build).
+        if (File.Exists(path))
+        {
+            var lastModified = File.GetLastWriteTime(path);
+            Debug.WriteLine(
+                $"[DB PATH] {type} => {path} " +
+                $"(terakhir diubah: {lastModified:yyyy-MM-dd HH:mm:ss})");
+        }
+        else
+        {
+            Debug.WriteLine($"[DB PATH] {type} => {path} (FILE TIDAK DITEMUKAN)");
+        }
+        // ===== AKHIR DIAGNOSTIK =====
+
         if (!File.Exists(path))
         {
             throw new FileNotFoundException($"Database file not found: {path}", path);
@@ -64,7 +82,6 @@ public sealed class DatabaseService
         }
         catch (Exception ex)
         {
-            // Wrap exceptions so callers get a clear context that opening the database failed.
             throw new InvalidOperationException($"Failed to open database '{type}': {ex.Message}", ex);
         }
     }

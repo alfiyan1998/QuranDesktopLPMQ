@@ -1257,12 +1257,63 @@ public sealed partial class MainViewModel : ViewModelBase
             $"Total Ayat = {ayats.Count}");
     }
 
+
+    private void PrepareSurahHeaders(
+    IReadOnlyList<Ayat> ayats)
+    {
+        if (ayats is null || ayats.Count == 0)
+            return;
+
+        foreach (var ayat in ayats)
+        {
+            var surah =
+                Surahs.FirstOrDefault(
+                    s => s.Id == ayat.Surah);
+
+            if (surah is null)
+                continue;
+
+            // Hanya ayat pertama Surah
+            ayat.IsSurahStart =
+                ayat.AyatNumber == 1;
+
+            // Nama Surah Arab
+            ayat.SurahArabicName =
+                surah.ArabicName?.Trim()
+                ?? string.Empty;
+
+            // Kategori
+            ayat.SurahCategoryArabic =
+                surah.Category switch
+                {
+                    "Madaniyah" => "مدنية",
+                    "Makkiyah" => "مكية",
+                    _ => surah.Category ?? string.Empty
+                };
+
+            // Jumlah ayat
+            ayat.SurahTotalAyahArabic =
+                ArabicNumberHelper.ToArabicNumber(
+                    surah.TotalAyah);
+
+            // At-Taubah tidak memiliki Bismillah
+            ayat.ShowBismillah =
+                ayat.IsSurahStart &&
+                ayat.Surah != 1 &&
+                ayat.Surah != 9;
+        }
+    }
+
     /// <summary>
     /// Mengganti seluruh isi ObservableCollection Ayats.
     /// </summary>
     private void ReplaceAyats(
-        IReadOnlyList<Ayat> ayats)
+    IReadOnlyList<Ayat> ayats)
     {
+        // Siapkan informasi header Surah
+        // sebelum data masuk ke UI.
+        PrepareSurahHeaders(ayats);
+
         Ayats.Clear();
 
         foreach (var ayat in ayats)

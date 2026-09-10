@@ -45,6 +45,11 @@ public sealed partial class AyatCard : UserControl
     private static FontFamily? _isyaratFont;
     public event EventHandler<Ayat>? AyatSelected;
 
+
+    private readonly IFontManager _fontManager = new FontManager();
+    public FontFamily BismillahFont =>
+    _fontManager.GetUnicodeFont();
+
     public AyatCard()
     {
         InitializeComponent();
@@ -58,11 +63,35 @@ public sealed partial class AyatCard : UserControl
     // =========================================================
 
     private void AyatCard_DataContextChanged(
-        FrameworkElement sender,
-        DataContextChangedEventArgs args)
+    FrameworkElement sender,
+    DataContextChangedEventArgs args)
     {
         if (args.NewValue is not Ayat ayat)
             return;
+
+        // =====================================================
+        // HEADER SURAH
+        // =====================================================
+
+        PART_SurahHeader.Visibility =
+            ayat.IsSurahStart
+                ? Visibility.Visible
+                : Visibility.Collapsed;
+
+
+        // =====================================================
+        // BISMILLAH
+        // =====================================================
+
+        PART_Bismillah.Visibility =
+            ayat.ShowBismillah
+                ? Visibility.Visible
+                : Visibility.Collapsed;
+
+
+        // =====================================================
+        // KODE LAMA
+        // =====================================================
 
         UpdateTranslationVisibility(ayat);
 

@@ -34,4 +34,11 @@ public interface IQuranRepository
     Task<JuzStartInfo?>GetJuzStartAsync(int juzNumber);
 
     Task<IReadOnlyList<Ayat>> GetAyatByJuzAsync(int juzNumber);
+
+    /// <summary>
+    /// Mengambil satu ayat lengkap berdasarkan nomor surah dan ayat.
+    /// Dipakai oleh MushafPageService untuk mendapatkan teks Unicode
+    /// asli (kolom 'teks') yang kemudian dipecah per kata.
+    /// </summary>
+    Task<Ayat?> GetAyatAsync(int surahNumber, int ayatNumber);
 }

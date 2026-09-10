@@ -9,28 +9,35 @@
             Padding="12,8">
         <Grid ColumnSpacing="12">
             <Grid.ColumnDefinitions>
+                <!-- 0. Sidebar -->
                 <ColumnDefinition Width="Auto"/>
-                <!-- Sidebar -->
+
+                <!-- 1. Judul -->
                 <ColumnDefinition Width="Auto"/>
-                <!-- Judul -->
+
+                <!-- 2. Surah -->
                 <ColumnDefinition Width="Auto"/>
-                <!-- Surah -->
+
+                <!-- 3. Nama Arab -->
                 <ColumnDefinition Width="Auto"/>
-                <!-- Nama Arab -->
+
+                <!-- 4. Ayah -->
                 <ColumnDefinition Width="Auto"/>
-                <!-- Ayat -->
+
+                <!-- 5. Mode Font -->
                 <ColumnDefinition Width="Auto"/>
-                <!-- Mode Tampilan -->
+
+                <!-- 6. Mode Tampilan -->
                 <ColumnDefinition Width="Auto"/>
-                <!-- Halaman (Mushaf Page View toggle) -->
+
+                <!-- 7. Copy -->
                 <ColumnDefinition Width="Auto"/>
-                <!-- Language -->
+
+                <!-- 8. Spacer -->
                 <ColumnDefinition Width="*"/>
-                <!-- Search -->
+
+                <!-- 9. Feature Panel -->
                 <ColumnDefinition Width="Auto"/>
-                <!-- Copy -->
-                <ColumnDefinition Width="Auto"/>
-                <!-- Panel -->
             </Grid.ColumnDefinitions>
 
             <!-- Tombol Sidebar (hamburger) -->
@@ -50,14 +57,15 @@
 
             <!-- Dropdown Surah -->
             <ComboBox Grid.Column="2"
-                      x:Name="SurahComboBox"
-                       Width="280"
-                       Margin="8,0"
-                       ItemsSource="{Binding Surahs}"
-                      SelectedItem="{Binding SelectedSurah, Mode=TwoWay}"
-                      DisplayMemberPath="LatinName"
-                      IsTextSearchEnabled="True"
-                      PlaceholderText="Surah" />
+                  x:Name="SurahComboBox"
+                  Width="280"
+                  Margin="8,0"
+                  ItemsSource="{Binding Surahs}"
+                  SelectedItem="{Binding SelectedSurah, Mode=TwoWay}"
+                  DisplayMemberPath="LatinName"
+                  IsTextSearchEnabled="True"
+                  PlaceholderText="Surah"
+                  SelectionChanged="SurahComboBox_SelectionChanged" />
 
             <!-- Nama Arab Surah (di sebelah kanan ComboBox) -->
             <TextBlock Grid.Column="3"
@@ -106,31 +114,25 @@
                           SelectedItem="{Binding DisplayViewMode, Mode=TwoWay}" />
             </StackPanel>
 
-            <!-- Language -->
-            <ComboBox
-    Grid.Column="7"
-    x:Name="LanguageComboBox"
-    Width="130"
-    PlaceholderText="Language"/>
-
-            <!-- Kotak pencarian -->
-            <AutoSuggestBox Grid.Column="8"
-                             x:Name="SearchBox"
-                             PlaceholderText="Search"
-                             VerticalAlignment="Center"
-                             QueryIcon="Find" />
+           
 
             <!-- Tombol Copy -->
-            <Button Grid.Column="9"
-                    Content="Copy" />
+            <Button
+                Grid.Column="7"
+                x:Name="CopyButton"
+                Content="Copy"
+                ToolTipService.ToolTip="Salin ayat"
+                Click="CopyButton_Click" />
 
             <!-- Tombol toggle Feature Panel -->
-            <Button Grid.Column="10"
-                    x:Name="PanelToggleButton"
-                    Click="PanelToggleButton_Click"
-                    Content="&#xE71D;"
-                    FontFamily="Segoe Fluent Icons"
-                    ToolTipService.ToolTip="Feature Panel" />
+            <Button
+                Grid.Column="9"
+                x:Name="PanelToggleButton"
+                Click="PanelToggleButton_Click"
+                Content="&#xE71D;"
+                FontFamily="Segoe Fluent Icons"
+                HorizontalAlignment="Right"
+                ToolTipService.ToolTip="Tampilkan/Sembunyikan Feature Panel" />
 
         </Grid>
     </Border>

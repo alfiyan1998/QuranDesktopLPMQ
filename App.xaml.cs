@@ -1,15 +1,17 @@
 // csharp
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.UI.Xaml;
+using QuranKemenag.Helpers;
 using QuranKemenag.Repositories;
 using QuranKemenag.Services;
+using QuranKemenag.Services.Copy;
 using QuranKemenag.Services.Font;
 using QuranKemenag.Services.Logging;
+using QuranKemenag.Services.Page;
 using QuranKemenag.Services.Text;
 using QuranKemenag.ViewModels;
-using QuranKemenag.Services.Page;
+using QuranKemenag.ViewModels.Page;
 using System;
-using QuranKemenag.Helpers;
 using System.Diagnostics;
 
 
@@ -60,16 +62,36 @@ public partial class App : Application
         // Reader Service
         services.AddSingleton<ComputerFontReaderService>();
         services.AddSingleton<HandwrittenManuscriptReaderService>();
+        //copy service
+        services.AddSingleton<QuranCopyService>();
+        services.AddTransient<QuranCopyService>();
+
         services.AddSingleton<ReaderServiceFactory>();
         services.AddSingleton<ReaderContext>();
         services.AddSingleton<ILogService, DebugLogService>();
         services.AddSingleton<IQuranPageService,QuranPageService>();
         services.AddSingleton<JuzRepository>();
+       
+
+        // ================================================================
+        // MUSHAF PER HALAMAN (baru)
+        // ================================================================
+
+        // LayoutRepository butuh path fisik mushaf_layout.db, didapat dari DatabaseFactory.
+        services.AddSingleton(sp =>
+        {
+            var factory = sp.GetRequiredService<DatabaseFactory>();
+            var path = factory.GetDatabasePath(DatabaseType.MushafLayout);
+            return new LayoutRepository(path);
+        });
+
+        services.AddSingleton<MushafPageService>();
 
 
 
         // ViewModel
         services.AddSingleton<MainViewModel>();
+        services.AddSingleton<MushafPageViewModel>();
 
         // Build the provider and expose it application-wide
         Services = services.BuildServiceProvider();
@@ -77,6 +99,101 @@ public partial class App : Application
         Debug.WriteLine("DI container configured. Services ready.");
        
     }
+
+    /// <summary>
+    /// Developer helper untuk memverifikasi bahwa MushafPageViewModel (via DI)
+    /// berhasil memuat halaman 3 dengan 15 baris dari mushaf_layout.db.
+    /// </summary>
+    private static async Task TestMushafPageViewModelAsync()
+    {
+        try
+        {
+            Debug.WriteLine("--------------------------------");
+            Debug.WriteLine("[MUSHAF DI TEST] Mulai...");
+
+            if (Services is null)
+            {
+                Debug.WriteLine("[MUSHAF DI TEST] DI container tidak tersedia.");
+                return;
+            }
+
+            var viewModel = Services.GetRequiredService<MushafPageViewModel>();
+
+            await viewModel.LoadPageAsync(3);
+
+            Debug.WriteLine($"[MUSHAF DI TEST] Page = {viewModel.PageNumber}");
+            Debug.WriteLine($"[MUSHAF DI TEST] Jumlah baris = {viewModel.Lines.Count}");
+
+            foreach (var line in viewModel.Lines)
+            {
+                Debug.WriteLine(
+                    $"[MUSHAF DI TEST] LINE {line.LineNumber} | WORDS {line.Words.Count}");
+
+                foreach (var word in line.Words)
+                {
+                    Debug.WriteLine(
+                        $"    [{word.WordOrder}] Layout='{word.WordText}' | Unicode='{word.UnicodeText}'");
+                }
+            }
+
+            Debug.WriteLine("[MUSHAF DI TEST] Selesai.");
+            Debug.WriteLine("--------------------------------");
+        }
+        catch (Exception ex)
+        {
+            Debug.WriteLine("[MUSHAF DI TEST ERROR]");
+            Debug.WriteLine(ex.ToString());
+        }
+    }
+
+    private static async Task TestMushafHandwrittenAsync()
+    {
+        try
+        {
+            Debug.WriteLine("--------------------------------");
+            Debug.WriteLine("[MUSHAF HANDWRITTEN TEST] Mulai...");
+
+            if (Services is null)
+            {
+                Debug.WriteLine("[MUSHAF HANDWRITTEN TEST] DI container tidak tersedia.");
+                return;
+            }
+
+            var viewModel = Services.GetRequiredService<MushafPageViewModel>();
+
+            var handwrittenMode = viewModel.DisplayModes
+                .FirstOrDefault(m => m.Mode == QuranKemenag.Models.DisplayMode.HandwrittenManuscript);
+
+            viewModel.SelectedDisplayModeItem = handwrittenMode;
+
+            await viewModel.LoadPageAsync(3);
+
+            Debug.WriteLine($"[MUSHAF HANDWRITTEN TEST] Page = {viewModel.PageNumber}");
+            Debug.WriteLine($"[MUSHAF HANDWRITTEN TEST] ErrorMessage = '{viewModel.ErrorMessage}'");
+            Debug.WriteLine($"[MUSHAF HANDWRITTEN TEST] Jumlah baris = {viewModel.Lines.Count}");
+
+            foreach (var line in viewModel.Lines)
+            {
+                Debug.WriteLine($"[MUSHAF HANDWRITTEN TEST] LINE {line.LineNumber}");
+
+                foreach (var word in line.Words)
+                {
+                    Debug.WriteLine(
+                        $"    [{word.WordOrder}] {word.Location} | " +
+                        $"DisplayText='{word.DisplayText}' | KodeFont={word.KodeFont}");
+                }
+            }
+
+            Debug.WriteLine("[MUSHAF HANDWRITTEN TEST] Selesai.");
+            Debug.WriteLine("--------------------------------");
+        }
+        catch (Exception ex)
+        {
+            Debug.WriteLine("[MUSHAF HANDWRITTEN TEST ERROR]");
+            Debug.WriteLine(ex.ToString());
+        }
+    }
+
 
     protected override void OnLaunched(Microsoft.UI.Xaml.LaunchActivatedEventArgs args)
     {
@@ -92,10 +209,13 @@ public partial class App : Application
         // This runs in background and writes output to the Debug Output window.
         // It does not block or change UI startup.
         _ = TestSymbolRepositoryAsync();
+        _ = TestMushafPageViewModelAsync(); // baru
 
         _mainWindow = new MainWindow();
         _mainWindow.Activate();
     }
+
+
 
     /// <summary>
     /// Temporary developer helper that tests <see cref="ISymbolRepository"/> by

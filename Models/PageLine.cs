@@ -1,15 +1,18 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿namespace QuranKemenag.Models;
 
-namespace QuranKemenag.Models
+public class PageLine
 {
-    public class PageLine
-    {
-        public int LineNumber { get; set; }
+    public int PageNumber { get; set; }
 
-        public List<Ayat> Ayats { get; set; } = new();
-    }
+    public int LineNumber { get; set; }
+
+    public string LineType { get; set; } = "";
+
+    public string VerseRange { get; set; } = "";
+
+    public string LineText { get; set; } = "";
+
+    public List<PageWord> Words { get; set; } = new();
+
+    public List<Ayat> Ayats { get; set; } = new();
 }

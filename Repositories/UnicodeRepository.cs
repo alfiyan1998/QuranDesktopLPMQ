@@ -256,4 +256,40 @@ ORDER BY surah ASC, ayat ASC;";
 
         return list;
     }
+
+    public async Task<Ayat?> GetAyatAsync(
+    int surahNumber,
+    int ayatNumber)
+    {
+        const string sql = @"
+        SELECT
+            id,
+            surah,
+            ayat AS AyatNumber,
+            juz,
+            halaman AS Halaman,
+            teks,
+            gundul,
+            isyarat
+        FROM quran
+        WHERE surah = @SurahNumber
+          AND ayat = @AyatNumber
+        LIMIT 1;";
+
+        await using var connection =
+            await _databaseService
+                .OpenConnectionAsync(
+                    DatabaseType.QuranKemenag)
+                .ConfigureAwait(false);
+
+        return await connection
+            .QueryFirstOrDefaultAsync<Ayat>(
+                sql,
+                new
+                {
+                    SurahNumber = surahNumber,
+                    AyatNumber = ayatNumber
+                })
+            .ConfigureAwait(false);
+    }
 }

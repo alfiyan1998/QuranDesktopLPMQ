@@ -25,8 +25,11 @@
 		<None Remove="Controls\MushafPageView.xaml" />
 		<None Remove="Database\.gitkeep" />
 		<None Remove="Database\Indonesia2019.db" />
+		<None Remove="Database\mushaf_layout.db" />
 		<None Remove="Database\quran.kemenag" />
 		<None Remove="Resources\Fonts.xaml" />
+		<None Remove="Views\Copy\CopyAyatDialog.xaml" />
+		<None Remove="Views\MushafPerHalamanView.xaml" />
 		<None Remove="Views\ReaderView.xaml" />
 		<None Remove="Views\TestFontPage.xaml" />
 	</ItemGroup>
@@ -35,6 +38,7 @@
 		<PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.2" />
 		<PackageReference Include="Dapper" Version="2.1.79" />
 		<PackageReference Include="Microsoft.Extensions.Configuration.UserSecrets" Version="6.0.1" />
+		<PackageReference Include="Microsoft.Office.Interop.Word" Version="15.0.4797.1004" />
 		<PackageReference Include="Microsoft.WindowsAppSDK" Version="1.5.240311000" />
 		<PackageReference Include="Microsoft.Windows.SDK.BuildTools" Version="10.0.22621.756" />
 		<!-- Dependency injection abstraction for building a small DI container -->
@@ -81,6 +85,9 @@
 		  <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 		</Content>
 		<Content Include="Database\Indonesia2019.db" />
+		<Content Include="Database\mushaf_layout.db">
+		  <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</Content>
 		<Content Include="Database\quran.kemenag">
 			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 		</Content>
@@ -132,5 +139,15 @@
 	  <Folder Include="Assets\Mushaf\Illumination\aliflamim\" />
 	  <Folder Include="Assets\Mushaf\Illumination\standar\" />
 	  <Folder Include="Assets\Illumination\" />
+	</ItemGroup>
+	<ItemGroup>
+	  <Page Update="Views\Copy\CopyAyatDialog.xaml">
+	    <Generator>MSBuild:Compile</Generator>
+	  </Page>
+	</ItemGroup>
+	<ItemGroup>
+	  <Page Update="Views\MushafPerHalamanView.xaml">
+	    <Generator>MSBuild:Compile</Generator>
+	  </Page>
 	</ItemGroup>
 </Project>

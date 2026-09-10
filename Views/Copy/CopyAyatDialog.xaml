@@ -1,0 +1,379 @@
+<UserControl
+    x:Class="QuranKemenag.Views.Copy.CopyAyatDialog"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+    <Border
+        Width="480"
+        MaxWidth="480"
+        MaxHeight="650"
+        Padding="24"
+        CornerRadius="16"
+        Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
+        BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+        BorderThickness="1">
+
+        <Grid>
+
+            <Grid.RowDefinitions>
+                <!-- Header -->
+                <RowDefinition Height="Auto"/>
+
+                <!-- Garis -->
+                <RowDefinition Height="Auto"/>
+
+                <!-- Isi yang bisa scroll -->
+                <RowDefinition Height="*"/>
+
+                <!-- Tombol -->
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+
+
+            <!-- =====================================================
+                 HEADER
+                 ===================================================== -->
+
+            <Grid Grid.Row="0">
+
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+
+                <StackPanel
+                    Grid.Column="0">
+
+                    <TextBlock
+                        Text="Salin Ayat"
+                        FontSize="22"
+                        FontWeight="SemiBold"/>
+
+                    <TextBlock
+                        Text="Pilih ayat dan konten yang ingin disalin"
+                        Margin="0,4,0,0"
+                        FontSize="13"
+                        Opacity="0.65"/>
+
+                </StackPanel>
+
+                <Button
+                    x:Name="CloseButton"
+                    Grid.Column="1"
+                    Width="36"
+                    Height="36"
+                    Content="✕"
+                    FontSize="14"
+                    Padding="0"
+                    HorizontalAlignment="Right"
+                    VerticalAlignment="Top"
+                    Click="CloseButton_Click"/>
+
+            </Grid>
+
+
+            <!-- =====================================================
+                 PEMISAH
+                 ===================================================== -->
+
+            <Border
+                Grid.Row="1"
+                Height="1"
+                Margin="0,20,0,20"
+                Background="{ThemeResource CardStrokeColorDefaultBrush}"/>
+
+
+            <!-- =====================================================
+                 SCROLL AREA
+                 ===================================================== -->
+
+            <ScrollViewer
+                Grid.Row="2"
+                VerticalScrollBarVisibility="Auto"
+                HorizontalScrollBarVisibility="Disabled">
+
+                <StackPanel>
+
+
+                    <!-- =================================================
+                         AYAT YANG AKAN DISALIN
+                         ================================================= -->
+
+                    <StackPanel
+                        Spacing="12">
+
+                        <TextBlock
+                            Text="Ayat yang akan disalin"
+                            FontSize="15"
+                            FontWeight="SemiBold"/>
+
+
+                        <!-- AYAT SAAT INI -->
+
+                        <RadioButton
+                            x:Name="CurrentAyatRadio"
+                            Content="Ayat saat ini"
+                            IsChecked="True"
+                            GroupName="CopyRange"
+                            Checked="CurrentAyatRadio_Checked"/>
+
+
+                        <!-- RENTANG -->
+
+                        <RadioButton
+                            x:Name="RangeAyatRadio"
+                            Content="Rentang ayat"
+                            GroupName="CopyRange"
+                            Checked="RangeAyatRadio_Checked"/>
+
+
+                        <!-- =================================================
+                             RANGE PANEL
+                             ================================================= -->
+
+                        <StackPanel
+                            x:Name="RangePanel"
+                            Visibility="Collapsed"
+                            Margin="24,4,0,0"
+                            Spacing="10">
+
+
+                            <!-- DARI -->
+
+                            <TextBlock
+                                Text="Dari"
+                                FontSize="13"
+                                FontWeight="SemiBold"/>
+
+                            <Grid>
+
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="100"/>
+                                </Grid.ColumnDefinitions>
+
+                                <ComboBox
+                                    x:Name="FromSurahComboBox"
+                                    Grid.Column="0"
+                                    PlaceholderText="Pilih surat"
+                                    DisplayMemberPath="LatinName"/>
+
+                                <ComboBox
+                                    x:Name="FromAyahComboBox"
+                                    Grid.Column="1"
+                                    Margin="8,0,0,0"
+                                    PlaceholderText="Ayat"/>
+
+                            </Grid>
+
+
+                            <!-- SAMPAI -->
+
+                            <TextBlock
+                                Text="Sampai"
+                                FontSize="13"
+                                FontWeight="SemiBold"
+                                Margin="0,8,0,0"/>
+
+                            <Grid>
+
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="100"/>
+                                </Grid.ColumnDefinitions>
+
+                                <ComboBox
+                                    x:Name="ToSurahComboBox"
+                                    Grid.Column="0"
+                                    PlaceholderText="Pilih surat"
+                                    DisplayMemberPath="LatinName"/>
+
+                                <ComboBox
+                                    x:Name="ToAyahComboBox"
+                                    Grid.Column="1"
+                                    Margin="8,0,0,0"
+                                    PlaceholderText="Ayat"/>
+
+                            </Grid>
+
+                        </StackPanel>
+
+                    </StackPanel>
+
+
+                    <!-- =================================================
+                         KONTEN
+                         ================================================= -->
+
+                    <StackPanel
+                        Margin="0,24,0,0"
+                        Spacing="12">
+
+                        <TextBlock
+                            Text="Konten"
+                            FontSize="15"
+                            FontWeight="SemiBold"/>
+
+
+                        <CheckBox
+                            x:Name="ArabicCheckBox"
+                            Content="Arab"
+                            IsChecked="True"/>
+
+
+                        <CheckBox
+                            x:Name="TranslationCheckBox"
+                            Content="Terjemahan"
+                            IsChecked="True"/>
+
+
+                        <CheckBox
+                            x:Name="TransliterationCheckBox"
+                            Content="Transliterasi"/>
+
+
+                        <CheckBox
+                            x:Name="SignLanguageCheckBox"
+                            Content="Bahasa Isyarat"/>
+
+
+                    </StackPanel>
+
+                    <!-- =====================================================
+                     FONT ARAB
+                     ===================================================== -->
+
+                    <StackPanel
+                        Margin="0,24,0,0"
+                        Spacing="10">
+
+                        <TextBlock
+                            Text="Font Arab"
+                            FontSize="15"
+                            FontWeight="SemiBold"/>
+
+                        <StackPanel
+                            Orientation="Horizontal"
+                            Spacing="24">
+
+                            <RadioButton
+                                x:Name="ComputerFontRadioButton"
+                                Content="Computer Font"
+                                GroupName="ArabicFont"
+                                IsChecked="True"/>
+
+                            <RadioButton
+                                x:Name="HandwrittenFontRadioButton"
+                                Content="Handwritten"
+                                GroupName="ArabicFont"/>
+
+                        </StackPanel>
+
+                    </StackPanel>
+
+                    <!-- =====================================================
+                     OPSI PENYALINAN
+                     ===================================================== -->
+
+                      <StackPanel
+                            Margin="0,24,0,0"
+                            Spacing="10">
+
+                                    <TextBlock
+                                        Text="Opsi penyalinan"
+                                        FontSize="15"
+                                        FontWeight="SemiBold"/>
+
+                                    <CheckBox
+                                        x:Name="TandaKurungCheckBox"
+                                        Content="Tanda kurung"/>
+
+                                    <CheckBox
+                                        x:Name="SelangSelingCheckBox"
+                                        Content="Selang-seling"
+                                        IsEnabled="True"/>
+
+                                    <CheckBox
+                                        x:Name="NomorAyatCheckBox"
+                                        Content="Nomor Ayat"/>
+
+                                    <CheckBox
+                                        x:Name="SurahAyatCheckBox"
+                                        Content="Surah:ayat"/>
+
+                                </StackPanel>   
+
+
+                    <!-- =================================================
+                         FORMAT
+                         ================================================= -->
+
+                    <StackPanel
+                        Margin="0,24,0,16"
+                        Spacing="8">
+
+                        <TextBlock
+                            Text="Format"
+                            FontSize="15"
+                            FontWeight="SemiBold"/>
+
+                        <ComboBox
+                            x:Name="FormatComboBox"
+                            SelectedIndex="0"
+                            HorizontalAlignment="Stretch">
+
+
+                            <ComboBoxItem Tag="Word"
+                                Content="Microsoft Word"/>
+
+                            <ComboBoxItem Tag="PowerPoint"
+                                Content="PowerPoint"/>
+
+                        </ComboBox>
+
+                    </StackPanel>
+
+                </StackPanel>
+
+            </ScrollViewer>
+
+
+            <!-- =====================================================
+                 ACTION BAR
+                 ===================================================== -->
+
+            <Grid
+                Grid.Row="3"
+                Margin="0,16,0,0">
+
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+
+
+                <Button
+                    x:Name="CancelButton"
+                    Grid.Column="1"
+                    Content="Batal"
+                    MinWidth="90"
+                    Margin="0,0,8,0"
+                    Click="CancelButton_Click"/>
+
+
+                <Button
+                    x:Name="CopyButton"
+                    Grid.Column="2"
+                    Content="Salin"
+                    MinWidth="90"
+                    Style="{StaticResource AccentButtonStyle}"
+                    Click="CopyButton_Click"/>
+
+            </Grid>
+
+        </Grid>
+
+    </Border>
+
+</UserControl>

@@ -1,0 +1,106 @@
+<UserControl
+    x:Class="QuranKemenag.Views.MushafPerHalamanView"
+    x:Name="Root"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:converters="using:QuranKemenag.Converters">
+
+    <UserControl.Resources>
+        <converters:PageLineToTextConverter x:Key="PageLineToTextConverter" />
+    </UserControl.Resources>
+
+    <Grid Background="{StaticResource NeutralBackgroundBrush}">
+
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+            <RowDefinition Height="180" />
+        </Grid.RowDefinitions>
+
+        <!-- ===================== HEADER SEDERHANA ===================== -->
+        <StackPanel
+            Grid.Row="0"
+            Orientation="Horizontal"
+            Spacing="12"
+            Padding="16,12"
+            VerticalAlignment="Center">
+
+            <TextBlock Text="Mushaf Halaman" FontSize="18" FontWeight="SemiBold" />
+            <TextBlock Text="{Binding PageNumber, Mode=OneWay}" FontSize="18" FontWeight="SemiBold" />
+
+            <ComboBox
+                ItemsSource="{Binding DisplayModes}"
+                SelectedItem="{Binding SelectedDisplayModeItem, Mode=TwoWay}"
+                Width="220" />
+
+            <ProgressRing IsActive="{Binding IsLoading, Mode=OneWay}" Width="20" Height="20" />
+            <TextBlock Text="{Binding ErrorMessage, Mode=OneWay}" Foreground="Red" TextWrapping="Wrap" MaxWidth="300" />
+
+        </StackPanel>
+
+        <!-- ===================== ISI HALAMAN (15 BARIS) ===================== -->
+        <ScrollViewer Grid.Row="1" Padding="24" HorizontalScrollBarVisibility="Auto" VerticalScrollMode="Auto" >
+            <ItemsControl ItemsSource="{Binding Lines}">
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate>
+                        <ItemsControl
+                ItemsSource="{Binding Words}"
+                FlowDirection="RightToLeft"
+                HorizontalAlignment="Stretch"
+                Margin="0,4">
+                            <ItemsControl.ItemsPanel>
+                                <ItemsPanelTemplate>
+                                    <StackPanel Orientation="Horizontal" />
+                                </ItemsPanelTemplate>
+                            </ItemsControl.ItemsPanel>
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <!-- Setiap KATA dipecah lagi jadi glyph-glyph -->
+                                    <ItemsControl
+                            ItemsSource="{Binding DisplayTextTokens}"
+                            Margin="4,0">
+                                        <ItemsControl.ItemsPanel>
+                                            <ItemsPanelTemplate>
+                                                <StackPanel Orientation="Horizontal" />
+                                            </ItemsPanelTemplate>
+                                        </ItemsControl.ItemsPanel>
+                                        <ItemsControl.ItemTemplate>
+                                            <DataTemplate>
+                                                <TextBlock Text="{Binding}" FontSize="26" />
+                                            </DataTemplate>
+                                        </ItemsControl.ItemTemplate>
+                                    </ItemsControl>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
+        </ScrollViewer>
+
+        <Grid Grid.Row="2" Padding="12" Background="#22000000">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="*" />
+            </Grid.RowDefinitions>
+
+            <Button
+        Grid.Row="0"
+        Content="📋 Salin Info Debug"
+        Click="CopyDebugButton_Click"
+        Margin="0,0,0,8" />
+
+            <TextBox
+        Grid.Row="1"
+        Text="{Binding DebugDump, Mode=OneWay}"
+        IsReadOnly="True"
+        AcceptsReturn="True"
+        TextWrapping="NoWrap"
+        FontFamily="Consolas"
+        FontSize="12"
+        ScrollViewer.HorizontalScrollBarVisibility="Auto"
+        ScrollViewer.VerticalScrollBarVisibility="Auto" />
+        </Grid>
+
+    </Grid>
+</UserControl>

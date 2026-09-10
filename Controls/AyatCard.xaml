@@ -20,7 +20,7 @@
 
             <Grid.RowDefinitions>
 
-                <!-- Panel Arab -->
+                <!-- Header Surah + Panel Arab -->
                 <RowDefinition Height="Auto"/>
 
                 <!-- Transliterasi -->
@@ -40,128 +40,269 @@
 
             </Grid.RowDefinitions>
 
+
             <!-- ===========================================================
-                 PANEL ARAB
+                 HEADER SURAH + PANEL ARAB
                  =========================================================== -->
 
-            <Border
+            <StackPanel
                 Grid.Row="0"
-                Padding="28"
-                CornerRadius="12"
-                Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
-                BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
-                BorderThickness="1">
+                Spacing="12">
 
-                <Grid>
 
-                    <Grid.RowDefinitions>
+                <!-- =======================================================
+                     HEADER SURAH
+                     ======================================================= -->
 
-                        <!-- Ayat -->
-                        <RowDefinition Height="Auto"/>
+                <StackPanel
+                    x:Name="PART_SurahHeader"
+                    Visibility="Collapsed"
+                    Margin="0,8,0,12"
+                    Spacing="10">
 
-                        <!-- Bahasa Isyarat -->
-                        <RowDefinition Height="Auto"/>
 
-                    </Grid.RowDefinitions>
+                    <!-- ===================================================
+                         ILUMINASI HEADER SURAH
+                         =================================================== -->
 
-                    <!-- =======================================================
-                         AYAT
-                         ======================================================= -->
+                    <Grid
+                        Height="150"
+                        HorizontalAlignment="Stretch">
 
-                    <Grid Grid.Row="0">
+                        <!--
+                            Gambar frame header Surah.
+                            File ini sudah ada di project Anda.
+                        -->
 
-                        <Grid.ColumnDefinitions>
+                        <Image
+                            Source="ms-appx:///Assets/Illumination/Standard/surah-header.png"
+                            Stretch="Fill"/>
 
-                            <!-- Ayat -->
-                            <ColumnDefinition Width="*"/>
 
-                            <!-- Nomor Ayat -->
-                            <ColumnDefinition Width="Auto"/>
+                        <!-- =================================================
+                             TEKS DI ATAS ILUMINASI
+                             ================================================= -->
 
-                        </Grid.ColumnDefinitions>
+                        <Grid
+                            Margin="35,15">
 
-                        <!-- ================== AYAT ================== -->
+                            <Grid.ColumnDefinitions>
 
-                        <TextBlock
-                            x:Name="PART_TextTeks"
-                            Grid.Column="0"
-                            Text="{Binding DisplayText}"
-                            FontSize="{Binding ArabicFontSize, ElementName=Root}"
-                            LineHeight="78"
-                            TextWrapping="Wrap"
-                            FlowDirection="RightToLeft"
-                            TextAlignment="Right"
-                            HorizontalAlignment="Stretch"
-                            VerticalAlignment="Center"
-                            font:FontHelper.AutoFont="True"/>
+                                <!-- Jumlah ayat -->
+                                <ColumnDefinition Width="1.2*"/>
 
-                        <!-- ================= NOMOR AYAT ================= -->
+                                <!-- Nama Surah -->
+                                <ColumnDefinition Width="2.5*"/>
 
-                        <TextBlock
-                            x:Name="PART_AyatNumber"
-                            Grid.Column="1"
-                            Margin="24,0,0,0"
-                            VerticalAlignment="Bottom"
-                            FontSize="22"
-                            FontWeight="SemiBold"
-                            Text="{Binding MushafAyatNumber}"/>
+                                <!-- Makkiyah / Madaniyah -->
+                                <ColumnDefinition Width="1.2*"/>
+
+                            </Grid.ColumnDefinitions>
+
+
+                            <!-- =============================================
+                                 JUMLAH AYAT
+                                 ============================================= -->
+
+                            <TextBlock
+                                Grid.Column="0"
+                                Text="{Binding SurahTotalAyahArabic}"
+                                FlowDirection="RightToLeft"
+                                FontSize="24"
+                                TextAlignment="Center"
+                                HorizontalAlignment="Center"
+                                VerticalAlignment="Center"/>
+
+
+                            <!-- =============================================
+                                 NAMA SURAH
+                                 ============================================= -->
+
+                            <TextBlock
+                                Grid.Column="1"
+                                Text="{Binding SurahArabicName}"
+                                FlowDirection="RightToLeft"
+                                FontSize="34"
+                                FontWeight="SemiBold"
+                                TextAlignment="Center"
+                                HorizontalAlignment="Center"
+                                VerticalAlignment="Center"/>
+
+
+                            <!-- =============================================
+                                 KATEGORI SURAH
+                                 ============================================= -->
+
+                            <TextBlock
+                                Grid.Column="2"
+                                Text="{Binding SurahCategoryArabic}"
+                                FlowDirection="RightToLeft"
+                                FontSize="22"
+                                TextAlignment="Center"
+                                HorizontalAlignment="Center"
+                                VerticalAlignment="Center"/>
+
+                        </Grid>
 
                     </Grid>
 
-                    <!-- =======================================================
-                         BAHASA ISYARAT
-                         ======================================================= -->
 
-                    <Border
-                        x:Name="PART_IsyaratContainer"
-                        Grid.Row="1"
-                        Margin="0,24,0,0"
-                        Padding="18"
-                        CornerRadius="10"
-                        Background="{ThemeResource ControlAltFillColorSecondaryBrush}"
-                        Visibility="Collapsed">
+                    <!-- ===================================================
+                         BISMILLAH
+                         =================================================== -->
 
-                        <StackPanel>
+                    <TextBlock
+                        x:Name="PART_Bismillah"
+                        Text="بِسْمِ اللَّهِ الرَّحْمَنِ الرَّحِيمِ"
+                        FontFamily="ms-appx:///Assets/Fonts/LPMQ IsepMisbah.ttf#LPMQ Isep Misbah"
+                        FlowDirection="RightToLeft"
+                        FontSize="40"
+                        TextAlignment="Center"
+                        HorizontalAlignment="Center"
+                        Margin="0,16,0,24"/>
 
-                            <!-- Judul -->
+                </StackPanel>
+
+
+                <!-- =======================================================
+                     PANEL ARAB
+                     ======================================================= -->
+
+                <Border
+                    Padding="28"
+                    CornerRadius="12"
+                    Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
+                    BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+                    BorderThickness="1">
+
+                    <Grid>
+
+                        <Grid.RowDefinitions>
+
+                            <!-- Ayat -->
+                            <RowDefinition Height="Auto"/>
+
+                            <!-- Bahasa Isyarat -->
+                            <RowDefinition Height="Auto"/>
+
+                        </Grid.RowDefinitions>
+
+
+                        <!-- =================================================
+                             AYAT
+                             ================================================= -->
+
+                        <Grid
+                            Grid.Row="0">
+
+                            <Grid.ColumnDefinitions>
+
+                                <!-- Nomor Ayat -->
+                                <ColumnDefinition Width="Auto"/>
+
+                                <!-- Ayat -->
+                                <ColumnDefinition Width="*"/>
+
+                                
+
+                            </Grid.ColumnDefinitions>
+
+                            <!-- =============================================
+                             NOMOR AYAT
+                             ============================================= -->
+
                             <TextBlock
-                                Text="Bahasa Isyarat"
-                                FontSize="15"
+                                x:Name="PART_AyatNumber"
+                                Grid.Column="0"
+                                Margin="8,0,24,0"
+                                VerticalAlignment="Center"
+                                HorizontalAlignment="Left"
+                                FontSize="22"
                                 FontWeight="SemiBold"
-                                Margin="0,0,0,10"/>
+                                Text="{Binding MushafAyatNumber}"/>
 
-                            <!-- Data Isyarat -->
+
+                            <!-- =============================================
+                                 TEKS AYAT
+                                 ============================================= -->
+
                             <TextBlock
-                                x:Name="PART_Isyarat"
-                                Text="{Binding Isyarat}"
-                                FontSize="{Binding IsyaratFontSize, ElementName=Root}"
-                                LineHeight="36"
+                                x:Name="PART_TextTeks"
+                                Grid.Column="1"
+                                Text="{Binding DisplayText}"
+                                FontSize="{Binding ArabicFontSize, ElementName=Root}"
+                                LineHeight="78"
                                 TextWrapping="Wrap"
-                                TextAlignment="Right"
                                 FlowDirection="RightToLeft"
-                                HorizontalAlignment="Stretch"/>
+                                TextAlignment="Left"
+                                HorizontalAlignment="Stretch"
+                                VerticalAlignment="Center"
+                                font:FontHelper.AutoFont="True"/>
 
-                        </StackPanel>
 
-                    </Border>
 
-                </Grid>
 
-            </Border>
+                        </Grid>
+
+
+                        <!-- =================================================
+                             BAHASA ISYARAT
+                             ================================================= -->
+
+                        <Border
+                            x:Name="PART_IsyaratContainer"
+                            Grid.Row="1"
+                            Margin="0,24,0,0"
+                            Padding="18"
+                            CornerRadius="10"
+                            Background="{ThemeResource ControlAltFillColorSecondaryBrush}"
+                            Visibility="Collapsed">
+
+                            <StackPanel>
+
+                                <!-- Judul -->
+                                <TextBlock
+                                    Text="Bahasa Isyarat"
+                                    FontSize="15"
+                                    FontWeight="SemiBold"
+                                    Margin="0,0,0,10"/>
+
+
+                                <!-- Data Isyarat -->
+                                <TextBlock
+                                    x:Name="PART_Isyarat"
+                                    Text="{Binding Isyarat}"
+                                    FontSize="{Binding IsyaratFontSize, ElementName=Root}"
+                                    LineHeight="36"
+                                    TextWrapping="Wrap"
+                                    TextAlignment="Right"
+                                    FlowDirection="RightToLeft"
+                                    HorizontalAlignment="Stretch"/>
+
+                            </StackPanel>
+
+                        </Border>
+
+                    </Grid>
+
+                </Border>
+
+            </StackPanel>
+
 
             <!-- ===========================================================
-     TRANSLITERASI
-     =========================================================== -->
+                 TRANSLITERASI
+                 =========================================================== -->
 
             <TextBlock
-    Grid.Row="1"
-    Margin="0,18,0,0"
-    Visibility="Collapsed"/>
+                Grid.Row="1"
+                Margin="0,18,0,0"
+                Visibility="Collapsed"/>
 
 
             <!-- ===========================================================
-     TERJEMAHAN
-     =========================================================== -->
+                 TERJEMAHAN
+                 =========================================================== -->
 
             <Border
                 x:Name="PART_TranslationContainer"
@@ -179,6 +320,7 @@
                         FontWeight="SemiBold"
                         Margin="0,0,0,10"/>
 
+
                     <TextBlock
                         x:Name="PART_Translation"
                         Text="{Binding Terjemahan}"
@@ -194,8 +336,8 @@
 
 
             <!-- ===========================================================
-     CATATAN KAKI
-     =========================================================== -->
+                 CATATAN KAKI
+                 =========================================================== -->
 
             <Border
                 x:Name="PART_FootnoteContainer"
@@ -210,10 +352,11 @@
                 <StackPanel>
 
                     <TextBlock
-                            Text="Catatan Kaki"
-                            FontSize="14"
-                            FontWeight="SemiBold"
-                            Margin="0,0,0,10"/>
+                        Text="Catatan Kaki"
+                        FontSize="14"
+                        FontWeight="SemiBold"
+                        Margin="0,0,0,10"/>
+
 
                     <TextBlock
                         x:Name="PART_Footnote"
@@ -229,10 +372,6 @@
             </Border>
 
 
-
-
-       
-
             <!-- ===========================================================
                  DIVIDER
                  =========================================================== -->
@@ -243,18 +382,19 @@
                 Height="6"
                 Visibility="Collapsed"/>
 
-            <!-- =========================================================
-     AYAT ACTION BAR
-     ========================================================= -->
+
+            <!-- ===========================================================
+                 AYAT ACTION BAR
+                 =========================================================== -->
 
             <Border
-    x:Name="PART_ActionBar"
-    Grid.Row="4"
-    Margin="0,12,0,0"
-    Padding="0,8,0,0"
-    BorderBrush="{StaticResource NeutralBorderBrush}"
-    BorderThickness="0,1,0,0"
-    HorizontalAlignment="Stretch">
+                x:Name="PART_ActionBar"
+                Grid.Row="4"
+                Margin="0,12,0,0"
+                Padding="0,8,0,0"
+                BorderBrush="{StaticResource NeutralBorderBrush}"
+                BorderThickness="0,1,0,0"
+                HorizontalAlignment="Stretch">
 
                 <Grid>
 
@@ -273,8 +413,8 @@
 
 
                     <!-- =====================================================
-             SALIN
-             ===================================================== -->
+                         SALIN
+                         ===================================================== -->
 
                     <Button
                         x:Name="PART_CopyButton"
@@ -287,30 +427,28 @@
 
 
                     <!-- =====================================================
-             SPACER
-             ===================================================== -->
+                         SPACER
+                         ===================================================== -->
 
                     <Grid
-            Grid.Column="1"/>
+                        Grid.Column="1"/>
 
 
                     <!-- =====================================================
-             BOOKMARK
-             ===================================================== -->
+                         BOOKMARK
+                         ===================================================== -->
 
                     <Button
-            x:Name="PART_BookmarkButton"
-            Grid.Column="2"
-            MinWidth="110"
-            Height="36"
-            Content="🔖 Bookmark"
-            ToolTipService.ToolTip="Bookmark ayat"/>
+                        x:Name="PART_BookmarkButton"
+                        Grid.Column="2"
+                        MinWidth="110"
+                        Height="36"
+                        Content="🔖 Bookmark"
+                        ToolTipService.ToolTip="Bookmark ayat"/>
 
                 </Grid>
 
             </Border>
-
-
 
         </Grid>
 

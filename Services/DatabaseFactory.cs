@@ -38,6 +38,8 @@ public sealed class DatabaseFactory
             DatabaseType.QuranSymbol => "msi_simbol.db",
             //DatabaseType.Application => "app.db",
             DatabaseType.Translation => "Indonesia2019.db",
+
+            DatabaseType.MushafLayout => "mushaf_layout.db",
             _ => throw new ArgumentOutOfRangeException(nameof(type), type, "Unknown database type")
         };
 

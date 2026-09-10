@@ -31,4 +31,11 @@ public interface ISymbolRepository
     int juzNumber);
 
     Task<int> GetTotalPagesAsync();
+
+    /// <summary>
+    /// Mengambil satu entri simbol berdasarkan surah + ayat.
+    /// Dipakai MushafPageService untuk mode Handwritten.
+    /// Null jika ayat ini belum ada datanya di msi_simbol.db.
+    /// </summary>
+    Task<AyatSymbol?> GetAyatAsync(int surahNumber, int ayatNumber);
 }

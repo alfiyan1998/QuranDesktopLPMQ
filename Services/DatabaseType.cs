@@ -31,5 +31,11 @@ public enum DatabaseType
     /// <summary>
     /// Indonesian translation database.
     /// </summary>
-    Translation
+    Translation,
+
+        /// <summary>
+        /// Database layout Mushaf per halaman (mushaf_layout.db).
+        /// Berisi posisi baris dan kata untuk setiap halaman Mushaf.
+        /// </summary>
+    MushafLayout
 }

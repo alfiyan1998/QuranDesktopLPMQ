@@ -145,5 +145,34 @@ public class Ayat
     /// </summary>
     //public string TranslationFootnote { get; set; } = string.Empty;
 
+    /// <summary>
+    /// Menandakan bahwa ayat ini adalah awal sebuah Surah.
+    /// Digunakan oleh Mode Per Ayat untuk menampilkan
+    /// header iluminasi + nama Surah.
+    /// </summary>
+    public bool IsSurahStart { get; set; }
+
+    /// <summary>
+    /// Nama Surah dalam bahasa Arab.
+    /// </summary>
+    public string SurahArabicName { get; set; } = string.Empty;
+
+    /// <summary>
+    /// Kategori Surah dalam bahasa Arab.
+    /// Contoh: مكية / مدنية
+    /// </summary>
+    public string SurahCategoryArabic { get; set; } = string.Empty;
+
+    /// <summary>
+    /// Jumlah ayat Surah dalam angka Arab.
+    /// </summary>
+    public string SurahTotalAyahArabic { get; set; } = string.Empty;
+
+    /// <summary>
+    /// Bismillah ditampilkan atau tidak.
+    /// At-Taubah (Surah 9) tidak memiliki Bismillah.
+    /// </summary>
+    public bool ShowBismillah { get; set; }
+
 
 }
