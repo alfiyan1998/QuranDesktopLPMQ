@@ -17,15 +17,66 @@ public sealed partial class SidebarView : UserControl
     public event EventHandler? BookmarkClicked;
     public event EventHandler? SettingsClicked;
 
+    public event RoutedEventHandler? SidebarToggleRequested;
+
     public SidebarView()
     {
         this.InitializeComponent();
     }
 
-    private void HomeItem_Tapped(object sender, TappedRoutedEventArgs e) => HomeClicked?.Invoke(this, EventArgs.Empty);
-    private void SurahItem_Tapped(object sender, TappedRoutedEventArgs e) => SurahClicked?.Invoke(this, EventArgs.Empty);
-    private void JuzItem_Tapped(object sender, TappedRoutedEventArgs e) => JuzClicked?.Invoke(this, EventArgs.Empty);
-    private void PageItem_Tapped(object sender, TappedRoutedEventArgs e) => PageClicked?.Invoke(this, EventArgs.Empty);
-    private void BookmarkItem_Tapped(object sender, TappedRoutedEventArgs e) => BookmarkClicked?.Invoke(this, EventArgs.Empty);
-    private void SettingsItem_Tapped(object sender, TappedRoutedEventArgs e) => SettingsClicked?.Invoke(this, EventArgs.Empty);
+
+
+    public void SetPaneOpen(bool isOpen)
+    {
+        ExpandedPanel.Visibility =
+        isOpen
+            ? Visibility.Visible
+            : Visibility.Collapsed;
+
+        CompactPanel.Visibility =
+            isOpen
+                ? Visibility.Collapsed
+                : Visibility.Visible;
+    }
+
+
+
+    private void SidebarToggleButton_Click(
+        object sender,
+        RoutedEventArgs e)
+    {
+        SidebarToggleRequested?.Invoke(this, e);
+    }
+
+    private void HomeButton_Click(object sender, RoutedEventArgs e)
+    {
+        HomeClicked?.Invoke(this, EventArgs.Empty);
+    }
+
+    private void SurahButton_Click(object sender, RoutedEventArgs e)
+    {
+        SurahClicked?.Invoke(this, EventArgs.Empty);
+    }
+
+    private void JuzButton_Click(object sender, RoutedEventArgs e)
+    {
+        JuzClicked?.Invoke(this, EventArgs.Empty);
+    }
+
+    private void PageButton_Click(object sender, RoutedEventArgs e)
+    {
+        PageClicked?.Invoke(this, EventArgs.Empty);
+    }
+
+    private void BookmarkButton_Click(object sender, RoutedEventArgs e)
+    {
+        BookmarkClicked?.Invoke(this, EventArgs.Empty);
+    }
+
+    private void SettingsButton_Click(object sender, RoutedEventArgs e)
+    {
+        SettingsClicked?.Invoke(this, EventArgs.Empty);
+    }
+
+    
 }

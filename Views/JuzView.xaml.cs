@@ -6,6 +6,7 @@ using QuranKemenag.Repositories;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace QuranKemenag.Views;
@@ -14,7 +15,11 @@ public sealed partial class JuzView : Page
 {
     private readonly JuzRepository _juzRepository;
 
+    private IReadOnlyList<JuzInfo> _allJuz = Array.Empty<JuzInfo>();
+
     public event EventHandler<JuzInfo>? JuzSelected;
+
+    public event EventHandler? SurahRequested;
 
     public JuzView()
     {
@@ -41,9 +46,11 @@ public sealed partial class JuzView : Page
             LoadingText.Text = "Memuat daftar Juz...";
 
             IReadOnlyList<JuzInfo> juzList =
-                await _juzRepository.GetAllJuzInfoAsync();
+                await _juzRepository.GetAllJuzInfoAsync();  
 
-            JuzGrid.ItemsSource = juzList;
+            _allJuz = juzList;
+
+            JuzGrid.ItemsSource = _allJuz;
 
             LoadingText.Text =
                 $"{juzList.Count} Juz tersedia.";
@@ -65,6 +72,41 @@ public sealed partial class JuzView : Page
         }
     }
 
+    private void TxtCari_TextChanged(
+    object sender,
+    TextChangedEventArgs e)
+    {
+        var kata = TxtCari.Text.Trim();
+
+        if (string.IsNullOrWhiteSpace(kata))
+        {
+            JuzGrid.ItemsSource = _allJuz;
+            return;
+        }
+
+        var hasil = _allJuz
+            .Where(j =>
+                j.JuzNumber.ToString().Contains(kata) ||
+                j.SurahName.Contains(
+                    kata,
+                    StringComparison.OrdinalIgnoreCase) ||
+                j.StartInfo.Contains(
+                    kata,
+                    StringComparison.OrdinalIgnoreCase))
+            .ToList();
+
+        JuzGrid.ItemsSource = hasil;
+    }
+
+    private void SurahTab_Click(
+    object sender,
+    RoutedEventArgs e)
+    {
+        SurahRequested?.Invoke(
+            this,
+            EventArgs.Empty);
+    }
+
     private void JuzGrid_ItemClick(
         object sender,
         ItemClickEventArgs e)
@@ -79,5 +121,25 @@ public sealed partial class JuzView : Page
             $"Ayat={juz.AyatNumber}");
 
         JuzSelected?.Invoke(this, juz);
+    }
+
+    private void JuzCard_PointerEntered(
+    object sender,
+    Microsoft.UI.Xaml.Input.PointerRoutedEventArgs e)
+    {
+        if (sender is Border border)
+        {
+            border.Opacity = 0.75;
+        }
+    }
+
+    private void JuzCard_PointerExited(
+        object sender,
+        Microsoft.UI.Xaml.Input.PointerRoutedEventArgs e)
+    {
+        if (sender is Border border)
+        {
+            border.Opacity = 1.0;
+        }
     }
 }

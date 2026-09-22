@@ -1,56 +1,133 @@
+<?xml version="1.0" encoding="utf-8"?>
+
 <UserControl
     x:Class="QuranKemenag.Views.SurahView"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:converters="using:QuranKemenag.Converters">
+
+    <UserControl.Resources>
+
+        <converters:ArabicNumberConverter
+        x:Key="ArabicNumberConverter"/>
+
+    </UserControl.Resources>
 
     <Grid>
 
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
 
 
-        <!-- =====================================================
-             HEADER
-             ===================================================== -->
+        <!-- ========================= -->
+        <!-- HEADER -->
+        <!-- ========================= -->
+
+        <Grid
+            Grid.Row="0"
+            Margin="20,18,20,0">
+
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="260"/>
+            </Grid.ColumnDefinitions>
+
+            <TextBlock
+                Grid.Column="0"
+                Text="Surah"
+                FontSize="18"
+                FontWeight="Bold"
+                VerticalAlignment="Center"/>
+
+            <TextBox
+                Grid.Column="1"
+                x:Name="TxtCari"
+                Height="38"
+                PlaceholderText="Cari nama surah..."
+                VerticalAlignment="Center"
+                CornerRadius="9"
+                TextChanged="TxtCari_TextChanged"/>
+
+        </Grid>
+
+
+        <!-- ========================= -->
+        <!-- TOGGLE SURAH / JUZ -->
+        <!-- ========================= -->
 
         <StackPanel
-            Grid.Row="0"
-            Padding="32,28,32,20"
-            Spacing="6">
+            Grid.Row="1"
+            Orientation="Horizontal"
+            HorizontalAlignment="Center"
+            Margin="0,18,0,4">
 
-            <TextBlock
-                Text="Surah"
-                FontSize="30"
-                FontWeight="SemiBold"/>
+            <Border
+                Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
+                BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+                BorderThickness="1"
+                CornerRadius="9">
 
-            <TextBlock
-                Text="Pilih surah untuk membaca Al-Qur'an."
-                FontSize="15"
-                Opacity="0.65"/>
+                <StackPanel
+                    Orientation="Horizontal">
+
+                    <!-- SURAH AKTIF -->
+
+                    <Border
+                        Background="{ThemeResource LpmqGreenBrush}"
+                        CornerRadius="8"
+                        Padding="18,8">
+
+                        <TextBlock
+                            Text="Surah"
+                            Foreground="White"
+                            FontSize="12"
+                            FontWeight="SemiBold"/>
+
+                    </Border>
+
+
+                    <!-- JUZ -->
+
+                    <Button
+                        Click="JuzTab_Click"
+                        Padding="18,8"
+                        Background="Transparent"
+                        BorderThickness="0"
+                        Content="Juz"
+                        FontSize="12"
+                        Opacity="0.7"/>         
+
+                </StackPanel>
+
+            </Border>
 
         </StackPanel>
 
 
-        <!-- =====================================================
-             DAFTAR SURAH
-             ===================================================== -->
+        <!-- ========================= -->
+        <!-- DAFTAR SURAH -->
+        <!-- ========================= -->
 
         <ScrollViewer
-            Grid.Row="1"
-            VerticalScrollBarVisibility="Auto">
+            Grid.Row="2"
+            Padding="24,8,24,24"
+            VerticalScrollBarVisibility="Auto"
+            HorizontalScrollBarVisibility="Disabled">
 
             <ItemsControl
-                x:Name="SurahItemsControl">
+                x:Name="SurahItemsControl"
+                HorizontalAlignment="Center"
+                MaxWidth="1380">
 
                 <ItemsControl.ItemsPanel>
 
                     <ItemsPanelTemplate>
 
                         <ItemsWrapGrid
-                            Orientation="Horizontal"
-                            MaximumRowsOrColumns="3"/>
+                            Orientation="Horizontal"/>
 
                     </ItemsPanelTemplate>
 
@@ -64,105 +141,102 @@
                         <Button
                             Tag="{Binding}"
                             Click="SurahCard_Click"
-                            HorizontalContentAlignment="Stretch"
-                            Margin="8">
+                            Background="Transparent"
+                            BorderThickness="1"
+                            Padding="0"
+                            Margin="0,0,12,12"
+                            HorizontalContentAlignment="Stretch">
 
                             <Border
-                                Width="300"
-                                MinHeight="130"
-                                Padding="20"
-                                CornerRadius="12"
-                                Background="{ThemeResource CardBackgroundFillColorDefaultBrush}">
+                                Width="320"
+                                Height="66"
+                                Padding="12"
+                                CornerRadius="11"
+                                Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
+                                BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+                                BorderThickness="1"
+                                PointerEntered="SurahCard_PointerEntered"
+                                PointerExited="SurahCard_PointerExited">
 
                                 <Grid>
 
                                     <Grid.ColumnDefinitions>
-
-                                        <ColumnDefinition Width="Auto"/>
-
+                                        <ColumnDefinition Width="36"/>
                                         <ColumnDefinition Width="*"/>
-
                                         <ColumnDefinition Width="Auto"/>
-
                                     </Grid.ColumnDefinitions>
 
 
-                                    <!-- =================================
-                                         NOMOR SURAH
-                                         ================================= -->
+                                    <!-- ========================= -->
+                                    <!-- NOMOR -->
+                                    <!-- ========================= -->
 
                                     <Border
                                         Grid.Column="0"
-                                        Width="44"
-                                        Height="44"
-                                        CornerRadius="22"
-                                        Background="{ThemeResource AccentFillColorDefaultBrush}"
+                                        Width="30"
+                                        Height="30"
                                         VerticalAlignment="Top">
 
+                                        <Border.Background>
+                                            <ImageBrush
+                                                ImageSource="/Resources/Images/bingkai-nomor-ayat.png"
+                                                Stretch="Uniform"/>
+                                        </Border.Background>
+
                                         <TextBlock
-                                            Text="{Binding Id}"
+                                            Text="{Binding Id, Converter={StaticResource ArabicNumberConverter}}"
+                                            FontSize="10"
+                                            Foreground="#C9A45C"
+                                            FontWeight="SemiBold"
                                             HorizontalAlignment="Center"
-                                            VerticalAlignment="Center"
-                                            FontWeight="SemiBold"/>
+                                            VerticalAlignment="Center"/>
 
                                     </Border>
 
 
-                                    <!-- =================================
-                                         INFORMASI SURAH
-                                         ================================= -->
+                                    <!-- ========================= -->
+                                    <!-- INFORMASI -->
+                                    <!-- ========================= -->
 
                                     <StackPanel
                                         Grid.Column="1"
-                                        Margin="16,0,12,0"
-                                        Spacing="4">
+                                        Margin="10,0,8,0"
+                                        VerticalAlignment="Center">
 
                                         <TextBlock
-                                            Text="{Binding LatinName}"
-                                            FontSize="18"
-                                            FontWeight="SemiBold"/>
-
-
-                                        <!-- JUMLAH AYAT -->
-
-                                        <StackPanel
-                                            Orientation="Horizontal"
-                                            Spacing="4">
-
-                                            <TextBlock
-                                                Text="{Binding TotalAyah}"
-                                                FontSize="13"
-                                                Opacity="0.65"/>
-
-                                            <TextBlock
-                                                Text="Ayat"
-                                                FontSize="13"
-                                                Opacity="0.65"/>
-
-                                        </StackPanel>
-
-
-                                        <!-- KATEGORI -->
+                                            Text="{Binding DisplayJudul}"
+                                            FontSize="13"
+                                            FontWeight="SemiBold"
+                                            TextWrapping="Wrap"
+                                            MaxLines="2"/>
 
                                         <TextBlock
-                                            Text="{Binding Category}"
-                                            FontSize="12"
-                                            Opacity="0.55"/>
+                                            FontSize="11"
+                                            Opacity="0.65">
+
+                                            <Run Text="{Binding TotalAyah}"/>
+                                            <Run Text=" ayat"/>
+                                            <Run Text=" | "/>
+                                            <Run Text="{Binding Category}"/>
+
+                                        </TextBlock>
 
                                     </StackPanel>
 
 
-                                    <!-- =================================
-                                         NAMA ARAB
-                                         ================================= -->
+                                    <!-- ========================= -->
+                                    <!-- NAMA ARAB -->
+                                    <!-- ========================= -->
 
                                     <TextBlock
                                         Grid.Column="2"
                                         Text="{Binding ArabicName}"
-                                        FontSize="25"
+                                        Foreground="{ThemeResource LpmqGreenBrush}"
+                                        FontSize="18"
+                                        VerticalAlignment="Top"
+                                        HorizontalAlignment="Right"
                                         FlowDirection="RightToLeft"
-                                        VerticalAlignment="Center"
-                                        HorizontalAlignment="Right"/>
+                                        FontFamily="/Assets/Fonts/LPMQ IsepMisbah.ttf#LPMQ Isep Misbah"/>
 
                                 </Grid>
 

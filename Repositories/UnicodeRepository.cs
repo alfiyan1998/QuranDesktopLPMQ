@@ -248,11 +248,7 @@ ORDER BY surah ASC, ayat ASC;";
 
         var list =
             result.ToList();
-
-        Debug.WriteLine(
-            $"[JUZ REPOSITORY] " +
-            $"Juz={juzNumber} " +
-            $"AyatCount={list.Count}");
+        // Repository diagnostics suppressed.
 
         return list;
     }

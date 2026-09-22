@@ -14,26 +14,30 @@
                            FontSize="16"
                            Margin="0,0,0,4" />
 
-                <!-- Section: Copy -->
+                <!-- Section: Copy 
                 <Expander Header="Copy" HorizontalAlignment="Stretch" IsExpanded="True">
                     <TextBlock Text="Komponen Copy akan ditambahkan di Tahap 9"
                                Style="{StaticResource SubtleTextStyle}"
                                TextWrapping="Wrap" />
                 </Expander>
+                
+                -->
 
-                <!-- Section: Search the Ayahs -->
+                <!-- Section: Search the Ayahs 
                 <Expander Header="Search the Ayahs" HorizontalAlignment="Stretch">
                     <TextBlock Text="Komponen Search akan ditambahkan di Tahap 10"
                                Style="{StaticResource SubtleTextStyle}"
                                TextWrapping="Wrap" />
                 </Expander>
+                -->
 
-                <!-- Section: Advanced Search -->
+                <!-- Section: Advanced Search 
                 <Expander Header="Advanced Search" HorizontalAlignment="Stretch">
                     <TextBlock Text="Komponen Advanced Search akan ditambahkan di Tahap 10"
                                Style="{StaticResource SubtleTextStyle}"
                                TextWrapping="Wrap" />
                 </Expander>
+                -->
 
                 <!-- Section: Tampilan -->
 

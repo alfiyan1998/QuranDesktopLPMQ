@@ -40,4 +40,15 @@ public class Surah
     /// Order or position of the surah (maps to posisi).
     /// </summary>
     public int Order { get; set; }
+
+    public string DisplayJudul
+    {
+        get
+        {
+            if (string.IsNullOrWhiteSpace(Translation))
+                return LatinName;
+
+            return $"{LatinName} ({Translation})";
+        }
+    }
 }

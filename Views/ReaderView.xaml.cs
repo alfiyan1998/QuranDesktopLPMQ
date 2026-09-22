@@ -10,6 +10,8 @@ using System;
 using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.ComponentModel;
+using System.Linq;
+using System.Diagnostics;
 
 namespace QuranKemenag.Views;
 
@@ -22,6 +24,7 @@ public sealed partial class ReaderView : UserControl
     private bool _navigationPending;
     private bool _settingsPending;
     private bool _layoutHandlerAttached;
+    private bool _bringIntoViewPending;
 
 
     // =========================================================
@@ -164,11 +167,36 @@ public sealed partial class ReaderView : UserControl
         object? sender,
         NotifyCollectionChangedEventArgs e)
     {
+        // Collection changed: schedule UI updates and handler attachment.
         // Tunggu sampai ListView membuat visual AyatCard.
 
         QueueApplySettings();
 
         QueueAttachAyatCardHandlers();
+
+        // Schedule a layout diagnostic after UI has a chance to realize visuals.
+        _ = DispatcherQueue.TryEnqueue(() =>
+        {
+            try
+            {
+                Debug.WriteLine("[READER LAYOUT DEBUG]");
+                Debug.WriteLine($"ReaderView ActualWidth = {this.ActualWidth}");
+                Debug.WriteLine($"ReaderView ActualHeight = {this.ActualHeight}");
+
+                Debug.WriteLine($"ListView ActualWidth = {(PART_ItemsControl is null ? 0 : PART_ItemsControl.ActualWidth)}");
+                Debug.WriteLine($"ListView ActualHeight = {(PART_ItemsControl is null ? 0 : PART_ItemsControl.ActualHeight)}");
+                Debug.WriteLine($"ListView Visibility = {(PART_ItemsControl is null ? "NULL" : PART_ItemsControl.Visibility.ToString())}");
+                Debug.WriteLine($"ListView Items.Count = {(PART_ItemsControl is null ? -1 : PART_ItemsControl.Items.Count)}");
+
+
+                Debug.WriteLine($"IsLoadingAyat = {_vm?.IsLoadingAyat}");
+                Debug.WriteLine($"IsAyatView = {_vm?.IsAyatView}");
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine("[READER LAYOUT DEBUG ERROR] " + ex.ToString());
+            }
+        });
     }
 
 
@@ -256,6 +284,18 @@ public sealed partial class ReaderView : UserControl
 
         if (PART_ItemsControl is null)
             return;
+
+        // Apply settings to AyatCard visuals when available.
+        // Diagnostic: count realized AyatCard controls
+        try
+        {
+            var realized = FindAyatCards(PART_ItemsControl).ToList();
+            Debug.WriteLine($"[READER LAYOUT DEBUG] AyatCard realized count = {realized.Count}");
+        }
+        catch (Exception ex)
+        {
+            Debug.WriteLine("[READER LAYOUT DEBUG] AyatCard realized error: " + ex.ToString());
+        }
 
 
         var cards =
@@ -360,6 +400,12 @@ public sealed partial class ReaderView : UserControl
             }
         }
     }
+
+    // =========================================================
+    // FIND FIRST GRID (ROOT GRID) - safe diagnostic helper
+    // =========================================================
+
+    // FindFirstGrid diagnostic helper removed.
 
 
     // =========================================================
@@ -509,20 +555,37 @@ public sealed partial class ReaderView : UserControl
             return;
 
 
+        // If the target is not part of the current reader context, we cannot
+        // scroll to it here. The ViewModel is responsible for loading the
+        // appropriate context (Juz) and will set SelectedAyat again when ready.
         if (!_vm.Ayats.Contains(target))
             return;
 
-
-        // =====================================================
-        // LISTVIEW SUDAH MENDUKUNG SCROLLINTOView
-        // =====================================================
-
+        // Ensure the item container has been realized. If virtualization delayed
+        // realization, attach a LayoutUpdated handler to retry scrolling once
+        // the ListView has measured its items.
         PART_ItemsControl.ScrollIntoView(
             target,
             ScrollIntoViewAlignment.Leading);
 
+        // Try to obtain the realized container immediately. If virtualization
+        // prevented realization, schedule a layout handler to finish BringIntoView
+        // once the item container is realized.
+        var container = PART_ItemsControl.ContainerFromItem(target) as ListViewItem;
+        if (container is not null)
+        {
+            // If container is realized, ensure it's fully visible by calling ScrollIntoView
+            // again which can correct minor offsets caused by virtualization.
+            PART_ItemsControl.ScrollIntoView(target, ScrollIntoViewAlignment.Leading);
 
-        DetachLayoutHandler();
+            // Ensure handlers are attached as well.
+            QueueAttachAyatCardHandlers();
+            return;
+        }
+
+        _bringIntoViewPending = true;
+        // Attach a layout handler to retry when layout updates.
+        AttachLayoutHandler();
     }
 
 
@@ -579,23 +642,28 @@ public sealed partial class ReaderView : UserControl
         // Pastikan event click sudah terpasang.
         AttachAyatCardHandlers();
 
+        // If a previous navigation attempted to ScrollIntoView but the
+        // item container was not yet realized due to virtualization, try
+        // to obtain the container now and call BringIntoView to ensure the
+        // item is visible. Do not rely on arbitrary delays; rely on
+        // LayoutUpdated which signals the layout pass.
+        if (_bringIntoViewPending && _vm?.SelectedAyat is Ayat target)
+        {
+            var container = PART_ItemsControl.ContainerFromItem(target) as ListViewItem;
+            if (container is not null)
+            {
+                // Use ScrollIntoView again when the container becomes available to
+                // ensure the item is visible. This avoids using BringIntoView API
+                // which may not be present in the target framework.
+                PART_ItemsControl.ScrollIntoView(target, ScrollIntoViewAlignment.Leading);
 
-        // Tidak melakukan Scroll di sini.
-        //
-        // Scroll hanya dilakukan ketika SelectedAyat
-        // benar-benar berubah.
-        //
-        // Ini mencegah kasus:
-        //
-        // Ayat 7 dipilih
-        // ↓
-        // LayoutUpdated
-        // ↓
-        // Scroll kembali ke atas.
-        //
-        // Bug tersebut dihilangkan dengan sengaja.
+                _bringIntoViewPending = false;
+            }
+        }
 
-        DetachLayoutHandler();
+        // Detach handler if no further retries are pending.
+        if (!_bringIntoViewPending)
+            DetachLayoutHandler();
     }
 
     private void PART_ItemsControl_ItemClick(

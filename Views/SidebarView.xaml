@@ -3,28 +3,473 @@
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
 
-    <NavigationView
-        x:Name="MainNavigationView"
-        IsBackButtonVisible="Collapsed"
-        IsSettingsVisible="False"
-        PaneDisplayMode="Left"
-        OpenPaneLength="220"
-        IsPaneToggleButtonVisible="False">
+    <Grid
+        Background="{ThemeResource CardBackgroundFillColorDefaultBrush}">
 
-        <NavigationView.MenuItems>
-            <NavigationViewItem x:Name="HomeItem" Content="Home" Icon="Home" Tapped="HomeItem_Tapped" />
-            <NavigationViewItem x:Name="SurahItem" Content="Surah" Icon="Library" Tapped="SurahItem_Tapped" />
-            <NavigationViewItem x:Name="JuzItem" Content="Juz" Icon="Bookmarks" Tapped="JuzItem_Tapped" />
-            <NavigationViewItem x:Name="PageItem" Content="Page" Icon="Page" Tapped="PageItem_Tapped" />
-            <NavigationViewItem x:Name="BookmarkItem" Content="Bookmark" Icon="Favorite" Tapped="BookmarkItem_Tapped" />
-            <NavigationViewItem x:Name="SettingsItem" Content="Settings" Icon="Setting" Tapped="SettingsItem_Tapped" />
-        </NavigationView.MenuItems>
+        <!-- ================================================= -->
+        <!-- SIDEBAR TERBUKA -->
+        <!-- ================================================= -->
 
-        <!--
-            Content NavigationView dikosongkan (Frame Views nanti diisi di tahap
-            selanjutnya). Untuk Tahap 2, area ini hanya jadi wadah kosong karena
-            konten utama sebenarnya ditampilkan oleh MushafViewerView di MainWindow.
-        -->
-        <Grid />
-    </NavigationView>
+        <Grid
+            x:Name="ExpandedPanel"
+            Visibility="Visible">
+
+            <Grid.RowDefinitions>
+                <RowDefinition Height="88"/>
+                <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+
+
+            <!-- HEADER -->
+
+            <Grid
+                Grid.Row="0"
+                Padding="12,12,8,8">
+
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="40"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="36"/>
+                </Grid.ColumnDefinitions>
+
+
+                <!-- LOGO -->
+
+                <Image
+                    Grid.Column="0"
+                    Width="40"
+                    Height="40"
+                    Source="/Resources/Images/logo-kemenag.png"
+                    Stretch="Uniform"
+                    HorizontalAlignment="Left"
+                    VerticalAlignment="Center"/>
+
+
+                <!-- NAMA -->
+
+                <StackPanel
+                    Grid.Column="1"
+                    Margin="12,0,0,0"
+                    VerticalAlignment="Center"
+                    Spacing="1">
+
+                    <TextBlock
+                        Text="Qur'an Kemenag"
+                        FontSize="14"
+                        FontWeight="SemiBold"
+                        TextTrimming="CharacterEllipsis"
+                        Foreground="{ThemeResource NeutralTextPrimaryBrush}"/>
+
+                    <TextBlock
+                        Text="Windows"
+                        FontSize="12"
+                        Foreground="{ThemeResource NeutralTextSecondaryBrush}"/>
+
+                </StackPanel>
+
+
+                <!-- TOMBOL CLOSE SIDEBAR -->
+
+                <Button
+                Grid.Column="2"
+                Width="32"
+                Height="32"
+                Margin="0"
+                Padding="0"
+                HorizontalAlignment="Right"
+                VerticalAlignment="Center"
+                Click="SidebarToggleButton_Click"
+                ToolTipService.ToolTip="Sembunyikan Sidebar">
+
+                    <FontIcon
+                        Glyph="&#xE76B;"
+                        FontSize="14"/>
+
+                </Button>
+
+            </Grid>
+
+
+            <!-- MENU -->
+
+            <ScrollViewer
+                Grid.Row="1"
+                VerticalScrollBarVisibility="Auto">
+
+                <StackPanel
+                    Padding="8,8,8,16"
+                    Spacing="4">
+
+
+                    <!-- DASHBOARD -->
+
+                    <Button
+                        x:Name="ExpandedHomeItem"
+                        Click="HomeButton_Click"
+                        HorizontalContentAlignment="Left"
+                        Padding="12,10"
+                        Background="Transparent"
+                        BorderThickness="0">
+
+                        <StackPanel
+                            Orientation="Horizontal"
+                            Spacing="12">
+
+                            <FontIcon FontFamily="Segoe Fluent Icons" Glyph="&#xE80F;" FontSize="15" Width="24" />
+
+                            <TextBlock
+                                Text="Dashboard"
+                                VerticalAlignment="Center"
+                                FontSize="14"/>
+
+                        </StackPanel>
+
+                    </Button>
+
+
+                    <!-- HEADER AL-QURAN -->
+
+                    <TextBlock
+                        Text="AL-QUR'AN"
+                        Margin="12,18,0,6"
+                        FontSize="12"
+                        FontWeight="SemiBold"
+                        Foreground="{ThemeResource NeutralTextSecondaryBrush}"/>
+
+
+                    <!-- SURAH -->
+
+                    <Button
+                        Click="SurahButton_Click"
+                        HorizontalContentAlignment="Left"
+                        Padding="12,10"
+                        Background="Transparent"
+                        BorderThickness="0">
+
+                        <StackPanel
+                            Orientation="Horizontal"
+                            Spacing="12">
+
+                            <FontIcon FontFamily="Segoe Fluent Icons" Glyph="&#xE8A5;" FontSize="15" Width="24" />
+
+                            <TextBlock
+                                Text="Per Surah"
+                                VerticalAlignment="Center"
+                                FontSize="14"/>
+
+                        </StackPanel>
+
+                    </Button>
+
+
+                    <!-- JUZ -->
+
+                    <Button
+                        Click="JuzButton_Click"
+                        HorizontalContentAlignment="Left"
+                        Padding="12,10"
+                        Background="Transparent"
+                        BorderThickness="0">
+
+                        <StackPanel
+                            Orientation="Horizontal"
+                            Spacing="12">
+
+                            <FontIcon FontFamily="Segoe Fluent Icons" Glyph="&#xE736;" FontSize="15" Width="24" />
+
+                            <TextBlock
+                                Text="Per Juz"
+                                VerticalAlignment="Center"
+                                FontSize="14"/>
+
+                        </StackPanel>
+
+                    </Button>
+
+
+                    <!-- HALAMAN -->
+
+                    <Button
+                        Click="PageButton_Click"
+                        HorizontalContentAlignment="Left"
+                        Padding="12,10"
+                        Background="Transparent"
+                        BorderThickness="0">
+
+                        <StackPanel
+                            Orientation="Horizontal"
+                            Spacing="12">
+
+                            <SymbolIcon
+                                Symbol="Document"
+                                Width="20"
+                                Height="20"/>
+
+                            <TextBlock
+                                Text="Per Halaman"
+                                VerticalAlignment="Center"
+                                FontSize="14"/>
+
+                        </StackPanel>
+
+                    </Button>
+
+
+                    <!-- BOOKMARK -->
+
+                    <Button
+                        Click="BookmarkButton_Click"
+                        HorizontalContentAlignment="Left"
+                        Padding="12,10"
+                        Background="Transparent"
+                        BorderThickness="0">
+
+                        <StackPanel
+                            Orientation="Horizontal"
+                            Spacing="12">
+
+                            <FontIcon FontFamily="Segoe Fluent Icons" Glyph="&#xE8A1;" FontSize="15" Width="24" />
+
+                            <TextBlock
+                                Text="Bookmark"
+                                VerticalAlignment="Center"
+                                FontSize="14"/>
+
+                        </StackPanel>
+
+                    </Button>
+
+
+                    <!-- HEADER PENGATURAN -->
+
+                    <TextBlock
+                        Text="PENGATURAN"
+                        Margin="12,18,0,6"
+                        FontSize="12"
+                        FontWeight="SemiBold"
+                        Foreground="{ThemeResource NeutralTextSecondaryBrush}"/>
+
+
+                    <!-- SETTINGS -->
+
+                    <Button
+                        Click="SettingsButton_Click"
+                        HorizontalContentAlignment="Left"
+                        Padding="12,10"
+                        Background="Transparent"
+                        BorderThickness="0">
+
+                        <StackPanel
+                            Orientation="Horizontal"
+                            Spacing="12">
+
+                            <FontIcon FontFamily="Segoe Fluent Icons" Glyph="&#xE713;" FontSize="15" Width="24" />
+
+                            <TextBlock
+                                Text="Pengaturan Tampilan"
+                                VerticalAlignment="Center"
+                                FontSize="14"/>
+
+                        </StackPanel>
+
+                    </Button>
+
+
+                    <!-- ABOUT -->
+
+                    <Button
+                        IsEnabled="False"
+                        HorizontalContentAlignment="Left"
+                        Padding="12,10"
+                        Background="Transparent"
+                        BorderThickness="0">
+
+                        <StackPanel
+                            Orientation="Horizontal"
+                            Spacing="12">
+
+                            <FontIcon FontFamily="Segoe Fluent Icons" Glyph="&#xE897;" FontSize="15" Width="24" />
+
+                            <TextBlock
+                                Text="Tentang Aplikasi"
+                                VerticalAlignment="Center"
+                                FontSize="14"/>
+
+                        </StackPanel>
+
+                    </Button>
+
+                </StackPanel>
+
+            </ScrollViewer>
+
+        </Grid>
+
+
+        <!-- ================================================= -->
+        <!-- SIDEBAR COMPACT -->
+        <!-- ================================================= -->
+
+        <Grid
+            x:Name="CompactPanel"
+            Visibility="Collapsed">
+
+            <Grid.RowDefinitions>
+                <RowDefinition Height="88"/>
+                <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+
+
+            <!-- HAMBURGER + LOGO -->
+
+            <Grid
+                Grid.Row="0">
+
+                <Button
+                    x:Name="CompactToggleButton"
+                    Width="32"
+                    Height="32"
+                    Padding="0"
+                    HorizontalAlignment="Center"
+                    VerticalAlignment="Top"
+                    Margin="0,8,0,0"
+                    Click="SidebarToggleButton_Click"
+                    ToolTipService.ToolTip="Tampilkan Sidebar">
+
+                    <FontIcon
+                        Glyph="&#xE700;"
+                        FontSize="14"/>
+
+                </Button>
+
+            
+                <Image
+                    Width="40"
+                    Height="40"
+                    Source="/Resources/Images/logo-kemenag.png"
+                    Stretch="Uniform"
+                    HorizontalAlignment="Center"
+                    VerticalAlignment="Top"
+                    Margin="0,50,0,0"/>
+
+            </Grid>
+
+
+            <!-- ICON MENU -->
+
+            <ScrollViewer
+                Grid.Row="1"
+                VerticalScrollBarVisibility="Auto">
+
+                <StackPanel
+                    Padding="8,8,8,16"
+                    Spacing="6">
+
+
+                    <Button
+                        Click="HomeButton_Click"
+                        Width="48"
+                        Height="44"
+                        Padding="0"
+                        Background="Transparent"
+                        BorderThickness="0"
+                        ToolTipService.ToolTip="Home">
+
+                        <FontIcon FontFamily="Segoe Fluent Icons" Glyph="&#xE80F;" FontSize="15" Width="24" />
+
+                    </Button>
+
+
+                    <Button
+                        Click="SurahButton_Click"
+                        Width="48"
+                        Height="44"
+                        Padding="0"
+                        Background="Transparent"
+                        BorderThickness="0"
+                        ToolTipService.ToolTip="Per Surah">
+
+                        <FontIcon FontFamily="Segoe Fluent Icons" Glyph="&#xE8A5;" FontSize="15" Width="24" />
+
+                    </Button>
+
+
+                    <Button
+                        Click="JuzButton_Click"
+                        Width="48"
+                        Height="44"
+                        Padding="0"
+                        Background="Transparent"
+                        BorderThickness="0"
+                        ToolTipService.ToolTip="Per Juz">
+
+                        <FontIcon FontFamily="Segoe Fluent Icons" Glyph="&#xE736;" FontSize="15" Width="24" />
+
+                    </Button>
+
+
+                    <Button
+                        Click="PageButton_Click"
+                        Width="48"
+                        Height="44"
+                        Padding="0"
+                        Background="Transparent"
+                        BorderThickness="0"
+                        ToolTipService.ToolTip="Per Halaman">
+
+                        <FontIcon FontFamily="Segoe Fluent Icons" Glyph="&#xE8A5;" FontSize="15" Width="24" />
+
+                    </Button>
+
+
+                    <Button
+                        Click="BookmarkButton_Click"
+                        Width="48"
+                        Height="44"
+                        Padding="0"
+                        Background="Transparent"
+                        BorderThickness="0"
+                        ToolTipService.ToolTip="Bookmark">
+
+                        <FontIcon FontFamily="Segoe Fluent Icons" Glyph="&#xE8A1;" FontSize="15" Width="24" />
+
+                    </Button>
+
+
+                    <Button
+                        Click="SettingsButton_Click"
+                        Width="48"
+                        Height="44"
+                        Padding="0"
+                        Background="Transparent"
+                        BorderThickness="0"
+                        Margin="0,14,0,0"
+                        ToolTipService.ToolTip="Setting">
+
+                        <FontIcon FontFamily="Segoe Fluent Icons" Glyph="&#xE946;" FontSize="15" Width="24" />
+
+                    </Button>
+
+
+                    <Button
+                        Width="48"
+                        Height="44"
+                        Padding="0"
+                        Background="Transparent"
+                        BorderThickness="0"
+                        IsEnabled="False"
+                         ToolTipService.ToolTip="bantuan">
+
+                        <FontIcon FontFamily="Segoe Fluent Icons" Glyph="&#xE897;" FontSize="15" Width="24" />
+
+                    </Button>
+
+                </StackPanel>
+
+            </ScrollViewer>
+
+        </Grid>
+
+    </Grid>
+
 </UserControl>

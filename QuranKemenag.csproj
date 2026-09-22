@@ -138,7 +138,14 @@
 	  <Folder Include="Assets\Mushaf\Illumination\alfatiha\" />
 	  <Folder Include="Assets\Mushaf\Illumination\aliflamim\" />
 	  <Folder Include="Assets\Mushaf\Illumination\standar\" />
-	  <Folder Include="Assets\Illumination\" />
+	</ItemGroup>
+	<ItemGroup>
+	  <Content Update="Resources\Images\bingkai-nomor-ayat.png">
+	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	  </Content>
+	  <Content Update="Resources\Images\logo-kemenag.png">
+	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	  </Content>
 	</ItemGroup>
 	<ItemGroup>
 	  <Page Update="Views\Copy\CopyAyatDialog.xaml">

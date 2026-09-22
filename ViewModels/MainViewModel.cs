@@ -16,6 +16,8 @@ using System.Diagnostics;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.UI.Dispatching;
 
 namespace QuranKemenag.ViewModels;
 
@@ -80,8 +82,144 @@ public sealed partial class MainViewModel : ViewModelBase
     private bool _isLoadingJuz;
 
     private int? _activeJuzNumber;
+    // Pending navigation request when user selects an Ayat that belongs to a different Juz.
+    // Stored as (Surah, AyatNumber, JuzNumber) and consumed by LoadJuzAsync after the juz is loaded.
+    private (int Surah, int AyatNumber, int Juz)? _pendingNavigation;
+    // Suppress calling LoadJuzAsync when SelectedJuz is changed programmatically
+    // as part of SelectedAyat synchronization.
+    private bool _suppressSelectedJuzChanged;
+
+    // UI dispatcher captured at construction time to ensure
+    // ObservableCollection updates are performed on the UI thread.
+    private readonly Microsoft.UI.Dispatching.DispatcherQueue _uiDispatcher;
 
     #endregion
+
+    // Load full list of ayat for a specific surah for toolbar navigation.
+    private async Task LoadSurahAyatsAsync(int surahNumber)
+    {
+        try
+        {
+            // Capture UI dispatcher BEFORE awaiting the repository call so
+            // we retain a valid UI dispatcher instance for enqueuing updates.
+            var dispatcher = Microsoft.UI.Dispatching.DispatcherQueue.GetForCurrentThread();
+
+            var list = await _readerContext.GetAyatAsync(surahNumber);
+            if (list is null)
+                return;
+
+            // Ensure the method completes only after the UI dispatcher has
+            // applied the collection updates. This prevents a race where
+            // SelectedValue is applied before the ComboBox ItemsSource
+            // has been populated, which would leave the ComboBox showing
+            // its placeholder.
+            if (dispatcher is null)
+            {
+                // If we do not have a dispatcher for the current thread then
+                // attempt to enqueue on the thread captured by GetForCurrentThread
+                // earlier is not possible; fall back to direct update (rare).
+                SurahAyats.Clear();
+                foreach (var a in list)
+                    SurahAyats.Add(a);
+                return;
+            }
+
+            var tcs = new TaskCompletionSource<int>();
+
+            dispatcher.TryEnqueue(() =>
+            {
+                try
+                {
+                    SurahAyats.Clear();
+                    foreach (var a in list)
+                        SurahAyats.Add(a);
+
+                    tcs.SetResult(0);
+                }
+                catch (Exception ex)
+                {
+                    tcs.SetException(ex);
+                }
+            });
+
+            // Await the dispatcher action completion so callers know when
+            // the collection has been populated.
+            await tcs.Task.ConfigureAwait(false);
+        }
+        catch
+        {
+            // suppressed temporary diagnostic
+        }
+    }
+
+    /// <summary>
+    /// Enrich existing JuzList with detailed information from JuzRepository.
+    /// This method updates individual items in the existing ObservableCollection
+    /// so bindings remain intact. Exceptions are caught and logged.
+    /// </summary>
+    private async Task LoadJuzListInfoAsync()
+    {
+        try
+        {
+            if (App.Services is null)
+                return;
+
+            var repo = App.Services.GetRequiredService<JuzRepository>();
+
+            // Capture UI thread dispatcher before awaiting repository call
+            var dispatcher = Microsoft.UI.Dispatching.DispatcherQueue.GetForCurrentThread();
+
+            var list = await repo.GetAllJuzInfoAsync().ConfigureAwait(false);
+
+            if (list is null || list.Count == 0)
+                return;
+
+            // Preserve currently selected Juz number so we can restore selection
+            // after updating collection items.
+            int? currentlySelected = SelectedJuz?.JuzNumber;
+
+            // Update each existing entry in JuzList with data from repository.
+                foreach (var info in list)
+                {
+                    var existing = JuzList.FirstOrDefault(x => x.JuzNumber == info.JuzNumber);
+                    if (existing is not null)
+                    {
+                        var idx = JuzList.IndexOf(existing);
+
+                        // Create new instance so ObservableCollection raises Replace.
+                        var updated = new JuzInfo
+                        {
+                            JuzNumber = info.JuzNumber,
+                            SurahNumber = info.SurahNumber,
+                            AyatNumber = info.AyatNumber,
+                            SurahName = info.SurahName
+                        };
+
+                    // Replace item at index to notify UI bindings.
+                    dispatcher?.TryEnqueue(() => JuzList[idx] = updated);
+                }
+            }
+
+        // Restore SelectedJuz if it was set previously
+            if (currentlySelected is int sel)
+            {
+                // Find the updated item in JuzList
+                var newSelected = JuzList.FirstOrDefault(x => x.JuzNumber == sel);
+                if (newSelected is not null)
+                {
+                    // Suppress SelectedJuz change handler to avoid triggering LoadJuzAsync
+                    _suppressSelectedJuzChanged = true;
+                    dispatcher?.TryEnqueue(() => SelectedJuz = newSelected);
+                    _suppressSelectedJuzChanged = false;
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            Debug.WriteLine("[JUZ LIST LOAD ERROR]");
+            Debug.WriteLine(ex.ToString());
+        }
+    }
 
 
     #region Collections
@@ -103,6 +241,12 @@ public sealed partial class MainViewModel : ViewModelBase
     public ObservableCollection<Ayat> Ayats { get; } = new();
 
     /// <summary>
+    /// Full list of Ayats for the currently selected Surah (used for navigation ComboBox).
+    /// This is separate from the Reader "Ayats" collection which may represent a Juz context.
+    /// </summary>
+    public ObservableCollection<Ayat> SurahAyats { get; } = new();
+
+    /// <summary>
     /// Daftar preset tampilan.
     /// </summary>
     public ObservableCollection<string> DisplayPresets { get; } =
@@ -119,7 +263,15 @@ public sealed partial class MainViewModel : ViewModelBase
     public IEnumerable<QuranDisplayMode> QuranDisplayModes { get; } =
         Enum.GetValues<QuranDisplayMode>();
 
+    /// <summary>
+    /// Daftar Juz (1..30) untuk binding di Toolbar.
+    /// </summary>
+    public ObservableCollection<JuzInfo> JuzList { get; } = new();
+
     #endregion
+
+    [ObservableProperty]
+    private int? selectedAyatNumber;
 
 
     #region Observable Properties
@@ -215,6 +367,55 @@ public sealed partial class MainViewModel : ViewModelBase
     /// </summary>
     [ObservableProperty]
     private JuzInfo? selectedJuz;
+
+    /// <summary>
+    /// Called when SelectedJuz changes (e.g. user picks a Juz from toolbar).
+    /// Triggers loading of the selected Juz unless the change originates
+    /// from an ongoing Juz load (guarded by _isLoadingJuz) or the Juz
+    /// is already active.
+    /// </summary>
+    partial void OnSelectedJuzChanged(JuzInfo? value)
+    {
+        // If this change was initiated by SelectedAyat synchronization,
+        // do not react (avoid triggering LoadJuzAsync).
+        if (_suppressSelectedJuzChanged)
+        {
+            return;
+        }
+        try
+        {
+            if (value is null)
+                return;
+
+            // If we're in the middle of loading a Juz, ignore programmatic
+            // updates coming from LoadJuzAsync itself.
+            if (_isLoadingJuz)
+            {
+                // Ignore programmatic updates while a juz load is in progress.
+                return;
+            }
+
+            // If the selected juz is already the active one, do nothing.
+            if (_activeJuzNumber is int active && active == value.JuzNumber)
+            {
+                return;
+            }
+
+            // Ensure reader shows Ayat list when user selects a Juz from toolbar.
+            // This must be done before loading so the UI presents the full
+            // Juz context rather than a single page when DisplayViewMode
+            // was previously set to Halaman.
+            DisplayViewMode = QuranDisplayMode.Ayat;
+
+            // Fire-and-forget the async load. LoadJuzAsync contains its own
+            // request-id guard to avoid races.
+            _ = LoadJuzAsync(value.JuzNumber);
+        }
+        catch (Exception ex)
+        {
+            // suppressed temporary diagnostic
+        }
+    }
 
 
 
@@ -317,6 +518,12 @@ public sealed partial class MainViewModel : ViewModelBase
     partial void OnDisplayViewModeChanged(
         QuranDisplayMode value)
     {
+        Debug.WriteLine("[DISPLAY DEBUG] Before mode change:");
+        Debug.WriteLine($"Mode = {DisplayViewMode}");
+        Debug.WriteLine($"IsAyatView = {IsAyatView}");
+        Debug.WriteLine($"Ayats.Count = {Ayats.Count}");
+        Debug.WriteLine($"CurrentPage = {(CurrentPage is null ? "NULL" : "NOT NULL")}");
+
         OnPropertyChanged(nameof(IsPageView));
         OnPropertyChanged(nameof(IsAyatView));
 
@@ -346,6 +553,12 @@ public sealed partial class MainViewModel : ViewModelBase
         UpdateAyatPosition();
 
         NotifyNavigationCommands();
+
+        Debug.WriteLine("[DISPLAY DEBUG] After mode change:");
+        Debug.WriteLine($"Mode = {DisplayViewMode}");
+        Debug.WriteLine($"IsAyatView = {IsAyatView}");
+        Debug.WriteLine($"Ayats.Count = {Ayats.Count}");
+        Debug.WriteLine($"CurrentPage = {(CurrentPage is null ? "NULL" : "NOT NULL")}");
     }
 
     /// <summary>
@@ -490,6 +703,9 @@ public sealed partial class MainViewModel : ViewModelBase
             ?? throw new ArgumentNullException(
                 nameof(quranPageService));
 
+        // Capture the UI dispatcher for later use when updating UI-bound collections
+        _uiDispatcher = Microsoft.UI.Dispatching.DispatcherQueue.GetForCurrentThread();
+
         InitializeDisplayModes();
 
         CurrentReaderMode =
@@ -497,6 +713,16 @@ public sealed partial class MainViewModel : ViewModelBase
 
         _readerContext.SetMode(
             CurrentReaderMode);
+
+        // Populate JuzList with Juz 1..30 for toolbar binding (fallback).
+        for (int i = 1; i <= 30; i++)
+        {
+            JuzList.Add(new JuzInfo { JuzNumber = i });
+        }
+
+        // Fire-and-forget enrichment of JuzList from repository
+        // (does not replace the collection; updates items so bindings remain).
+        _ = LoadJuzListInfoAsync();
     }
 
     #endregion
@@ -1314,15 +1540,32 @@ public sealed partial class MainViewModel : ViewModelBase
         // sebelum data masuk ke UI.
         PrepareSurahHeaders(ayats);
 
-        Ayats.Clear();
-
-        foreach (var ayat in ayats)
+        // Ensure collection modifications are done on UI thread.
+        if (_uiDispatcher is not null)
         {
-            Ayats.Add(ayat);
-        }
+            _uiDispatcher.TryEnqueue(() =>
+            {
+                Ayats.Clear();
 
-        SelectedAyat =
-            Ayats.FirstOrDefault();
+                foreach (var ayat in ayats)
+                {
+                    Ayats.Add(ayat);
+                }
+
+                SelectedAyat = Ayats.FirstOrDefault();
+            });
+        }
+        else
+        {
+            Ayats.Clear();
+
+            foreach (var ayat in ayats)
+            {
+                Ayats.Add(ayat);
+            }
+
+            SelectedAyat = Ayats.FirstOrDefault();
+        }
     }
 
     #endregion
@@ -1938,6 +2181,15 @@ public sealed partial class MainViewModel : ViewModelBase
 
             return;
         }
+        // When SelectedSurah changes (user picks a Surah), always load the full
+        // Surah ayats into SurahAyats for navigation ComboBox. The Reader's Ayats
+        // (which may represent a Juz context) are left unchanged unless we are
+        // intentionally loading the Surah via HandleSelectedSurahChangedAsync.
+        // This ensures the Ayah ComboBox always lists the entire Surah (1..N).
+        // Ensure Surah navigation list is populated for the toolbar.
+        // Awaiting is not necessary here; LoadSurahAyatsAsync will update SurahAyats
+        // and the ComboBox SelectedItem will be resolved once population completes.
+        _ = LoadSurahAyatsAsync(value.Id);
 
         Debug.WriteLine(
             $"[SURAH] Selected Surah = " +
@@ -1951,13 +2203,9 @@ public sealed partial class MainViewModel : ViewModelBase
 
         if (_isLoadingJuz)
         {
-            Debug.WriteLine(
-                "[SURAH] Perubahan SelectedSurah berasal " +
-                "dari proses Juz.");
-
-            Debug.WriteLine(
-                "[SURAH] LoadAyatAsync DILEWATI.");
-
+            // SelectedSurah was changed as part of a Juz load. Do not trigger a
+            // full Surah load in this path since the Reader's Ayats already reflect
+            // the Juz context.
             return;
         }
 
@@ -2026,6 +2274,78 @@ public sealed partial class MainViewModel : ViewModelBase
     {
         UpdateAyatPosition();
 
+        // Keep toolbar numeric selection in sync with the actual selected Ayat.
+        // Use AyatNumber as stable identifier so the toolbar ComboBox which
+        // binds to SelectedAyatNumber (SelectedValue) can resolve selection
+        // even when the instance comes from a different collection.
+        try
+        {
+            if (value is not null)
+            {
+                SelectedAyatNumber = value.AyatNumber;
+            }
+            else
+            {
+                SelectedAyatNumber = null;
+            }
+        }
+        catch
+        {
+            // suppress errors during synchronization
+        }
+
+        // =====================================================
+        // Synchronize SelectedJuz for toolbar display only.
+        // Do NOT call LoadJuzAsync here. Use a suppression flag
+        // so that the SelectedJuz setter does not trigger a
+        // reload via OnSelectedJuzChanged.
+        // =====================================================
+        try
+        {
+            if (value is not null)
+            {
+                var juzNumber = value.Juz;
+
+                var juz = JuzList.FirstOrDefault(x => x.JuzNumber == juzNumber);
+
+                if (juz is not null && SelectedJuz?.JuzNumber != juzNumber)
+                {
+                    // Synchronize SelectedJuz for toolbar display only.
+                    _suppressSelectedJuzChanged = true;
+                    SelectedJuz = juz;
+                    _suppressSelectedJuzChanged = false;
+                }
+
+                // Auto-navigation: if the selected ayat is not present in the current
+                // reader context (Ayats), we must load the juz that contains it and
+                // then navigate to the ayat. If it is present, instruct ReaderView
+                // to scroll to it (ReaderView listens to SelectedAyat property).
+
+                // If ayat is outside current Ayats, schedule a Juz load and remember
+                // the requested navigation so that after LoadJuzAsync finishes the
+                // reader can scroll to the correct ayat.
+                if (_activeJuzNumber is not null && _activeJuzNumber != value.Juz)
+                {
+                    // Target ayat is in another juz.
+                    _pendingNavigation = (value.Surah, value.AyatNumber, value.Juz);
+
+                    // Trigger loading of the target juz. LoadJuzAsync is guarded and
+                    // idempotent when the requested juz is already active.
+                    _ = LoadJuzAsync(value.Juz);
+                }
+                else
+                {
+                    // If ayat is inside current Ayats or there is no active juz,
+                    // do nothing here; ReaderView will respond to SelectedAyat change
+                    // and scroll via its Own property change handler.
+                }
+            }
+        }
+        catch
+        {
+            // suppress exceptions from synchronization logic
+        }
+
         /*
          * Jika user sedang berada pada Mode Halaman,
          * perubahan ayat harus membuka halaman
@@ -2038,6 +2358,50 @@ public sealed partial class MainViewModel : ViewModelBase
         }
 
         NotifyNavigationCommands();
+    }
+
+    /// <summary>
+    /// Called when SelectedAyatNumber (the numeric selection in the toolbar)
+    /// changes. Resolve the numeric selection to an Ayat instance. Prefer
+    /// the instance that exists in the current Reader collection (Ayats)
+    /// so ReaderView can perform object-identity based scrolling; if not
+    /// present, fall back to the Surah navigation instance which will
+    /// trigger navigation to the proper Juz if required.
+    /// </summary>
+    partial void OnSelectedAyatNumberChanged(int? value)
+    {
+        try
+        {
+            if (value is null)
+                return;
+
+            if (SelectedSurah is null)
+                return;
+
+            var surahNumber = SelectedSurah.Id;
+
+            // Prefer the Ayat instance that belongs to current reader context.
+            var inReader = FindAyatByPosition(Ayats, surahNumber, value.Value);
+            if (inReader is not null)
+            {
+                if (!ReferenceEquals(SelectedAyat, inReader))
+                    SelectedAyat = inReader;
+
+                return;
+            }
+
+            // Fall back to the Surah navigation list instance (if present).
+            var inSurahList = SurahAyats.FirstOrDefault(x => x.Surah == surahNumber && x.AyatNumber == value.Value);
+            if (inSurahList is not null)
+            {
+                if (!ReferenceEquals(SelectedAyat, inSurahList))
+                    SelectedAyat = inSurahList;
+            }
+        }
+        catch
+        {
+            // suppress sync errors
+        }
     }
 
 
@@ -2092,6 +2456,15 @@ public sealed partial class MainViewModel : ViewModelBase
     /// </summary>
     private void SyncAyatWithCurrentPage()
     {
+        Debug.WriteLine("[PAGE SYNC DEBUG]");
+        Debug.WriteLine($"CurrentPage = {(CurrentPage is null ? "NULL" : "NOT NULL")}");
+        if (CurrentPage is not null)
+        {
+            Debug.WriteLine($"CurrentPage.Ayats.Count = { (CurrentPage.Ayats is null ? 0 : CurrentPage.Ayats.Count) }");
+        }
+        Debug.WriteLine($"Ayats.Count = {Ayats.Count}");
+        Debug.WriteLine($"DisplayViewMode = {DisplayViewMode}");
+
         if (CurrentPage?.Ayats is not
             { Count: > 0 })
         {
@@ -2221,9 +2594,7 @@ public sealed partial class MainViewModel : ViewModelBase
 
         try
         {
-            Debug.WriteLine("====================================");
-            Debug.WriteLine($"[JUZ LOAD] Mulai Juz {juzNumber}");
-            Debug.WriteLine("====================================");
+            // Begin loading Juz
 
             IsLoadingAyat = true;
 
@@ -2248,86 +2619,33 @@ public sealed partial class MainViewModel : ViewModelBase
              * request terbaru (mis. user cepat berpindah Juz).
              */
             if (requestId != _loadAyatRequestId)
-            {
-                Debug.WriteLine(
-                    $"[JUZ LOAD] Request Juz {juzNumber} sudah usang, " +
-                    "hasil diabaikan.");
-
                 return;
-            }
 
             if (ayats == null || ayats.Count == 0)
             {
-                Debug.WriteLine(
-                    $"[JUZ LOAD] Tidak ada ayat untuk Juz {juzNumber} " +
-                    $"pada mode {CurrentReaderMode}.");
-
-                // Database untuk mode aktif belum memiliki data
-                // sama sekali untuk Juz ini. Kosongkan tampilan
-                // (jangan biarkan data Surah/Juz sebelumnya
-                // tetap tampil). SelectedSurah = null otomatis
-                // mengosongkan Ayats, SelectedAyat, Pages,
-                // dan CurrentPage lewat OnSelectedSurahChanged.
-
+                // No data for this juz in current reader mode: clear selection.
                 SelectedSurah = null;
-
                 NotifyNavigationCommands();
-
                 return;
             }
 
-            Debug.WriteLine(
-                $"[JUZ LOAD] Jumlah ayat = {ayats.Count}");
+            // Internal: number of ayats loaded for juz.
+            // Diagnostic debug logs removed.
 
             //Load translation
             await MergeJuzTranslationsAsync(ayats);
 
             if (requestId != _loadAyatRequestId)
             {
-                Debug.WriteLine(
-                    $"[JUZ LOAD] Request Juz {juzNumber} sudah usang " +
-                    "setelah translation, hasil diabaikan.");
-
                 return;
             }
 
-            var firstAyatWithTranslation =
-    ayats.FirstOrDefault(
-        x => !string.IsNullOrWhiteSpace(
-            x.Terjemahan));
-
-            if (firstAyatWithTranslation is not null)
-            {
-                Debug.WriteLine(
-                    "========================================");
-
-                Debug.WriteLine(
-                    "[JUZ TRANSLATION TEST]");
-
-                Debug.WriteLine(
-                    $"Surah = " +
-                    $"{firstAyatWithTranslation.Surah}");
-
-                Debug.WriteLine(
-                    $"Ayat = " +
-                    $"{firstAyatWithTranslation.AyatNumber}");
-
-                Debug.WriteLine(
-                    $"Translation = " +
-                    $"{firstAyatWithTranslation.Terjemahan}");
-
-                Debug.WriteLine(
-                    "========================================");
-            }
-            else
-            {
-                Debug.WriteLine(
-                    "[JUZ TRANSLATION TEST] " +
-                    "Tidak ditemukan terjemahan.");
-            }
+            // Translation test logs suppressed.
 
             // 2. Simpan seluruh ayat ke collection reader
             ReplaceAyats(ayats);
+
+            // Diagnostic dump suppressed.
 
             // 3. Ambil ayat pertama Juz
             var firstAyat =
@@ -2337,18 +2655,61 @@ public sealed partial class MainViewModel : ViewModelBase
                 return;
 
             // 4. Jadikan ayat pertama sebagai posisi aktif
-            SelectedAyat = firstAyat;
+            // Load Surah navigation list on background, then marshal UI updates
+            // to the UI dispatcher synchronously (no async lambda inside TryEnqueue).
+            var loadSurahTask = LoadSurahAyatsAsync(firstAyat.Surah);
 
-            Debug.WriteLine(
-                $"[JUZ LOAD] Ayat pertama = " +
-                $"Surah {firstAyat.Surah} " +
-                $"Ayat {firstAyat.AyatNumber} " +
-                $"Halaman {firstAyat.Halaman}");
+            // Wait for Surah data to be loaded (background thread).
+            await loadSurahTask.ConfigureAwait(false);
 
-            // 5. Set Surah aktif berdasarkan ayat pertama
-            SelectedSurah =
-                Surahs.FirstOrDefault(
-                    s => s.Id == firstAyat.Surah);
+            // Now apply UI-bound state on the UI dispatcher.
+            if (_uiDispatcher is not null)
+            {
+                var tcsSet = new TaskCompletionSource<int>();
+
+                _uiDispatcher.TryEnqueue(() =>
+                {
+                    try
+                    {
+                        // Set active surah for UI.
+                        SelectedSurah = Surahs.FirstOrDefault(s => s.Id == firstAyat.Surah);
+
+                        // Set selected ayat (use the instance that will be present
+                        // in the reader collection after ReplaceAyats).
+                        SelectedAyat = firstAyat;
+
+                        tcsSet.SetResult(0);
+                    }
+                    catch (Exception ex)
+                    {
+                        tcsSet.SetException(ex);
+                    }
+                });
+
+                await tcsSet.Task.ConfigureAwait(false);
+            }
+            else
+            {
+                // Fallback: apply directly (rare).
+                SelectedSurah = Surahs.FirstOrDefault(s => s.Id == firstAyat.Surah);
+                SelectedAyat = firstAyat;
+            }
+
+            // If there is a pending navigation (user selected an Ayat from toolbar
+            // that required switching juz), and it matches this juz, clear it and
+            // ensure SelectedAyat is the pending target so ReaderView will scroll.
+            if (_pendingNavigation is (int s, int a, int j) pending && pending.Juz == juzNumber)
+            {
+                // Try to find the exact Ayat instance within the newly loaded Ayats
+                // and set it as SelectedAyat so that ReaderView will scroll to it.
+                var target = Ayats.FirstOrDefault(x => x.Surah == s && x.AyatNumber == a);
+                if (target is not null)
+                {
+                    SelectedAyat = target;
+                }
+
+                _pendingNavigation = null;
+            }
 
             //// 6. Bangun data halaman dari seluruh ayat Juz
             //LoadPages(ayats);
@@ -2389,12 +2750,7 @@ public sealed partial class MainViewModel : ViewModelBase
 
                 UpdateAyatPosition();
 
-                Debug.WriteLine(
-                    "[JUZ LOAD] Mode Ayat aktif.");
-
-                Debug.WriteLine(
-                    "[JUZ LOAD] Seluruh ayat Juz " +
-                    "ditampilkan sebagai satu context.");
+                // Juz displayed in Ayat mode.
             }
 
             // =====================================================
@@ -2440,7 +2796,15 @@ public sealed partial class MainViewModel : ViewModelBase
 
             if (requestId == _loadAyatRequestId)
             {
-                IsLoadingAyat = false;
+                // Ensure IsLoadingAyat is cleared on UI thread.
+                if (_uiDispatcher is not null)
+                {
+                    _uiDispatcher.TryEnqueue(() => IsLoadingAyat = false);
+                }
+                else
+                {
+                    IsLoadingAyat = false;
+                }
             }
         }
     }

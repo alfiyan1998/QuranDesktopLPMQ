@@ -5,95 +5,133 @@
     xmlns:views="using:QuranKemenag.Views">
 
     <Grid Background="{StaticResource NeutralBackgroundBrush}">
+
+        <!-- =====================================================
+             ROW UTAMA
+             ===================================================== -->
         <Grid.RowDefinitions>
-            <RowDefinition Height="Auto" />   <!-- Toolbar -->
-            <RowDefinition Height="*" />      <!-- Sidebar | Mushaf Viewer | Feature Panel -->
-            <RowDefinition Height="Auto" />   <!-- Status Bar -->
+            <RowDefinition Height="Auto" />
+            <!-- Toolbar -->
+
+            <RowDefinition Height="*" />
+            <!-- Content -->
+
+            <RowDefinition Height="Auto" />
+            <!-- Status Bar -->
         </Grid.RowDefinitions>
 
-        <!-- ===================== TOOLBAR ===================== -->
+
+        <!-- =====================================================
+             KOLOM UTAMA
+             ===================================================== -->
+        <Grid.ColumnDefinitions>
+
+            <!-- SIDEBAR -->
+            <ColumnDefinition
+                x:Name="SidebarColumn"
+                Width="220" />
+
+            <!-- CONTENT -->
+            <ColumnDefinition
+                Width="*" />
+
+            <!-- FEATURE PANEL -->
+            <ColumnDefinition
+                x:Name="PanelColumn"
+                Width="300" />
+
+        </Grid.ColumnDefinitions>
+
+
+        <!-- =====================================================
+             SIDEBAR
+             ===================================================== -->
+
+        <views:SidebarView
+            x:Name="Sidebar"
+            Grid.Row="0"
+            Grid.RowSpan="2"
+            Grid.Column="0" />
+
+
+        <!-- =====================================================
+             TOOLBAR
+             ===================================================== -->
+
         <views:ToolbarView
             x:Name="Toolbar"
             Grid.Row="0"
+            Grid.Column="1"
+            Grid.ColumnSpan="2"
             SidebarToggleRequested="Toolbar_SidebarToggleRequested"
             PanelToggleRequested="Toolbar_PanelToggleRequested" />
 
-        <!-- ===================== KONTEN TENGAH ===================== -->
-        <Grid Grid.Row="1">
 
-            <Grid.ColumnDefinitions>
+        <!-- =====================================================
+             MAIN CONTENT
+             ===================================================== -->
 
-                <ColumnDefinition
-            x:Name="SidebarColumn"
-            Width="220" />
+        <Grid
+            x:Name="ContentHost"
+            Grid.Row="1"
+            Grid.Column="1">
 
-                <ColumnDefinition
-            Width="*" />
+            <!-- HOME -->
 
-                <ColumnDefinition
-            x:Name="PanelColumn"
-            Width="300" />
-
-            </Grid.ColumnDefinitions>
+            <views:HomeView
+                x:Name="HomeView"
+                Visibility="Collapsed" />
 
 
-            <!-- =====================================================
-         SIDEBAR
-         ===================================================== -->
+            <!-- SURAH -->
 
-            <views:SidebarView
-        x:Name="Sidebar"
-        Grid.Column="0" />
+            <views:SurahView
+                x:Name="SurahView"
+                Visibility="Collapsed" />
 
 
-            <!-- =====================================================
-         MAIN CONTENT
-         ===================================================== -->
+            <!-- JUZ -->
 
-            <Grid
-        x:Name="ContentHost"
-        Grid.Column="1">
-
-                <views:HomeView
-            x:Name="HomeView"
-            Visibility="Collapsed" />
-
-                <views:SurahView
-            x:Name="SurahView"
-            Visibility="Collapsed" />
-
-                <views:JuzView
+            <views:JuzView
                 x:Name="JuzView"
                 Visibility="Collapsed" />
-                <!-- diubah SEMENTARA dari Visible -->
-
-                <views:ReaderView
-            x:Name="ReaderView"
-            Visibility="Collapsed" />
-
-                <!-- ===== SEMENTARA untuk uji STEP 6, akan dirapikan di STEP 8/9 ===== -->
-                <views:MushafPerHalamanView
-        x:Name="MushafPerHalamanView"
-        Visibility="Collapsed" />
-
-             
-
-            </Grid>
 
 
-            <!-- =====================================================
-         FEATURE PANEL
-         ===================================================== -->
+            <!-- READER -->
 
-            <views:FeaturePanelView
-        x:Name="FeaturePanel"
-        Grid.Column="2" />
+            <views:ReaderView
+                x:Name="ReaderView"
+                Visibility="Collapsed" />
+
+
+            <!-- MUSHAF PER HALAMAN -->
+
+            <views:MushafPerHalamanView
+                x:Name="MushafPerHalamanView"
+                Visibility="Collapsed" />
 
         </Grid>
 
-        <!-- ===================== STATUS BAR ===================== -->
+
+        <!-- =====================================================
+             FEATURE PANEL
+             ===================================================== -->
+
+        <views:FeaturePanelView
+            x:Name="FeaturePanel"
+            Grid.Row="1"
+            Grid.Column="2" />
+
+
+        <!-- =====================================================
+             STATUS BAR
+             ===================================================== -->
+
         <views:StatusBarView
-            Grid.Row="2" />
+            Grid.Row="2"
+            Grid.Column="0"
+            Grid.ColumnSpan="3" />
 
     </Grid>
+
 </Window>

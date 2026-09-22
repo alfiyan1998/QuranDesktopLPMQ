@@ -12,6 +12,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using System.ComponentModel;
 
 
 namespace QuranKemenag;
@@ -23,6 +24,8 @@ public sealed partial class MainWindow : Window
 {
     private bool _isInitialized;
     private bool _isSidebarVisible = true;
+    private bool _isPanelVisible = true;
+    private MainViewModel? _vmRef;
 
     public MainWindow()
     {
@@ -34,6 +37,30 @@ public sealed partial class MainWindow : Window
 
         // Do not use DI or ViewModel for this repository test.
         Activated += MainWindow_Activated;
+    }
+
+    private void MainWindow_Vm_PropertyChanged(object? sender, PropertyChangedEventArgs e)
+    {
+        if (e is null)
+            return;
+
+        if (e.PropertyName != "SelectedJuz")
+            return;
+
+        // Ensure ReaderView is visible so layout can measure/arrange before
+        // the Juz data is populated by LoadJuzAsync in the ViewModel.
+        // Keep this minimal and side-effect free (do not trigger any data load).
+        try
+        {
+            if (ReaderView.Visibility != Visibility.Visible)
+            {
+                ShowView(ReaderView);
+            }
+        }
+        catch
+        {
+            // no-op: do not rethrow; this is a visibility helper only
+        }
     }
 
     private static IReadOnlyList<JuzInfo> CreateJuzList()
@@ -98,6 +125,18 @@ public sealed partial class MainWindow : Window
             {
                 root.DataContext = vm;
 
+                // Keep reference and watch for SelectedJuz changes from toolbar
+                // so we can ensure ReaderView is shown when user selects a Juz.
+                // This is strictly diagnostic/behavioral to ensure layout is
+                // available before the Juz data is populated.
+                _vmRef = vm;
+                // Attach a lightweight handler to ensure ReaderView is made visible
+                // immediately when SelectedJuz changes (so layout can measure
+                // before LoadJuzAsync fills the reader). This is non-diagnostic
+                // and intentionally minimal: it only calls ShowView(ReaderView).
+                _vmRef.PropertyChanged -= MainWindow_Vm_PropertyChanged;
+                _vmRef.PropertyChanged += MainWindow_Vm_PropertyChanged;
+
                 // Wire sidebar navigation events so selecting 'Page' shows MushafPageView
                 // and selecting Surah/Home returns to Ayat view.
                 try
@@ -123,9 +162,21 @@ public sealed partial class MainWindow : Window
                     Toolbar.SidebarToggleRequested +=
                         Toolbar_SidebarToggleRequested;
 
+                    Sidebar.SidebarToggleRequested -=
+                        Toolbar_SidebarToggleRequested;
+
+                    Sidebar.SidebarToggleRequested +=
+                        Toolbar_SidebarToggleRequested;
+
                     // Event ketika user memilih salah satu surah.
                     SurahView.SurahSelected -= SurahView_SurahSelected;
                     SurahView.SurahSelected += SurahView_SurahSelected;
+
+                    SurahView.JuzRequested -= SurahView_JuzRequested;
+                    SurahView.JuzRequested += SurahView_JuzRequested;
+
+                    JuzView.SurahRequested -= JuzView_SurahRequested;
+                    JuzView.SurahRequested += JuzView_SurahRequested;
 
                     JuzView.JuzSelected -= JuzView_JuzSelected;
                     JuzView.JuzSelected += JuzView_JuzSelected;
@@ -198,8 +249,8 @@ public sealed partial class MainWindow : Window
     /// ketika tombol hamburger pada Toolbar ditekan.
     /// </summary>
     private void Toolbar_SidebarToggleRequested(
-    object sender,
-    RoutedEventArgs e)
+     object sender,
+     RoutedEventArgs e)
     {
         _isSidebarVisible = !_isSidebarVisible;
 
@@ -210,14 +261,18 @@ public sealed partial class MainWindow : Window
 
             SidebarColumn.Width =
                 new GridLength(220);
+
+            Sidebar.SetPaneOpen(true);
         }
         else
         {
             Sidebar.Visibility =
-                Visibility.Collapsed;
+                Visibility.Visible;
 
             SidebarColumn.Width =
-                new GridLength(0);
+                new GridLength(64);
+
+            Sidebar.SetPaneOpen(false);
         }
     }
 
@@ -346,12 +401,6 @@ public sealed partial class MainWindow : Window
             // =====================================================
 
             ShowView(ReaderView);
-
-
-            Debug.WriteLine(
-                $"[SURAH NAVIGATION] " +
-                $"Reader dibuka: {surah.LatinName} " +
-                $"Ayat=1 Mode=Ayat");
         }
         catch (Exception ex)
         {
@@ -462,11 +511,7 @@ public sealed partial class MainWindow : Window
         vm.SelectedSurah = null;
         vm.SelectedAyat = null;
 
-        Debug.WriteLine(
-            "[JUZ NAVIGATION] Membuka daftar Juz");
-
-        // Pastikan JuzView yang sudah ada di MainWindow
-        // digunakan, bukan membuat JuzView baru.
+        // Show existing juz list view
         ShowView(JuzView);
     }
 
@@ -485,23 +530,7 @@ public sealed partial class MainWindow : Window
 
         try
         {
-            Debug.WriteLine(
-                "========================================");
-
-            Debug.WriteLine(
-                "[JUZ NAVIGATION] Juz dipilih");
-
-            Debug.WriteLine(
-                $"Juz       : {juz.JuzNumber}");
-
-            Debug.WriteLine(
-                $"Surah     : {juz.SurahNumber}");
-
-            Debug.WriteLine(
-                $"Ayat awal : {juz.AyatNumber}");
-
-            Debug.WriteLine(
-                "========================================");
+            // Juz selected: JuzNumber={juz.JuzNumber}, Surah={juz.SurahNumber}, Ayat={juz.AyatNumber}
 
 
             // =====================================================
@@ -537,8 +566,18 @@ public sealed partial class MainWindow : Window
             // 3. TAMPILKAN READER
             // =====================================================
 
+            var _rootFe_before = this.Content as FrameworkElement;
+            Debug.WriteLine($"[LAYOUT DEBUG] BEFORE ShowView - MainWindow={( _rootFe_before is null ? 0 : _rootFe_before.ActualWidth)}x{( _rootFe_before is null ? 0 : _rootFe_before.ActualHeight)}");
+            Debug.WriteLine($"[LAYOUT DEBUG] BEFORE ShowView - ContentHost={ContentHost.ActualWidth}x{ContentHost.ActualHeight}");
+            Debug.WriteLine($"[LAYOUT DEBUG] BEFORE ShowView - ReaderView={ReaderView.ActualWidth}x{ReaderView.ActualHeight}");
+
             ShowView(
                 ReaderView);
+
+            var _rootFe_after = this.Content as FrameworkElement;
+            Debug.WriteLine($"[LAYOUT DEBUG] AFTER ShowView - MainWindow={( _rootFe_after is null ? 0 : _rootFe_after.ActualWidth)}x{( _rootFe_after is null ? 0 : _rootFe_after.ActualHeight)}");
+            Debug.WriteLine($"[LAYOUT DEBUG] AFTER ShowView - ContentHost={ContentHost.ActualWidth}x{ContentHost.ActualHeight}");
+            Debug.WriteLine($"[LAYOUT DEBUG] AFTER ShowView - ReaderView={ReaderView.ActualWidth}x{ReaderView.ActualHeight}");
 
 
             // =====================================================
@@ -591,7 +630,38 @@ public sealed partial class MainWindow : Window
     /// <summary>Menampilkan/menyembunyikan Feature Panel saat tombolnya ditekan.</summary>
     private void Toolbar_PanelToggleRequested(object sender, RoutedEventArgs e)
     {
-        // Implementasi UI state yang sudah ada tetap sama (tidak diubah).
+        try
+        {
+            if (_isPanelVisible)
+            {
+                _isPanelVisible = false;
+
+                FeaturePanel.Visibility =
+                    Visibility.Collapsed;
+
+                PanelColumn.Width =
+                    new GridLength(0);
+
+                Debug.WriteLine("[PANEL] Feature Panel hidden.");
+            }
+            else
+            {
+                _isPanelVisible = true;
+
+                FeaturePanel.Visibility =
+                    Visibility.Visible;
+
+                PanelColumn.Width =
+                    new GridLength(300);
+
+                Debug.WriteLine("[PANEL] Feature Panel shown.");
+            }
+        }
+        catch (Exception ex)
+        {
+            Debug.WriteLine("[PANEL TOGGLE ERROR]");
+            Debug.WriteLine(ex.ToString());
+        }
     }
 
     private async Task TestJuzRepositoryAsync()
@@ -694,6 +764,17 @@ public sealed partial class MainWindow : Window
             // 1. MODE AYAT
             // =====================================================
 
+            // If the ViewModel is currently loading ayat (e.g. during Juz load),
+            // ignore toolbar selection changes that originate from programmatic
+            // updates to SelectedSurah. This prevents the UI handler from
+            // forcing a full surah load and overwriting the Juz context.
+            if (vm.IsLoadingAyat)
+            {
+                Debug.WriteLine(
+                    "[TOOLBAR SURAH] Ignored SelectionChanged while IsLoadingAyat=true.");
+                return;
+            }
+
             vm.DisplayViewMode =
                 QuranDisplayMode.Ayat;
 
@@ -741,7 +822,17 @@ public sealed partial class MainWindow : Window
             // 5. PINDAH KE READER
             // =====================================================
 
+            var _rootFe_before = this.Content as FrameworkElement;
+            Debug.WriteLine($"[LAYOUT DEBUG] BEFORE ShowView - MainWindow={(_rootFe_before is null ? 0 : _rootFe_before.ActualWidth)}x{(_rootFe_before is null ? 0 : _rootFe_before.ActualHeight)}");
+            Debug.WriteLine($"[LAYOUT DEBUG] BEFORE ShowView - ContentHost={ContentHost.ActualWidth}x{ContentHost.ActualHeight}");
+            Debug.WriteLine($"[LAYOUT DEBUG] BEFORE ShowView - ReaderView={ReaderView.ActualWidth}x{ReaderView.ActualHeight}");
+
             ShowView(ReaderView);
+
+            var _rootFe_after = this.Content as FrameworkElement;
+            Debug.WriteLine($"[LAYOUT DEBUG] AFTER ShowView - MainWindow={(_rootFe_after is null ? 0 : _rootFe_after.ActualWidth)}x{(_rootFe_after is null ? 0 : _rootFe_after.ActualHeight)}");
+            Debug.WriteLine($"[LAYOUT DEBUG] AFTER ShowView - ContentHost={ContentHost.ActualWidth}x{ContentHost.ActualHeight}");
+            Debug.WriteLine($"[LAYOUT DEBUG] AFTER ShowView - ReaderView={ReaderView.ActualWidth}x{ReaderView.ActualHeight}");
 
             Debug.WriteLine(
                 $"[TOOLBAR SURAH] Reader dibuka: " +
@@ -860,6 +951,39 @@ public sealed partial class MainWindow : Window
             Debug.WriteLine(
                 "========================================");
         }
+    }
+
+    private void SurahView_JuzRequested(
+    object? sender,
+    EventArgs e)
+    {
+        if (App.Services is null)
+            return;
+
+        var vm =
+            App.Services.GetService<MainViewModel>();
+
+        if (vm is null)
+            return;
+
+        // Bersihkan context Reader sebelumnya
+        vm.SelectedSurah = null;
+        vm.SelectedAyat = null;
+
+        Debug.WriteLine(
+            "[SURAH VIEW] Tab Juz diklik");
+
+        ShowView(JuzView);
+    }
+
+    private void JuzView_SurahRequested(
+    object? sender,
+    EventArgs e)
+    {
+        Debug.WriteLine(
+            "[JUZ VIEW] Tab Surah diklik");
+
+        ShowView(SurahView);
     }
 
 }

@@ -24,10 +24,13 @@
                 <!-- 4. Ayah -->
                 <ColumnDefinition Width="Auto"/>
 
-                <!-- 5. Mode Font -->
+                <!-- 5. Juz -->
                 <ColumnDefinition Width="Auto"/>
 
-                <!-- 6. Mode Tampilan -->
+                <!-- 6. Mode Font -->
+                <ColumnDefinition Width="Auto"/>
+
+                <!-- 7. Mode Tampilan -->
                 <ColumnDefinition Width="Auto"/>
 
                 <!-- 7. Copy -->
@@ -40,13 +43,14 @@
                 <ColumnDefinition Width="Auto"/>
             </Grid.ColumnDefinitions>
 
-            <!-- Tombol Sidebar (hamburger) -->
+            <!-- Tombol Sidebar (hamburger)
             <Button Grid.Column="0"
                     x:Name="SidebarToggleButton"
                     Click="SidebarToggleButton_Click"
                     Content="&#xE700;"
                     FontFamily="Segoe Fluent Icons"
                     ToolTipService.ToolTip="Sidebar" />
+             -->
 
             <!-- Judul aplikasi -->
             <TextBlock Grid.Column="1"
@@ -75,19 +79,33 @@
                        FontWeight="SemiBold"
                        Text="{Binding SelectedSurah.ArabicName}" />
 
-            <!-- Dropdown Ayah -->
+            <!-- Dropdown Ayah (navigation list for the selected Surah)
+                 Use SelectedValuePath + SelectedValue bound to SelectedAyatNumber
+                 so selection works even when the item instances differ between
+                 the Reader collection and the Surah navigation collection. -->
             <ComboBox Grid.Column="4"
                       x:Name="AyahComboBox"
                       Width="90"
                       Margin="4,0"
-                      ItemsSource="{Binding Ayats}"
-                      SelectedItem="{Binding SelectedAyat, Mode=TwoWay}"
-                      DisplayMemberPath="AyahNumber"
+                      ItemsSource="{Binding SurahAyats}"
+                      SelectedValuePath="AyatNumber"
+                      SelectedValue="{Binding SelectedAyatNumber, Mode=TwoWay}"
+                      DisplayMemberPath="AyatNumber"
                       PlaceholderText="Ayah" />
+
+            <!-- Juz ComboBox -->
+            <ComboBox Grid.Column="5"
+                      x:Name="JuzComboBox"
+                      Width="120"
+                      Margin="8,0"
+                      ItemsSource="{Binding JuzList}"
+                      SelectedItem="{Binding SelectedJuz, Mode=TwoWay}"
+                      DisplayMemberPath="DisplayName"
+                      PlaceholderText="Juz" />
 
             <!-- Mode Tampilan -->
             <StackPanel
-    Grid.Column="5"
+    Grid.Column="6"
     Orientation="Horizontal"
     VerticalAlignment="Center"
     Spacing="8"
@@ -107,7 +125,7 @@
             </StackPanel>
 
             <!-- Mode Tampilan (Ayat / Halaman) -->
-            <StackPanel Grid.Column="6" Orientation="Horizontal" VerticalAlignment="Center" Spacing="8" Margin="8,0">
+            <StackPanel Grid.Column="7" Orientation="Horizontal" VerticalAlignment="Center" Spacing="8" Margin="8,0">
                 <TextBlock Text="Mode Tampilan" VerticalAlignment="Center" />
                 <ComboBox Width="120"
                           ItemsSource="{Binding QuranDisplayModes}"
@@ -118,7 +136,7 @@
 
             <!-- Tombol Copy -->
             <Button
-                Grid.Column="7"
+                Grid.Column="8"
                 x:Name="CopyButton"
                 Content="Copy"
                 ToolTipService.ToolTip="Salin ayat"
@@ -126,7 +144,7 @@
 
             <!-- Tombol toggle Feature Panel -->
             <Button
-                Grid.Column="9"
+                Grid.Column="10"
                 x:Name="PanelToggleButton"
                 Click="PanelToggleButton_Click"
                 Content="&#xE71D;"

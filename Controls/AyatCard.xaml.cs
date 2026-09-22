@@ -16,6 +16,7 @@ using QuranKemenag.Services.Font;
 
 
 
+
 namespace QuranKemenag.Controls;
 
 /// <summary>
@@ -99,10 +100,19 @@ public sealed partial class AyatCard : UserControl
 
         // Nomor ayat hanya ditampilkan untuk mode Unicode.
         PART_AyatNumber.Visibility =
-            ayat.KodeFont == 0
-                ? Visibility.Visible
-                : Visibility.Collapsed;
+    ayat.KodeFont == 0
+        ? Visibility.Visible
+        : Visibility.Collapsed;
+
+        if (ayat.KodeFont == 0)
+        {
+            DispatcherQueue.TryEnqueue(
+                PositionAyatNumber);
+        }
     }
+
+
+  
 
 
     // =========================================================
@@ -282,6 +292,36 @@ public sealed partial class AyatCard : UserControl
         {
             card.UpdateHighlight();
         }
+    }
+
+    private void PositionAyatNumber()
+    {
+        if (DataContext is not Ayat ayat)
+            return;
+
+        if (ayat.KodeFont != 0)
+        {
+            PART_AyatNumber.Visibility =
+                Visibility.Collapsed;
+
+            return;
+        }
+
+        PART_AyatNumber.Visibility =
+            Visibility.Visible;
+
+        // Letakkan nomor di baris paling bawah.
+        double top =
+            PART_AyatNumberCanvas.ActualHeight
+            - PART_AyatNumber.Height
+            - 6;
+
+        if (top < 0)
+            top = 0;
+
+        Canvas.SetTop(
+            PART_AyatNumber,
+            top);
     }
 
 
@@ -1572,4 +1612,17 @@ Catatan Kaki: {EscapeHtml(ayat.TextFn.Trim())}
 
         return rtf;
     }
+
+    private void PART_AyatNumberCanvas_SizeChanged(
+    object sender,
+    SizeChangedEventArgs e)
+    {
+        if (DataContext is Ayat ayat &&
+            ayat.KodeFont == 0)
+        {
+            PositionAyatNumber();
+        }
+    }
+
+
 }
