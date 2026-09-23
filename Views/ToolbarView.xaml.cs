@@ -31,6 +31,7 @@ public sealed partial class ToolbarView : UserControl
     {
         this.InitializeComponent();
     }
+       
 
     private void SidebarToggleButton_Click(
         object sender,
@@ -63,5 +64,46 @@ public sealed partial class ToolbarView : UserControl
     RoutedEventArgs e)
     {
         CopyRequested?.Invoke(this, e);
+    }
+
+    private void ToolbarGrid_SizeChanged(
+    object sender,
+    SizeChangedEventArgs e)
+    {
+        
+    }
+
+    public void SetResponsiveState(bool isWide, bool isCompact)
+    {
+        if (isWide)
+        {
+            ModePanel.Visibility = Visibility.Visible;
+            ModeTampilanPanel.Visibility = Visibility.Visible;
+            OverflowButton.Visibility = Visibility.Collapsed;
+
+            SurahComboBox.Visibility = Visibility.Visible;
+            AyahComboBox.Visibility = Visibility.Visible;
+            CopyButton.Visibility = Visibility.Visible;
+        }
+        else if (isCompact)
+        {
+            ModePanel.Visibility = Visibility.Collapsed;
+            ModeTampilanPanel.Visibility = Visibility.Collapsed;
+            OverflowButton.Visibility = Visibility.Visible;
+
+            SurahComboBox.Visibility = Visibility.Collapsed;
+            AyahComboBox.Visibility = Visibility.Collapsed;
+            CopyButton.Visibility = Visibility.Collapsed;
+        }
+        else
+        {
+            ModePanel.Visibility = Visibility.Collapsed;
+            ModeTampilanPanel.Visibility = Visibility.Collapsed;
+            OverflowButton.Visibility = Visibility.Visible;
+
+            SurahComboBox.Visibility = Visibility.Visible;
+            AyahComboBox.Visibility = Visibility.Visible;
+            CopyButton.Visibility = Visibility.Visible;
+        }
     }
 }

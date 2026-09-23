@@ -7,7 +7,7 @@
             BorderBrush="{StaticResource NeutralBorderBrush}"
             BorderThickness="0,0,0,1"
             Padding="12,8">
-        <Grid ColumnSpacing="12">
+        <Grid ColumnSpacing="12" SizeChanged="ToolbarGrid_SizeChanged">
             <Grid.ColumnDefinitions>
                 <!-- 0. Sidebar -->
                 <ColumnDefinition Width="Auto"/>
@@ -88,7 +88,7 @@
                       PlaceholderText="Ayah" />
 
             <!-- Mode Tampilan -->
-            <StackPanel
+            <StackPanel x:Name="ModePanel"
     Grid.Column="5"
     Orientation="Horizontal"
     VerticalAlignment="Center"
@@ -109,7 +109,7 @@
             </StackPanel>
 
             <!-- Mode Tampilan (Ayat / Halaman) -->
-            <StackPanel Grid.Column="6" Orientation="Horizontal" VerticalAlignment="Center" Spacing="8" Margin="8,0">
+            <StackPanel x:Name="ModeTampilanPanel" Grid.Column="6" Orientation="Horizontal" VerticalAlignment="Center" Spacing="8" Margin="8,0">
                 <TextBlock Text="Mode Tampilan" VerticalAlignment="Center" />
                 <ComboBox Width="120"
                           ItemsSource="{Binding QuranDisplayModes}"
@@ -126,6 +126,67 @@
                 ToolTipService.ToolTip="Salin ayat"
                 Click="CopyButton_Click" />
 
+            <!-- Overflow button for responsive small widths -->
+            <Button Grid.Column="8"
+                    x:Name="OverflowButton"
+                    Content="⋯"
+                    FontSize="18"
+                    HorizontalAlignment="Right"
+                    Visibility="Collapsed">
+                <Button.Flyout>
+                    <Flyout>
+                        <StackPanel Padding="12" Spacing="8">
+
+                            <StackPanel Spacing="4">
+                                <TextBlock Text="Surah" />
+
+                                <ComboBox
+                                    Width="240"
+                                    ItemsSource="{Binding Surahs}"
+                                    SelectedItem="{Binding SelectedSurah, Mode=TwoWay}"
+                                    DisplayMemberPath="LatinName"
+                                    IsTextSearchEnabled="True"
+                                    PlaceholderText="Surah"
+                                    SelectionChanged="SurahComboBox_SelectionChanged" />
+                            </StackPanel>
+
+                            <StackPanel Spacing="4">
+                                <TextBlock Text="Ayah" />
+
+                                <ComboBox
+                                    Width="240"
+                                    ItemsSource="{Binding SurahAyats}"
+                                    SelectedValuePath="AyatNumber"
+                                    SelectedValue="{Binding SelectedAyatNumber, Mode=TwoWay}"
+                                    DisplayMemberPath="AyatNumber"
+                                    PlaceholderText="Ayah" />
+                            </StackPanel>
+
+                            <Button
+                                Content="Copy"
+                                HorizontalAlignment="Stretch"
+                                Click="CopyButton_Click"
+                                ToolTipService.ToolTip="Salin ayat" />
+
+                            <StackPanel Orientation="Horizontal" Spacing="8" VerticalAlignment="Center">
+                                <TextBlock Text="Mode" VerticalAlignment="Center" />
+                                <ComboBox Width="200"
+                                          ItemsSource="{Binding DisplayModes}"
+                                          SelectedItem="{Binding SelectedDisplayModeItem, Mode=TwoWay}"
+                                          DisplayMemberPath="DisplayName" />
+                            </StackPanel>
+
+                            <StackPanel Orientation="Horizontal" Spacing="8" VerticalAlignment="Center">
+                                <TextBlock Text="Mode Tampilan" VerticalAlignment="Center" />
+                                <ComboBox Width="200"
+                                          ItemsSource="{Binding QuranDisplayModes}"
+                                          SelectedItem="{Binding DisplayViewMode, Mode=TwoWay}" />
+                            </StackPanel>
+                        </StackPanel>
+                    </Flyout>
+                </Button.Flyout>
+            </Button>
+
             <!-- Tombol toggle Feature Panel -->
             <Button
                 Grid.Column="9"
@@ -135,6 +196,35 @@
                 FontFamily="Segoe Fluent Icons"
                 HorizontalAlignment="Right"
                 ToolTipService.ToolTip="Tampilkan/Sembunyikan Feature Panel" />
+
+            <!-- Visual states for responsive toolbar -->
+            <VisualStateManager.VisualStateGroups>
+                <VisualStateGroup x:Name="AdaptiveStates">
+                    <!-- Wide: show Mode panels, hide overflow -->
+                    <VisualState x:Name="Wide">
+                        <VisualState.StateTriggers>
+                            <AdaptiveTrigger MinWindowWidth="1100" />
+                        </VisualState.StateTriggers>
+                        <VisualState.Setters>
+                            <Setter Target="ModePanel.Visibility" Value="Visible" />
+                            <Setter Target="ModeTampilanPanel.Visibility" Value="Visible" />
+                            <Setter Target="OverflowButton.Visibility" Value="Collapsed" />
+                        </VisualState.Setters>
+                    </VisualState>
+
+                    <!-- Narrow: hide Mode panels, show overflow -->
+                    <VisualState x:Name="Narrow">
+                        <VisualState.StateTriggers>
+                            <AdaptiveTrigger MinWindowWidth="0" />
+                        </VisualState.StateTriggers>
+                        <VisualState.Setters>
+                            <Setter Target="ModePanel.Visibility" Value="Collapsed" />
+                            <Setter Target="ModeTampilanPanel.Visibility" Value="Collapsed" />
+                            <Setter Target="OverflowButton.Visibility" Value="Visible" />
+                        </VisualState.Setters>
+                    </VisualState>
+                </VisualStateGroup>
+            </VisualStateManager.VisualStateGroups>
 
         </Grid>
     </Border>

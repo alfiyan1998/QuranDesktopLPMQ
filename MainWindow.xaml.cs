@@ -27,6 +27,11 @@ public sealed partial class MainWindow : Window
     private bool _isPanelVisible = true;
     private MainViewModel? _vmRef;
 
+    // Responsive adaptive state for Feature Panel
+    private enum AdaptiveState { Wide, Medium, Compact }
+    private AdaptiveState _adaptiveState = AdaptiveState.Wide;
+    private FrameworkElement? _rootElement;
+
     public MainWindow()
     {
         this.InitializeComponent();
@@ -37,6 +42,90 @@ public sealed partial class MainWindow : Window
 
         // Do not use DI or ViewModel for this repository test.
         Activated += MainWindow_Activated;
+    }
+
+    private void RootElement_SizeChanged(
+     object? sender,
+     SizeChangedEventArgs e)
+    {
+        UpdateAdaptiveState(e.NewSize.Width);
+    }
+
+    private void UpdateAdaptiveState(double width)
+    {
+        var newState =
+            width >= 1100
+                ? AdaptiveState.Wide
+                : width >= 700
+                    ? AdaptiveState.Medium
+                    : AdaptiveState.Compact;
+
+        if (_adaptiveState == newState)
+            return;
+
+        _adaptiveState = newState;
+
+        ApplyFeaturePanelResponsiveLayout();
+    }
+
+    private void ApplyFeaturePanelResponsiveLayout()
+    {
+        Toolbar.SetResponsiveState(
+            _adaptiveState == AdaptiveState.Wide,
+            _adaptiveState == AdaptiveState.Compact);
+
+        switch (_adaptiveState)
+        {
+            case AdaptiveState.Wide:
+                // Feature Panel berada di kanan dan mengambil
+                // area kolom Content + Panel.
+                PanelColumn.Width = new GridLength(300);
+
+                FeaturePanel.Visibility = Visibility.Visible;
+                FeaturePanel.HorizontalAlignment = HorizontalAlignment.Right;
+                FeaturePanel.VerticalAlignment = VerticalAlignment.Stretch;
+                FeaturePanel.Width = 300;
+
+                Canvas.SetZIndex(FeaturePanel, 10);
+
+                _isPanelVisible = true;
+                break;
+
+
+            case AdaptiveState.Medium:
+                // Pada ukuran Medium, panel disembunyikan
+                // agar area Reader lebih luas.
+                PanelColumn.Width = new GridLength(0);
+
+                FeaturePanel.Visibility = Visibility.Collapsed;
+
+                FeaturePanel.ClearValue(FrameworkElement.WidthProperty);
+                FeaturePanel.ClearValue(FrameworkElement.HorizontalAlignmentProperty);
+                FeaturePanel.ClearValue(FrameworkElement.VerticalAlignmentProperty);
+
+                Canvas.SetZIndex(FeaturePanel, 0);
+
+                _isPanelVisible = false;
+                break;
+
+
+            case AdaptiveState.Compact:
+                // Pada Compact, panel tidak mengambil ruang layout.
+                // Panel akan ditampilkan sebagai overlay ketika tombol
+                // Feature Panel ditekan.
+                PanelColumn.Width = new GridLength(0);
+
+                FeaturePanel.Visibility = Visibility.Collapsed;
+
+                FeaturePanel.Width = 300;
+                FeaturePanel.HorizontalAlignment = HorizontalAlignment.Right;
+                FeaturePanel.VerticalAlignment = VerticalAlignment.Stretch;
+
+                Canvas.SetZIndex(FeaturePanel, 1000);
+
+                _isPanelVisible = false;
+                break;
+        }
     }
 
     private void MainWindow_Vm_PropertyChanged(object? sender, PropertyChangedEventArgs e)
@@ -124,6 +213,14 @@ public sealed partial class MainWindow : Window
             if (this.Content is FrameworkElement root && root.DataContext != vm)
             {
                 root.DataContext = vm;
+                _rootElement = root;
+
+                // Monitor size changes to drive responsive behavior for FeaturePanel
+                _rootElement.SizeChanged -= RootElement_SizeChanged;
+                _rootElement.SizeChanged += RootElement_SizeChanged;
+
+                // Initialize adaptive state
+                UpdateAdaptiveState(_rootElement.ActualWidth);
 
                 // Keep reference and watch for SelectedJuz changes from toolbar
                 // so we can ensure ReaderView is shown when user selects a Juz.
@@ -200,6 +297,9 @@ public sealed partial class MainWindow : Window
 
                     Toolbar.CopyRequested +=
                         Toolbar_CopyRequested;
+
+                // Ensure initial panel column width matches initial visibility
+                PanelColumn.Width = _isPanelVisible ? new GridLength(300) : new GridLength(0);
                 }
                 catch { /* ignore if Sidebar not available yet */ }
             }
@@ -632,29 +732,51 @@ public sealed partial class MainWindow : Window
     {
         try
         {
-            if (_isPanelVisible)
+            // Adaptive behavior:
+            // - Wide: toggle column as before
+            // - Medium: toggle column (collapsed by default)
+            // - Compact: show as overlay (do not expand PanelColumn)
+            if (_adaptiveState == AdaptiveState.Compact)
             {
-                _isPanelVisible = false;
+                // In compact mode, toggle overlay visibility by manipulating
+                // the FeaturePanel's Visual properties without changing the Grid column width.
+                if (_isPanelVisible)
+                {
+                    _isPanelVisible = false;
 
-                FeaturePanel.Visibility =
-                    Visibility.Collapsed;
+                    FeaturePanel.Visibility = Visibility.Collapsed;
+                }
+                else
+                {
+                    _isPanelVisible = true;
 
-                PanelColumn.Width =
-                    new GridLength(0);
+                    FeaturePanel.Visibility = Visibility.Visible;
 
-                Debug.WriteLine("[PANEL] Feature Panel hidden.");
+                    FeaturePanel.Width = 300;
+                    FeaturePanel.HorizontalAlignment = HorizontalAlignment.Right;
+                    FeaturePanel.VerticalAlignment = VerticalAlignment.Stretch;
+
+                    Canvas.SetZIndex(FeaturePanel, 1000);
+                }
+                return;
             }
             else
             {
-                _isPanelVisible = true;
+                // Wide / Medium: existing column toggle behavior
+                if (_isPanelVisible)
+                {
+                    _isPanelVisible = false;
 
-                FeaturePanel.Visibility =
-                    Visibility.Visible;
+                    FeaturePanel.Visibility = Visibility.Collapsed;
+                    PanelColumn.Width = new GridLength(0);
+                }
+                else
+                {
+                    _isPanelVisible = true;
 
-                PanelColumn.Width =
-                    new GridLength(300);
-
-                Debug.WriteLine("[PANEL] Feature Panel shown.");
+                    FeaturePanel.Visibility = Visibility.Visible;
+                    PanelColumn.Width = new GridLength(300);
+                }
             }
         }
         catch (Exception ex)

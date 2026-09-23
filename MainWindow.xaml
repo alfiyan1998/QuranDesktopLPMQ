@@ -41,6 +41,7 @@
                 Width="300" />
 
         </Grid.ColumnDefinitions>
+        
 
 
         <!-- =====================================================
@@ -120,7 +121,8 @@
         <views:FeaturePanelView
             x:Name="FeaturePanel"
             Grid.Row="1"
-            Grid.Column="2" />
+            Grid.Column="1"
+            Grid.ColumnSpan="2" />
 
 
         <!-- =====================================================
