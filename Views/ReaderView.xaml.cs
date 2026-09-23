@@ -175,26 +175,15 @@ public sealed partial class ReaderView : UserControl
         QueueAttachAyatCardHandlers();
 
         // Schedule a layout diagnostic after UI has a chance to realize visuals.
-        _ = DispatcherQueue.TryEnqueue(() =>
+            _ = DispatcherQueue.TryEnqueue(() =>
         {
             try
             {
-                Debug.WriteLine("[READER LAYOUT DEBUG]");
-                Debug.WriteLine($"ReaderView ActualWidth = {this.ActualWidth}");
-                Debug.WriteLine($"ReaderView ActualHeight = {this.ActualHeight}");
-
-                Debug.WriteLine($"ListView ActualWidth = {(PART_ItemsControl is null ? 0 : PART_ItemsControl.ActualWidth)}");
-                Debug.WriteLine($"ListView ActualHeight = {(PART_ItemsControl is null ? 0 : PART_ItemsControl.ActualHeight)}");
-                Debug.WriteLine($"ListView Visibility = {(PART_ItemsControl is null ? "NULL" : PART_ItemsControl.Visibility.ToString())}");
-                Debug.WriteLine($"ListView Items.Count = {(PART_ItemsControl is null ? -1 : PART_ItemsControl.Items.Count)}");
-
-
-                Debug.WriteLine($"IsLoadingAyat = {_vm?.IsLoadingAyat}");
-                Debug.WriteLine($"IsAyatView = {_vm?.IsAyatView}");
+                // Diagnostic logs removed: [READER LAYOUT DEBUG]
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-                Debug.WriteLine("[READER LAYOUT DEBUG ERROR] " + ex.ToString());
+                // suppressed
             }
         });
     }
@@ -287,15 +276,15 @@ public sealed partial class ReaderView : UserControl
 
         // Apply settings to AyatCard visuals when available.
         // Diagnostic: count realized AyatCard controls
-        try
-        {
-            var realized = FindAyatCards(PART_ItemsControl).ToList();
-            Debug.WriteLine($"[READER LAYOUT DEBUG] AyatCard realized count = {realized.Count}");
-        }
-        catch (Exception ex)
-        {
-            Debug.WriteLine("[READER LAYOUT DEBUG] AyatCard realized error: " + ex.ToString());
-        }
+            try
+            {
+                var realized = FindAyatCards(PART_ItemsControl).ToList();
+                // Diagnostic logs removed: [READER LAYOUT DEBUG] AyatCard realized count
+            }
+            catch (Exception)
+            {
+                // suppressed
+            }
 
 
         var cards =

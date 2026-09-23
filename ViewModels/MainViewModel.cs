@@ -134,6 +134,14 @@ public sealed partial class MainViewModel : ViewModelBase
                     foreach (var a in list)
                         SurahAyats.Add(a);
 
+                    // If there is an existing numeric selection, try to resolve
+                    // it to the Surah list instance so the toolbar ComboBox
+                    // SelectedItem can be set and display correctly.
+                    if (SelectedAyatNumber is int selNum)
+                    {
+                        SelectedSurahAyat = SurahAyats.FirstOrDefault(x => x.AyatNumber == selNum);
+                    }
+
                     tcs.SetResult(0);
                 }
                 catch (Exception ex)
@@ -272,6 +280,14 @@ public sealed partial class MainViewModel : ViewModelBase
 
     [ObservableProperty]
     private int? selectedAyatNumber;
+
+    /// <summary>
+    /// The Ayat instance from SurahAyats that is selected in the toolbar ComboBox.
+    /// Binding target for the toolbar SelectedItem to ensure visual selection
+    /// resolves to the Surah list instance instead of the Reader instance.
+    /// </summary>
+    [ObservableProperty]
+    private Ayat? selectedSurahAyat;
 
 
     #region Observable Properties
@@ -1552,7 +1568,16 @@ public sealed partial class MainViewModel : ViewModelBase
                     Ayats.Add(ayat);
                 }
 
-                SelectedAyat = Ayats.FirstOrDefault();
+                // When loading a Juz, SelectedAyat will be set explicitly
+                // after Surah navigation list is populated. Avoid setting
+                // SelectedAyat here during a Juz load to prevent firing
+                // SelectedAyat change before SurahAyats (ComboBox ItemsSource)
+                // is available which would prevent ComboBox SelectedValue
+                // from being resolved visually.
+                if (!_isLoadingJuz)
+                {
+                    SelectedAyat = Ayats.FirstOrDefault();
+                }
             });
         }
         else
@@ -2396,6 +2421,9 @@ public sealed partial class MainViewModel : ViewModelBase
             {
                 if (!ReferenceEquals(SelectedAyat, inSurahList))
                     SelectedAyat = inSurahList;
+                // Also ensure the toolbar SelectedItem binds to the Surah list instance
+                // so the ComboBox displays the numeric ayat correctly.
+                SelectedSurahAyat = inSurahList;
             }
         }
         catch

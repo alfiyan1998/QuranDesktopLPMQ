@@ -24,10 +24,7 @@
                 <!-- 4. Ayah -->
                 <ColumnDefinition Width="Auto"/>
 
-                <!-- 5. Juz -->
-                <ColumnDefinition Width="Auto"/>
-
-                <!-- 6. Mode Font -->
+                <!-- 5. Mode Font -->
                 <ColumnDefinition Width="Auto"/>
 
                 <!-- 7. Mode Tampilan -->
@@ -79,10 +76,7 @@
                        FontWeight="SemiBold"
                        Text="{Binding SelectedSurah.ArabicName}" />
 
-            <!-- Dropdown Ayah (navigation list for the selected Surah)
-                 Use SelectedValuePath + SelectedValue bound to SelectedAyatNumber
-                 so selection works even when the item instances differ between
-                 the Reader collection and the Surah navigation collection. -->
+            <!-- Dropdown Ayah (navigation list for the selected Surah) -->
             <ComboBox Grid.Column="4"
                       x:Name="AyahComboBox"
                       Width="90"
@@ -93,19 +87,9 @@
                       DisplayMemberPath="AyatNumber"
                       PlaceholderText="Ayah" />
 
-            <!-- Juz ComboBox -->
-            <ComboBox Grid.Column="5"
-                      x:Name="JuzComboBox"
-                      Width="120"
-                      Margin="8,0"
-                      ItemsSource="{Binding JuzList}"
-                      SelectedItem="{Binding SelectedJuz, Mode=TwoWay}"
-                      DisplayMemberPath="DisplayName"
-                      PlaceholderText="Juz" />
-
             <!-- Mode Tampilan -->
             <StackPanel
-    Grid.Column="6"
+    Grid.Column="5"
     Orientation="Horizontal"
     VerticalAlignment="Center"
     Spacing="8"
@@ -125,7 +109,7 @@
             </StackPanel>
 
             <!-- Mode Tampilan (Ayat / Halaman) -->
-            <StackPanel Grid.Column="7" Orientation="Horizontal" VerticalAlignment="Center" Spacing="8" Margin="8,0">
+            <StackPanel Grid.Column="6" Orientation="Horizontal" VerticalAlignment="Center" Spacing="8" Margin="8,0">
                 <TextBlock Text="Mode Tampilan" VerticalAlignment="Center" />
                 <ComboBox Width="120"
                           ItemsSource="{Binding QuranDisplayModes}"
@@ -136,7 +120,7 @@
 
             <!-- Tombol Copy -->
             <Button
-                Grid.Column="8"
+                Grid.Column="7"
                 x:Name="CopyButton"
                 Content="Copy"
                 ToolTipService.ToolTip="Salin ayat"
@@ -144,7 +128,7 @@
 
             <!-- Tombol toggle Feature Panel -->
             <Button
-                Grid.Column="10"
+                Grid.Column="9"
                 x:Name="PanelToggleButton"
                 Click="PanelToggleButton_Click"
                 Content="&#xE71D;"
