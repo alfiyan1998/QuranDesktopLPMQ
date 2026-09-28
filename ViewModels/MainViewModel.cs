@@ -89,9 +89,25 @@ public sealed partial class MainViewModel : ViewModelBase
     // as part of SelectedAyat synchronization.
     private bool _suppressSelectedJuzChanged;
 
+    // Suppress handling of SelectedSurah changes when the change is a
+    // programmatic synchronization originating from SelectedAyat updates.
+    private bool _suppressSelectedSurahChanged;
+
     // UI dispatcher captured at construction time to ensure
     // ObservableCollection updates are performed on the UI thread.
     private readonly Microsoft.UI.Dispatching.DispatcherQueue _uiDispatcher;
+
+    // Tracing counters for diagnosing re-entrant loads
+    private int _traceLoadAyatCount;
+    private int _traceHandleSelectedSurahCount;
+    private int _traceLoadPagesCount;
+    private int _traceOnSelectedSurahChangedCount;
+    // Expose the last handler task so callers can await the completion
+    // of the async SelectedSurah handling without invoking LoadAyatAsync
+    // directly and causing duplicate loads.
+    private Task? _lastHandleSelectedSurahTask;
+    public Task? LastHandleSelectedSurahTask => _lastHandleSelectedSurahTask;
+    private int _traceOnSelectedAyatNumberChangedCount;
 
     #endregion
 
@@ -137,7 +153,16 @@ public sealed partial class MainViewModel : ViewModelBase
                     // If there is an existing numeric selection, try to resolve
                     // it to the Surah list instance so the toolbar ComboBox
                     // SelectedItem can be set and display correctly.
-                    if (SelectedAyatNumber is int selNum)
+                    // Prefer to synchronize the numeric toolbar selection from
+                    // the current SelectedAyat if available (this prevents a
+                    // case where LoadSurahAyatsAsync runs before SelectedAyat
+                    // is set during a Juz load, leaving the ComboBox unselected).
+                    if (SelectedAyat is not null && SelectedAyat.Surah == surahNumber)
+                    {
+                        if (SelectedAyatNumber != SelectedAyat.AyatNumber)
+                            SelectedAyatNumber = SelectedAyat.AyatNumber;
+                    }
+                    else if (SelectedAyatNumber is int selNum)
                     {
                         SelectedSurahAyat = SurahAyats.FirstOrDefault(x => x.AyatNumber == selNum);
                     }
@@ -611,6 +636,14 @@ public sealed partial class MainViewModel : ViewModelBase
             OnPropertyChanged(nameof(Pages));
 
             NotifyNavigationCommands();
+
+        // Ensure footer/position text reflects final state after all
+        // synchronization (SelectedSurah/SelectedJuz) has been applied.
+        // Some synchronization steps above may update SelectedSurah or
+        // SelectedJuz after the initial UpdateAyatPosition() call, so
+        // recalculate to guarantee CurrentAyatPosition uses the latest
+        // SelectedAyat and SelectedSurah values.
+        UpdateAyatPosition();
         }
     }
 
@@ -972,6 +1005,10 @@ public sealed partial class MainViewModel : ViewModelBase
                 await OpenSelectedAyatPageAsync();
             }
 
+            // Ensure footer reflects final state after loading the Surah
+            // and any page navigation completed.
+            UpdateAyatPosition();
+
             // =====================================================
             // 4. UPDATE UI
             // =====================================================
@@ -1238,6 +1275,8 @@ public sealed partial class MainViewModel : ViewModelBase
     public async Task LoadAyatAsync(
         int surahNumber)
     {
+        _traceLoadAyatCount++;
+        Debug.WriteLine($"[TRACE SURAH] LoadAyatAsync START Surah={surahNumber} Count={_traceLoadAyatCount} Thread={Environment.CurrentManagedThreadId}");
         var requestId =
             Interlocked.Increment(
                 ref _loadAyatRequestId);
@@ -1334,6 +1373,7 @@ public sealed partial class MainViewModel : ViewModelBase
             Debug.WriteLine(
                 $"[LOAD] Surah {surahNumber} " +
                 $"berhasil dimuat.");
+            Debug.WriteLine($"[TRACE SURAH] LoadAyatAsync END Surah={surahNumber} Count={_traceLoadAyatCount}");
         }
         catch (Exception ex)
         {
@@ -1606,6 +1646,8 @@ public sealed partial class MainViewModel : ViewModelBase
     private void LoadPages(
         IReadOnlyList<Ayat> ayats)
     {
+        _traceLoadPagesCount++;
+        Debug.WriteLine($"[TRACE PAGE] LoadPages START Ayats={ayats.Count} SelectedSurah={SelectedSurah?.Id} SelectedAyat={SelectedAyat?.AyatNumber} Count={_traceLoadPagesCount}");
         Debug.WriteLine(
             "--------------------------------");
 
@@ -1674,6 +1716,7 @@ public sealed partial class MainViewModel : ViewModelBase
 
         Debug.WriteLine(
             "--------------------------------");
+        Debug.WriteLine($"[TRACE PAGE] LoadPages END Ayats={ayats.Count} Count={_traceLoadPagesCount}");
     }
 
 
@@ -2189,6 +2232,16 @@ public sealed partial class MainViewModel : ViewModelBase
     partial void OnSelectedSurahChanged(
     Surah? value)
     {
+        _traceOnSelectedSurahChangedCount++;
+        Debug.WriteLine($"[TRACE SURAH] OnSelectedSurahChanged Surah={value?.Id} Suppress={_suppressSelectedSurahChanged} IsLoadingAyat={IsLoadingAyat} IsLoadingJuz={_isLoadingJuz} Count={_traceOnSelectedSurahChangedCount}");
+
+        // If this change originates from SelectedAyat synchronization,
+        // do not treat it as a user-initiated Surah selection.
+        if (_suppressSelectedSurahChanged)
+        {
+            return;
+        }
+
         if (value is null)
         {
             Ayats.Clear();
@@ -2246,7 +2299,10 @@ public sealed partial class MainViewModel : ViewModelBase
 
         _activeJuzNumber = null;
 
-        _ = HandleSelectedSurahChangedAsync(
+        // Start async handler and keep a reference so external callers
+        // (e.g. UI event handlers) can await its completion instead of
+        // calling LoadAyatAsync() again.
+        _lastHandleSelectedSurahTask = HandleSelectedSurahChangedAsync(
             value);
     }
 
@@ -2257,6 +2313,8 @@ public sealed partial class MainViewModel : ViewModelBase
     private async Task HandleSelectedSurahChangedAsync(
     Surah? value)
     {
+        _traceHandleSelectedSurahCount++;
+        Debug.WriteLine($"[TRACE SURAH] HandleSelectedSurahChangedAsync START Surah={value?.Id} Count={_traceHandleSelectedSurahCount}");
         try
         {
             if (value is null)
@@ -2279,6 +2337,7 @@ public sealed partial class MainViewModel : ViewModelBase
             {
                 await OpenSelectedAyatPageAsync();
             }
+        Debug.WriteLine($"[TRACE SURAH] HandleSelectedSurahChangedAsync END Surah={value?.Id} Count={_traceHandleSelectedSurahCount}");
         }
         catch (Exception ex)
         {
@@ -2308,10 +2367,14 @@ public sealed partial class MainViewModel : ViewModelBase
             if (value is not null)
             {
                 SelectedAyatNumber = value.AyatNumber;
+
+                // Pastikan posisi footer ikut diberitahukan ke UI.
+                OnPropertyChanged(nameof(CurrentAyatPosition));
             }
             else
             {
                 SelectedAyatNumber = null;
+                OnPropertyChanged(nameof(CurrentAyatPosition));
             }
         }
         catch
@@ -2339,6 +2402,34 @@ public sealed partial class MainViewModel : ViewModelBase
                     _suppressSelectedJuzChanged = true;
                     SelectedJuz = juz;
                     _suppressSelectedJuzChanged = false;
+                }
+
+                // Synchronize SelectedSurah for toolbar display only when the
+                // SelectedAyat belongs to a different Surah than currently
+                // selected in the toolbar. This synchronization must not
+                // trigger a full Surah load or clear the active Juz context.
+                try
+                {
+                    if (SelectedSurah is null || SelectedSurah.Id != value.Surah)
+                    {
+                        var surah = Surahs.FirstOrDefault(s => s.Id == value.Surah);
+                        if (surah is not null)
+                        {
+                            _suppressSelectedSurahChanged = true;
+                            try
+                            {
+                                SelectedSurah = surah;
+                            }
+                            finally
+                            {
+                                _suppressSelectedSurahChanged = false;
+                            }
+                        }
+                    }
+                }
+                catch
+                {
+                    // suppress errors from synchronization
                 }
 
                 // Auto-navigation: if the selected ayat is not present in the current
@@ -2395,6 +2486,8 @@ public sealed partial class MainViewModel : ViewModelBase
     /// </summary>
     partial void OnSelectedAyatNumberChanged(int? value)
     {
+        _traceOnSelectedAyatNumberChangedCount++;
+        Debug.WriteLine($"[TRACE AYAT NUMBER] OnSelectedAyatNumberChanged Value={value} Count={_traceOnSelectedAyatNumberChangedCount} Thread={Environment.CurrentManagedThreadId}");
         try
         {
             if (value is null)
@@ -2566,21 +2659,34 @@ public sealed partial class MainViewModel : ViewModelBase
             return;
         }
 
-        var index =
-            Ayats.IndexOf(
-                SelectedAyat);
+        var surah =
+            Surahs.FirstOrDefault(
+                s => s.Id == SelectedAyat.Surah);
 
-        if (index < 0)
+        if (surah is not null)
         {
             CurrentAyatPosition =
-                string.Empty;
-
-            return;
+                $"Ayat {SelectedAyat.AyatNumber} / " +
+                $"{surah.TotalAyah}";
         }
+        else
+        {
+            var index =
+                Ayats.IndexOf(
+                    SelectedAyat);
 
-        CurrentAyatPosition =
-            $"Ayat {index + 1} / " +
-            $"{Ayats.Count}";
+            if (index < 0)
+            {
+                CurrentAyatPosition =
+                    string.Empty;
+
+                return;
+            }
+
+            CurrentAyatPosition =
+                $"Ayat {index + 1} / " +
+                $"{Ayats.Count}";
+        }
     }
 
     #endregion
@@ -2706,6 +2812,9 @@ public sealed partial class MainViewModel : ViewModelBase
                         // in the reader collection after ReplaceAyats).
                         SelectedAyat = firstAyat;
 
+                        // Sinkronkan nilai Ayah ComboBox dengan ayat pertama Juz.
+                        SelectedAyatNumber = firstAyat.AyatNumber;
+
                         tcsSet.SetResult(0);
                     }
                     catch (Exception ex)
@@ -2718,9 +2827,12 @@ public sealed partial class MainViewModel : ViewModelBase
             }
             else
             {
+                
+
                 // Fallback: apply directly (rare).
                 SelectedSurah = Surahs.FirstOrDefault(s => s.Id == firstAyat.Surah);
                 SelectedAyat = firstAyat;
+                SelectedAyatNumber = firstAyat.AyatNumber;
             }
 
             // If there is a pending navigation (user selected an Ayat from toolbar

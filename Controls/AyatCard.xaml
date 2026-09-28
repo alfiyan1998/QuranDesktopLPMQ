@@ -194,65 +194,82 @@
                              AYAT
                              ================================================= -->
                         <Grid
-                            x:Name="PART_AyatArea"
-                            Grid.Row="0">
+    x:Name="PART_AyatArea"
+    Grid.Row="0"
+                            SizeChanged="PART_AyatArea_SizeChanged">
+
+                            <Grid.ColumnDefinitions>
+                                <!-- Nomor ayat -->
+                                <ColumnDefinition Width="Auto"/>
+
+                                <!-- Teks Arab -->
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
 
                             <!-- =================================================
-                             TEKS AYAT
-                             ================================================= -->
-
-                           
-
-                            <TextBlock
-                                x:Name="PART_TextTeks"
-                                Text="{Binding DisplayText}"
-                                FontSize="{Binding ArabicFontSize, ElementName=Root}"
-                                LineHeight="78"
-                                TextWrapping="Wrap"
-                                FlowDirection="RightToLeft"
-                                TextAlignment="Left"
-                                HorizontalAlignment="Stretch"
-                                VerticalAlignment="Center"
-                                font:FontHelper.AutoFont="True"/>
-
-
-                            <!-- =================================================
-                             NOMOR AYAT UNICODE
-                             ================================================= -->
+         NOMOR AYAT
+         ================================================= -->
 
                             <Canvas
-                                x:Name="PART_AyatNumberCanvas"
-                                HorizontalAlignment="Stretch"
-                                VerticalAlignment="Stretch"
-                                SizeChanged="PART_AyatNumberCanvas_SizeChanged"
-                                IsHitTestVisible="False">
+        x:Name="PART_AyatNumberCanvas"
+        Grid.Column="0"
+        Width="38"
+        HorizontalAlignment="Left"
+        VerticalAlignment="Stretch"
+        SizeChanged="PART_AyatNumberCanvas_SizeChanged"
+        IsHitTestVisible="False">
 
                                 <Border
-                                    x:Name="PART_AyatNumber"
-                                    Width="38"
-                                    Height="38"
-                                    Visibility="Collapsed"
-                                    HorizontalAlignment="Left"
-                                    VerticalAlignment="Bottom">
+            x:Name="PART_AyatNumber"
+            Width="38"
+            Height="38"
+            Visibility="Collapsed"
+            HorizontalAlignment="Left"
+            VerticalAlignment="Bottom">
 
                                     <Border.Background>
                                         <ImageBrush
-                                            ImageSource="/Resources/Images/bingkai-nomor-ayat.png"
-                                            Stretch="Uniform"/>
+                    ImageSource="/Resources/Images/bingkai-nomor-ayat.png"
+                    Stretch="Uniform"/>
                                     </Border.Background>
 
                                     <TextBlock
-                                        Text="{Binding ArabicAyatNumber}"
-                                        FontSize="13"
-                                        FontWeight="SemiBold"
-                                        HorizontalAlignment="Center"
-                                        VerticalAlignment="Center"
-                                        TextAlignment="Center"
-                                        FlowDirection="LeftToRight"/>
-
+                Text="{Binding ArabicAyatNumber}"
+                FontSize="13"
+                FontWeight="SemiBold"
+                HorizontalAlignment="Center"
+                VerticalAlignment="Center"
+                TextAlignment="Center"
+                FlowDirection="LeftToRight"/>
                                 </Border>
 
                             </Canvas>
+
+
+                            <!-- =================================================
+         TEKS AYAT
+         ================================================= -->
+
+                            <TextBlock
+        x:Name="PART_TextTeks"
+        Grid.Column="1"
+        Text="{Binding DisplayText}"
+        FontSize="{Binding ArabicFontSize, ElementName=Root}"
+        LineHeight="78"
+        TextWrapping="Wrap"
+        FlowDirection="RightToLeft"
+        TextAlignment="Left"
+        HorizontalAlignment="Stretch"
+        VerticalAlignment="Center"
+        font:FontHelper.AutoFont="True"/>
+
+                            <Canvas
+    x:Name="PART_HandwrittenCanvas"
+    Grid.Column="1"
+    HorizontalAlignment="Stretch"
+    VerticalAlignment="Top"
+    Visibility="Collapsed"
+    IsHitTestVisible="False" />
 
                         </Grid>
 

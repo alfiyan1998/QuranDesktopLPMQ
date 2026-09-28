@@ -192,13 +192,44 @@
                      CURRENT POSITION
                      ================================================= -->
 
-                <TextBlock
-                    Grid.Column="1"
-                    Text="{Binding CurrentAyatPosition}"
-                    HorizontalAlignment="Center"
-                    VerticalAlignment="Center"
-                    FontSize="15"
-                    FontWeight="SemiBold" />
+                <StackPanel
+    Grid.Column="1"
+    HorizontalAlignment="Center"
+    VerticalAlignment="Center"
+    Spacing="2">
+
+                    <!-- Informasi utama -->
+                    <TextBlock HorizontalAlignment="Center"
+                               TextAlignment="Center"
+                               FontSize="15"
+                               FontWeight="SemiBold">
+                        <Run Text="{Binding SelectedSurah.LatinName}" />
+                        <Run Text=" • " />
+                        <Run Text="{Binding CurrentAyatPosition}" />
+                    </TextBlock>
+
+                    <!-- Informasi Juz (shows when SelectedJuz is set) -->
+                    <TextBlock HorizontalAlignment="Center"
+                               TextAlignment="Center"
+                               FontSize="11"
+                               Opacity="0.85"
+                               Text="{Binding SelectedJuz.DisplayName}" />
+
+                    <!-- Informasi Surat -->
+                    <TextBlock HorizontalAlignment="Center"
+                               TextAlignment="Center"
+                               FontSize="10"
+                               Opacity="0.7">
+                        <Run Text="Surat " />
+                        <Run Text="{Binding SelectedSurah.Id}" />
+                        <Run Text=" dari 114 • " />
+                        <Run Text="{Binding SelectedSurah.Category}" />
+                        <Run Text=" • " />
+                        <Run Text="{Binding SelectedSurah.TotalAyah}" />
+                        <Run Text=" ayat" />
+                    </TextBlock>
+
+                </StackPanel>
 
 
                 <!-- =================================================

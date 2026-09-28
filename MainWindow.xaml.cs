@@ -924,8 +924,10 @@ public sealed partial class MainWindow : Window
             // secara eksplisit supaya kita tahu kapan selesai.
             //
 
-            await vm.LoadAyatAsync(
-                surah.Id);
+            // Await the async handler started by the ViewModel when SelectedSurah
+            // changed. This prevents invoking LoadAyatAsync twice (once via
+            // the handler and once explicitly) which caused duplicate loads.
+            await (vm.LastHandleSelectedSurahTask ?? Task.CompletedTask);
 
             // =====================================================
             // 4. PILIH AYAT PERTAMA

@@ -1,4 +1,5 @@
 using System;
+using System.Diagnostics;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -13,6 +14,8 @@ using Windows.ApplicationModel.DataTransfer;
 
 using QuranKemenag.Models;
 using QuranKemenag.Services.Font;
+
+using QuranKemenag.Services.Page;
 
 
 
@@ -48,6 +51,8 @@ public sealed partial class AyatCard : UserControl
 
 
     private readonly IFontManager _fontManager = new FontManager();
+    private readonly IGlyphMeasurer _handwrittenGlyphMeasurer =
+    new TextBlockGlyphMeasurer();
     public FontFamily BismillahFont =>
     _fontManager.GetUnicodeFont();
 
@@ -69,6 +74,29 @@ public sealed partial class AyatCard : UserControl
     {
         if (args.NewValue is not Ayat ayat)
             return;
+
+        if (ayat.KodeFont == 0)
+        {
+            // Computer Font
+            PART_TextTeks.Visibility =
+                Visibility.Visible;
+
+            PART_HandwrittenCanvas.Visibility =
+                Visibility.Collapsed;
+
+            PART_HandwrittenCanvas.Children.Clear();
+        }
+        else
+        {
+            // Handwritten Manuscript
+            PART_TextTeks.Visibility =
+                Visibility.Collapsed;
+
+            PART_HandwrittenCanvas.Visibility =
+                Visibility.Visible;
+
+            RenderHandwritten(ayat);
+        }
 
         // =====================================================
         // HEADER SURAH
@@ -1624,5 +1652,124 @@ Catatan Kaki: {EscapeHtml(ayat.TextFn.Trim())}
         }
     }
 
+    private void RenderHandwritten(Ayat ayat)
+    {
+        if (PART_HandwrittenCanvas is null)
+            return;
+        // Compute available width from the actual area allocated for the ayat text.
+        // Do not use PART_HandwrittenCanvas.ActualWidth because the canvas may
+        // have retained a previously larger width. Use PART_AyatArea (the
+        // containing element) and subtract the ayat number column width to get
+        // the true text area width.
+        double areaWidth = PART_AyatArea?.ActualWidth ?? 0;
+        double numberColWidth = PART_AyatNumberCanvas?.ActualWidth ?? 0;
+
+        double availableWidth = Math.Max(0, areaWidth - numberColWidth);
+
+        Debug.WriteLine($"[HANDWRITTEN RESPONSIVE] PART_AyatArea.ActualWidth={PART_AyatArea?.ActualWidth:F1}, PART_TextTeks.ActualWidth={PART_TextTeks?.ActualWidth:F1}, PART_HandwrittenCanvas.ActualWidth={PART_HandwrittenCanvas?.ActualWidth:F1}, availableWidth={availableWidth:F1}, numberColWidth={PART_AyatNumberCanvas?.ActualWidth:F1}");
+
+        if (availableWidth <= 0)
+            return;
+
+        PART_HandwrittenCanvas.Children.Clear();
+
+        var layout =
+            HandwrittenLayoutEngine.BuildLayout(
+                new[] { ayat },
+                kodeFont =>
+                    _fontManager.GetSymbolFont(kodeFont),
+                ArabicFontSize,
+                availableWidth,
+                _handwrittenGlyphMeasurer);
+
+        // Ensure the canvas width matches the computed available text width so it
+        // no longer retains a stale larger width and pushes glyphs outside the
+        // visible region.
+        PART_HandwrittenCanvas.Width = availableWidth;
+
+        PART_HandwrittenCanvas.Height =
+            layout.TotalHeight;
+
+        foreach (var line in layout.Lines)
+        {
+            foreach (var positioned in line.Glyphs)
+            {
+                var glyphVisual =
+                    new TextBlock
+                    {
+                        Text =
+                            positioned.Glyph.Character.ToString(),
+
+                        FontFamily =
+                            positioned.Glyph.Font,
+
+                        FontSize =
+                            ArabicFontSize,
+
+                        IsHitTestVisible =
+                            false
+                    };
+
+                Canvas.SetLeft(
+                    glyphVisual,
+                    positioned.X);
+
+                Canvas.SetTop(
+                    glyphVisual,
+                    positioned.Y);
+
+                PART_HandwrittenCanvas.Children.Add(
+                    glyphVisual);
+            }
+        }
+
+        // Diagnostic: report layout extents
+        try
+        {
+            double rightmost = 0;
+            foreach (var line in layout.Lines)
+            {
+                if (line.Glyphs.Count == 0)
+                    continue;
+
+                var last = line.Glyphs[line.Glyphs.Count - 1];
+                var extent = last.X + last.Glyph.Width;
+                rightmost = Math.Max(rightmost, extent);
+            }
+
+            Debug.WriteLine($"[HANDWRITTEN RESPONSIVE] layout.TotalHeight={layout.TotalHeight:F1}, lines={layout.Lines.Count}, rightmostExtent={rightmost:F1}");
+        }
+        catch (Exception ex)
+        {
+            Debug.WriteLine("[HANDWRITTEN RESPONSIVE] diagnostic error: " + ex.ToString());
+        }
+    }
+
+    private void PART_AyatArea_SizeChanged(
+    object sender,
+    SizeChangedEventArgs e)
+    {
+        if (DataContext is not Ayat ayat)
+            return;
+
+        if (ayat.KodeFont == 0)
+            return;
+
+        if (e.NewSize.Width <= 0)
+            return;
+
+        Debug.WriteLine($"[HANDWRITTEN RESPONSIVE] PART_AyatArea_SizeChanged NewWidth={e.NewSize.Width:F1} OldWidth={e.PreviousSize.Width:F1}");
+
+        DispatcherQueue.TryEnqueue(() =>
+        {
+            if (DataContext is not Ayat currentAyat)
+                return;
+
+            if (currentAyat.KodeFont == 0)
+                return;
+
+            RenderHandwritten(currentAyat);
+        });
+    }
 
 }
