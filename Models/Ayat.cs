@@ -28,8 +28,15 @@ public class Ayat
     public int AyatNumber { get; set; }
 
     /// <summary>
+    /// Menandakan apakah ayat sedang ditandai sebagai Bookmark.
+    /// Status ini masih bersifat sementara dan belum disimpan ke database.
+    /// </summary>
+    public bool IsBookmarked { get; set; }
+
+    /// <summary>
     /// Juz (maps to column 'juz'). Menunjukkan bagian juz tempat ayat berada.
     /// </summary>
+    /// 
     public int Juz { get; set; }
 
     /// <summary>
@@ -173,6 +180,8 @@ public class Ayat
     /// At-Taubah (Surah 9) tidak memiliki Bismillah.
     /// </summary>
     public bool ShowBismillah { get; set; }
+
+
 
 
 }

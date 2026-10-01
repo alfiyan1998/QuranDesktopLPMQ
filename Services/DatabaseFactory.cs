@@ -40,6 +40,9 @@ public sealed class DatabaseFactory
             DatabaseType.Translation => "Indonesia2019.db",
 
             DatabaseType.MushafLayout => "mushaf_layout.db",
+
+            // Database untuk menyimpan Bookmark pengguna
+            DatabaseType.Bookmark => "bookmark.db",
             _ => throw new ArgumentOutOfRangeException(nameof(type), type, "Unknown database type")
         };
 

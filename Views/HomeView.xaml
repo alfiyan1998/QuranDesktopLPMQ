@@ -4,95 +4,152 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
 
     <ScrollViewer
+        HorizontalScrollBarVisibility="Disabled"
         VerticalScrollBarVisibility="Auto">
 
-        <StackPanel
-            Padding="40"
-            Spacing="24">
+        <Grid Padding="32">
 
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+            </Grid.RowDefinitions>
+
+
+            <!-- ========================================= -->
             <!-- HEADER -->
+            <!-- ========================================= -->
 
             <StackPanel
-                Spacing="8">
+                Grid.Row="0"
+                HorizontalAlignment="Center"
+                Margin="0,10,0,28">
 
                 <TextBlock
-                    Text="Quran Kemenag for Windows"
-                    FontSize="32"
-                    FontWeight="SemiBold"/>
+                    Text="بِسْمِ اللَّهِ الرَّحْمَنِ الرَّحِيمِ"
+                    FontSize="30"
+                    HorizontalAlignment="Center"
+                    TextAlignment="Center" />
 
                 <TextBlock
-                    Text="Mushaf Al-Qur'an Digital"
-                    FontSize="18"
-                    Opacity="0.7"/>
+                    Text="Selamat Datang di Quran Kemenag"
+                    FontSize="28"
+                    FontWeight="SemiBold"
+                    HorizontalAlignment="Center"
+                    Margin="0,12,0,0" />
 
                 <TextBlock
-                    Text="Lajnah Pentashihan Mushaf Al-Qur'an"
-                    FontSize="15"
-                    Opacity="0.6"/>
+                    Text="Baca, pelajari, dan pahami Al-Qur'an"
+                    FontSize="14"
+                    Opacity="0.65"
+                    HorizontalAlignment="Center"
+                    Margin="0,6,0,0" />
 
             </StackPanel>
 
 
-            <!-- STATISTIK -->
+            <!-- ========================================= -->
+            <!-- CARD UTAMA -->
+            <!-- ========================================= -->
 
             <Grid
-                ColumnSpacing="16">
+                Grid.Row="1"
+                ColumnSpacing="20"
+                Margin="0,0,0,24">
 
                 <Grid.ColumnDefinitions>
-
-                    <ColumnDefinition
-                        Width="*"/>
-
-                    <ColumnDefinition
-                        Width="*"/>
-
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="*" />
                 </Grid.ColumnDefinitions>
 
 
-                <!-- SURAH -->
+                <!-- Lanjutkan Bacaan -->
 
                 <Border
                     Grid.Column="0"
                     Padding="24"
-                    CornerRadius="12"
-                    Background="{ThemeResource CardBackgroundFillColorDefaultBrush}">
+                    CornerRadius="14"
+                    BorderThickness="1"
+                    BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}">
 
-                    <StackPanel
-                        Spacing="6">
-
-                        <TextBlock
-                            Text="114"
-                            FontSize="32"
-                            FontWeight="Bold"/>
+                    <StackPanel>
 
                         <TextBlock
-                            Text="Surah"
-                            FontSize="16"/>
+                            Text="📖  Lanjutkan Bacaan"
+                            FontSize="20"
+                            FontWeight="SemiBold" />
+
+                        <TextBlock
+                            Text="Terakhir Anda membaca"
+                            FontSize="13"
+                            Opacity="0.6"
+                            Margin="0,12,0,0" />
+
+                        <TextBlock
+                            x:Name="LastReadingSurahText"
+                            Text="Belum ada bacaan"
+                            FontSize="24"
+                            FontWeight="SemiBold"
+                            Margin="0,4,0,0" />
+
+                        <TextBlock
+                            x:Name="LastReadingAyatText"
+                            Text="Mulai membaca Al-Qur'an"
+                            FontSize="15"
+                            Opacity="0.7"
+                            Margin="0,2,0,0" />
+
+                        <Button
+                            Content="Lanjutkan Membaca  →"
+                            HorizontalAlignment="Left"
+                            Margin="0,20,0,0"
+                            Padding="18,10"
+                            Click="ContinueReadingButton_Click" />
 
                     </StackPanel>
 
                 </Border>
 
 
-                <!-- JUZ -->
+                <!-- Bookmark -->
 
                 <Border
                     Grid.Column="1"
                     Padding="24"
-                    CornerRadius="12"
-                    Background="{ThemeResource CardBackgroundFillColorDefaultBrush}">
+                    CornerRadius="14"
+                    BorderThickness="1"
+                    BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}">
 
-                    <StackPanel
-                        Spacing="6">
-
-                        <TextBlock
-                            Text="30"
-                            FontSize="32"
-                            FontWeight="Bold"/>
+                    <StackPanel>
 
                         <TextBlock
-                            Text="Juz"
-                            FontSize="16"/>
+                            Text="🔖  Bookmark"
+                            FontSize="20"
+                            FontWeight="SemiBold" />
+
+                        <TextBlock
+                            Text="Ayat yang Anda simpan"
+                            FontSize="13"
+                            Opacity="0.6"
+                            Margin="0,12,0,0" />
+
+                        <TextBlock
+                            Text="12"
+                            FontSize="30"
+                            FontWeight="SemiBold"
+                            Margin="0,2,0,0" />
+
+                        <TextBlock
+                            Text="bookmark"
+                            FontSize="13"
+                            Opacity="0.6" />
+
+                        <Button
+                            Content="Lihat Bookmark  →"
+                            HorizontalAlignment="Left"
+                            Margin="0,20,0,0"
+                            Padding="18,10" />
 
                     </StackPanel>
 
@@ -101,96 +158,218 @@
             </Grid>
 
 
-            <!-- TENTANG -->
+            <!-- ========================================= -->
+            <!-- SEARCH -->
+            <!-- ========================================= -->
 
             <Border
+                Grid.Row="2"
                 Padding="24"
-                CornerRadius="12"
-                Background="{ThemeResource CardBackgroundFillColorDefaultBrush}">
+                CornerRadius="14"
+                BorderThickness="1"
+                BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+                Margin="0,0,0,24">
 
-                <StackPanel
-                    Spacing="12">
+                <StackPanel>
 
                     <TextBlock
-                        Text="Tentang Aplikasi"
+                        Text="🔎  Cari Al-Qur'an"
                         FontSize="20"
-                        FontWeight="SemiBold"/>
+                        FontWeight="SemiBold" />
 
                     <TextBlock
-                        Text="Quran Kemenag for Windows merupakan aplikasi Al-Qur'an digital yang dikembangkan untuk menyediakan akses Mushaf Al-Qur'an dalam lingkungan desktop Windows."
-                        TextWrapping="Wrap"
-                        FontSize="15"
-                        Opacity="0.8"/>
+                        Text="Cari surah, ayat, atau kata kunci..."
+                        FontSize="13"
+                        Opacity="0.6"
+                        Margin="0,4,0,12" />
+
+                    <Grid>
+
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+
+                        <TextBox
+                            Grid.Column="0"
+                            x:Name="HomeSearchBox"
+                            PlaceholderText="Cari surah, ayat, atau kata kunci..."
+                            MinHeight="44" />
+
+                        <Button
+                            Grid.Column="1"
+                            Content="Cari"
+                            Margin="10,0,0,0"
+                            Padding="24,10"
+                            MinHeight="44" />
+
+                    </Grid>
 
                 </StackPanel>
 
             </Border>
 
 
-            <!-- PRODUK LPMQ -->
+            <!-- ========================================= -->
+            <!-- AKSES CEPAT -->
+            <!-- ========================================= -->
 
             <StackPanel
-                Spacing="12">
+                Grid.Row="3">
 
                 <TextBlock
-                    Text="Produk LPMQ"
-                    FontSize="20"
-                    FontWeight="SemiBold"/>
+                    Text="Akses Cepat"
+                    FontSize="22"
+                    FontWeight="SemiBold" />
 
-                <Border
-                    Padding="24"
-                    CornerRadius="12"
-                    Background="{ThemeResource CardBackgroundFillColorDefaultBrush}">
+                <TextBlock
+                    Text="Pilih menu untuk mulai menjelajahi Al-Qur'an"
+                    FontSize="13"
+                    Opacity="0.6"
+                    Margin="0,4,0,16" />
 
-                    <StackPanel
-                        Spacing="8">
+                <Grid
+                    ColumnSpacing="12">
 
-                        <TextBlock
-                            Text="Mushaf Al-Qur'an"
-                            FontSize="18"
-                            FontWeight="SemiBold"/>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="*" />
+                    </Grid.ColumnDefinitions>
 
-                        <TextBlock
-                            Text="Lajnah Pentashihan Mushaf Al-Qur'an"
-                            FontSize="14"
-                            Opacity="0.7"/>
 
-                    </StackPanel>
+                    <!-- Surah -->
 
-                </Border>
+                    <Border
+                        Grid.Column="0"
+                        Padding="18"
+                        CornerRadius="12"
+                        BorderThickness="1"
+                        BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}">
+
+                        <StackPanel>
+
+                            <TextBlock
+                                Text="📖"
+                                FontSize="28" />
+
+                            <TextBlock
+                                Text="Surah"
+                                FontSize="17"
+                                FontWeight="SemiBold"
+                                Margin="0,10,0,0" />
+
+                            <TextBlock
+                                Text="Daftar seluruh surah"
+                                FontSize="12"
+                                Opacity="0.6"
+                                TextWrapping="Wrap" />
+
+                        </StackPanel>
+
+                    </Border>
+
+
+                    <!-- Juz -->
+
+                    <Border
+                        Grid.Column="1"
+                        Padding="18"
+                        CornerRadius="12"
+                        BorderThickness="1"
+                        BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}">
+
+                        <StackPanel>
+
+                            <TextBlock
+                                Text="🔢"
+                                FontSize="28" />
+
+                            <TextBlock
+                                Text="Juz"
+                                FontSize="17"
+                                FontWeight="SemiBold"
+                                Margin="0,10,0,0" />
+
+                            <TextBlock
+                                Text="Juz 1 - 30"
+                                FontSize="12"
+                                Opacity="0.6" />
+
+                        </StackPanel>
+
+                    </Border>
+
+
+                    <!-- Mushaf -->
+
+                    <Border
+                        Grid.Column="2"
+                        Padding="18"
+                        CornerRadius="12"
+                        BorderThickness="1"
+                        BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}">
+
+                        <StackPanel>
+
+                            <TextBlock
+                                Text="📑"
+                                FontSize="28" />
+
+                            <TextBlock
+                                Text="Mushaf"
+                                FontSize="17"
+                                FontWeight="SemiBold"
+                                Margin="0,10,0,0" />
+
+                            <TextBlock
+                                Text="Membaca per halaman"
+                                FontSize="12"
+                                Opacity="0.6"
+                                TextWrapping="Wrap" />
+
+                        </StackPanel>
+
+                    </Border>
+
+
+                    <!-- Bookmark -->
+
+                    <Border
+                        Grid.Column="3"
+                        Padding="18"
+                        CornerRadius="12"
+                        BorderThickness="1"
+                        BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}">
+
+                        <StackPanel>
+
+                            <TextBlock
+                                Text="🔖"
+                                FontSize="28" />
+
+                            <TextBlock
+                                Text="Bookmark"
+                                FontSize="17"
+                                FontWeight="SemiBold"
+                                Margin="0,10,0,0" />
+
+                            <TextBlock
+                                Text="Ayat yang Anda simpan"
+                                FontSize="12"
+                                Opacity="0.6"
+                                TextWrapping="Wrap" />
+
+                        </StackPanel>
+
+                    </Border>
+
+                </Grid>
 
             </StackPanel>
 
-
-            <!-- INFORMASI -->
-
-            <Border
-                Padding="24"
-                CornerRadius="12"
-                Background="{ThemeResource CardBackgroundFillColorDefaultBrush}">
-
-                <StackPanel
-                    Spacing="8">
-
-                    <TextBlock
-                        Text="Informasi Aplikasi"
-                        FontSize="20"
-                        FontWeight="SemiBold"/>
-
-                    <TextBlock
-                        Text="Versi 1.0"
-                        FontSize="14"/>
-
-                    <TextBlock
-                        Text="Quran Kemenag for Windows"
-                        FontSize="14"
-                        Opacity="0.7"/>
-
-                </StackPanel>
-
-            </Border>
-
-        </StackPanel>
+        </Grid>
 
     </ScrollViewer>
 

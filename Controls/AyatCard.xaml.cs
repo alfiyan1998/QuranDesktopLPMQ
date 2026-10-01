@@ -8,11 +8,13 @@ using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Media;
 using Microsoft.UI.Text;
+using Microsoft.Extensions.DependencyInjection;
 
 using Windows.ApplicationModel.DataTransfer;
 //using Windows.UI.Text;
 
 using QuranKemenag.Models;
+using QuranKemenag.Services;
 using QuranKemenag.Services.Font;
 
 using QuranKemenag.Services.Page;
@@ -48,6 +50,7 @@ public sealed partial class AyatCard : UserControl
 
     private static FontFamily? _isyaratFont;
     public event EventHandler<Ayat>? AyatSelected;
+    private BookmarkService? _bookmarkService;
 
 
     private readonly IFontManager _fontManager = new FontManager();
@@ -61,6 +64,8 @@ public sealed partial class AyatCard : UserControl
         InitializeComponent();
 
         DataContextChanged += AyatCard_DataContextChanged;
+
+        _bookmarkService = App.Services?.GetService<BookmarkService>();
     }
 
 
@@ -74,6 +79,27 @@ public sealed partial class AyatCard : UserControl
     {
         if (args.NewValue is not Ayat ayat)
             return;
+
+        _ = LoadBookmarkStatusAsync(ayat);
+
+        IsBookmarked = ayat.IsBookmarked;
+
+        if (IsBookmarked)
+        {
+            PART_BookmarkButton.Content = "🔖 Bookmarked";
+            ToolTipService.SetToolTip(
+                PART_BookmarkButton,
+                "Hapus Bookmark");
+
+        }
+        else
+        {
+            PART_BookmarkButton.Content = "🔖 Bookmark";
+
+            ToolTipService.SetToolTip(
+                PART_BookmarkButton,
+                "Tambah Bookmark");
+        }
 
         if (ayat.KodeFont == 0)
         {
@@ -1178,6 +1204,142 @@ public sealed partial class AyatCard : UserControl
             package);
     }
 
+    // =========================================================
+    // BOOKMARK - TAHAP 1
+    // =========================================================
+
+    public static readonly DependencyProperty IsBookmarkedProperty =
+        DependencyProperty.Register(
+            nameof(IsBookmarked),
+            typeof(bool),
+            typeof(AyatCard),
+            new PropertyMetadata(false));
+
+    public bool IsBookmarked
+    {
+        get => (bool)GetValue(IsBookmarkedProperty);
+
+        set => SetValue(
+            IsBookmarkedProperty,
+            value);
+    }
+
+
+    private async void PART_BookmarkButton_Click(
+    object sender,
+    RoutedEventArgs e)
+    {
+        if (DataContext is not Ayat ayat)
+            return;
+
+        if (_bookmarkService is null)
+            return;
+
+        // ============================================================
+        // JIKA SUDAH BOOKMARK → HAPUS LANGSUNG
+        // ============================================================
+
+        if (ayat.IsBookmarked)
+        {
+            var existing = await _bookmarkService.GetAsync(
+                ayat.Surah,
+                ayat.AyatNumber);
+
+            if (existing is not null)
+            {
+                await _bookmarkService.DeleteAsync(existing.Id);
+            }
+
+            ayat.IsBookmarked = false;
+            IsBookmarked = false;
+
+            PART_BookmarkButton.Content = "🔖 Bookmark";
+
+            ToolTipService.SetToolTip(
+                PART_BookmarkButton,
+                "Tambah Bookmark");
+
+            return;
+        }
+
+        // ============================================================
+        // JIKA BELUM BOOKMARK → TAMPILKAN DIALOG CATATAN
+        // ============================================================
+
+        if (XamlRoot is null)
+            return;
+
+        var noteTextBox = new TextBox
+        {
+            PlaceholderText = "Tulis catatan...",
+            AcceptsReturn = true,
+            TextWrapping = TextWrapping.Wrap,
+            MinHeight = 100
+        };
+
+        var contentPanel = new StackPanel
+        {
+            Spacing = 8
+        };
+
+        contentPanel.Children.Add(
+            new TextBlock
+            {
+                Text = $"Surah {ayat.Surah} • Ayat {ayat.AyatNumber}",
+                FontSize = 14
+            });
+
+        contentPanel.Children.Add(
+            new TextBlock
+            {
+                Text = "Catatan",
+                FontSize = 13
+            });
+
+        contentPanel.Children.Add(noteTextBox);
+
+        var dialog = new ContentDialog
+        {
+            Title = "Tambah Bookmark",
+            Content = contentPanel,
+
+            PrimaryButtonText = "Simpan",
+            CloseButtonText = "Batal",
+
+            DefaultButton = ContentDialogButton.Primary,
+
+            XamlRoot = XamlRoot
+        };
+
+        var result = await dialog.ShowAsync();
+
+        if (result != ContentDialogResult.Primary)
+            return;
+
+        // ============================================================
+        // SIMPAN BOOKMARK
+        // ============================================================
+
+        string? note = noteTextBox.Text?.Trim();
+
+        await _bookmarkService.AddAsync(
+            ayat.Surah,
+            ayat.AyatNumber,
+            note);
+
+        ayat.IsBookmarked = true;
+        IsBookmarked = true;
+
+        PART_BookmarkButton.Content = "🔖 Bookmarked";
+
+        ToolTipService.SetToolTip(
+            PART_BookmarkButton,
+            "Hapus Bookmark");
+    }
+
+
+
+
     private static string EscapeHtml(string text)
     {
         if (string.IsNullOrEmpty(text))
@@ -1770,6 +1932,42 @@ Catatan Kaki: {EscapeHtml(ayat.TextFn.Trim())}
 
             RenderHandwritten(currentAyat);
         });
+    }
+
+    private async Task LoadBookmarkStatusAsync(Ayat ayat)
+    {
+        if (_bookmarkService is null)
+            return;
+
+        try
+        {
+            var bookmark = await _bookmarkService.GetAsync(
+                ayat.Surah,
+                ayat.AyatNumber);
+
+            ayat.IsBookmarked = bookmark is not null;
+            IsBookmarked = ayat.IsBookmarked;
+
+            if (IsBookmarked)
+            {
+                PART_BookmarkButton.Content = "🔖 Bookmarked";
+                ToolTipService.SetToolTip(
+                    PART_BookmarkButton,
+                    "Hapus Bookmark");
+            }
+            else
+            {
+                PART_BookmarkButton.Content = "🔖 Bookmark";
+                ToolTipService.SetToolTip(
+                    PART_BookmarkButton,
+                    "Tambah Bookmark");
+            }
+        }
+        catch (Exception ex)
+        {
+            Debug.WriteLine(
+                $"[BOOKMARK] Gagal memuat status Surah={ayat.Surah}, Ayat={ayat.AyatNumber}: {ex}");
+        }
     }
 
 }

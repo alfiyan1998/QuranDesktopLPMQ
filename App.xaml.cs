@@ -1,6 +1,8 @@
 // csharp
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.UI.Xaml;
+using Microsoft.Data.Sqlite;
+
 using QuranKemenag.Helpers;
 using QuranKemenag.Repositories;
 using QuranKemenag.Services;
@@ -58,6 +60,10 @@ public partial class App : Application
         services.AddSingleton<IQuranRepository, UnicodeRepository>();
         services.AddSingleton<ISymbolRepository, SymbolRepository>();
         services.AddSingleton<ITranslationRepository, TranslationRepository>();
+        services.AddSingleton<BookmarkRepository>();
+
+        //bookmark service
+        services.AddSingleton<BookmarkService>();
 
         // Reader Service
         services.AddSingleton<ComputerFontReaderService>();
@@ -98,6 +104,51 @@ public partial class App : Application
 
         Debug.WriteLine("DI container configured. Services ready.");
        
+    }
+
+    private async Task InitializeBookmarkDatabaseAsync()
+    {
+        try
+        {
+            if (Services is null)
+                return;
+
+            var factory = Services.GetRequiredService<DatabaseFactory>();
+
+            string databasePath = factory.GetDatabasePath(DatabaseType.Bookmark);
+
+            var connectionString = new SqliteConnectionStringBuilder
+            {
+                DataSource = databasePath
+            }.ToString();
+
+            await using var connection = new SqliteConnection(connectionString);
+
+            await connection.OpenAsync();
+
+            const string sql = """
+            CREATE TABLE IF NOT EXISTS bookmarks (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                surah INTEGER NOT NULL,
+                ayat INTEGER NOT NULL,
+                note TEXT NULL,
+                created_at TEXT NOT NULL
+            );
+            """;
+
+            await using var command = connection.CreateCommand();
+            command.CommandText = sql;
+
+            await command.ExecuteNonQueryAsync();
+
+            Debug.WriteLine($"Bookmark database ready: {databasePath}");
+
+            
+        }
+        catch (Exception ex)
+        {
+            Debug.WriteLine($"Failed to initialize bookmark database: {ex}");
+        }
     }
 
     /// <summary>
@@ -209,7 +260,7 @@ public partial class App : Application
         // This runs in background and writes output to the Debug Output window.
         // It does not block or change UI startup.
         _ = TestSymbolRepositoryAsync();
-        _ = TestMushafPageViewModelAsync(); // baru
+        _ = InitializeBookmarkDatabaseAsync();
 
         _mainWindow = new MainWindow();
         _mainWindow.Activate();

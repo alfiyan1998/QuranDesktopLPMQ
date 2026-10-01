@@ -1,10 +1,12 @@
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Media;
+using Microsoft.Extensions.DependencyInjection;
 
 using QuranKemenag.Controls;
 using QuranKemenag.Models;
 using QuranKemenag.ViewModels;
+using QuranKemenag.Services;
 
 using System;
 using System.Collections.Generic;
@@ -12,6 +14,8 @@ using System.Collections.Specialized;
 using System.ComponentModel;
 using System.Linq;
 using System.Diagnostics;
+
+
 
 namespace QuranKemenag.Views;
 
@@ -348,6 +352,45 @@ public sealed partial class ReaderView : UserControl
         {
             card.SelectedAyat =
                 _vm.SelectedAyat;
+        }
+    }
+
+    public async Task RefreshBookmarkStatusAsync(
+    int surah,
+    int ayatNumber)
+    {
+        var bookmarkService =
+            App.Services?.GetService<BookmarkService>();
+
+        if (bookmarkService is null)
+            return;
+
+        var bookmark =
+            await bookmarkService.GetAsync(
+                surah,
+                ayatNumber);
+
+        var cards =
+            FindAyatCards(PART_ItemsControl);
+
+        foreach (var card in cards)
+        {
+            if (card.DataContext is not Ayat ayat)
+                continue;
+
+            if (ayat.Surah != surah ||
+                ayat.AyatNumber != ayatNumber)
+            {
+                continue;
+            }
+
+            ayat.IsBookmarked =
+                bookmark is not null;
+
+            card.IsBookmarked =
+                bookmark is not null;
+
+            break;
         }
     }
 

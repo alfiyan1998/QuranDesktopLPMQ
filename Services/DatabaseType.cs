@@ -37,5 +37,10 @@ public enum DatabaseType
         /// Database layout Mushaf per halaman (mushaf_layout.db).
         /// Berisi posisi baris dan kata untuk setiap halaman Mushaf.
         /// </summary>
-    MushafLayout
+    MushafLayout,
+
+        /// <summary>
+        /// Database untuk menyimpan data Bookmark pengguna.
+        /// </summary>
+    Bookmark
 }

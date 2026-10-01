@@ -97,6 +97,12 @@
                 x:Name="JuzView"
                 Visibility="Collapsed" />
 
+            <!-- BOOKMARK -->
+
+            <views:BookmarkView
+                x:Name="BookmarkView"
+                Visibility="Collapsed" />
+
 
             <!-- READER -->
 

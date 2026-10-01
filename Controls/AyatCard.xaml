@@ -473,8 +473,9 @@
                         MinWidth="110"
                         Height="36"
                         Content="🔖 Bookmark"
-                        ToolTipService.ToolTip="Bookmark ayat"/>
-
+                        ToolTipService.ToolTip="Bookmark ayat"
+                        Click="PART_BookmarkButton_Click"/>
+                    
                 </Grid>
 
             </Border>

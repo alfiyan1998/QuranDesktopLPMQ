@@ -19,6 +19,8 @@ using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.UI.Dispatching;
 
+
+
 namespace QuranKemenag.ViewModels;
 
 /// <summary>
@@ -2366,6 +2368,8 @@ public sealed partial class MainViewModel : ViewModelBase
         {
             if (value is not null)
             {
+                SaveLastReadingPosition(value);
+
                 SelectedAyatNumber = value.AyatNumber;
 
                 // Pastikan posisi footer ikut diberitahukan ke UI.
@@ -2946,6 +2950,42 @@ public sealed partial class MainViewModel : ViewModelBase
                     IsLoadingAyat = false;
                 }
             }
+        }
+    }
+
+    private void SaveLastReadingPosition(Ayat? ayat)
+    {
+        if (ayat is null)
+            return;
+
+        try
+        {
+            using var key =
+                Microsoft.Win32.Registry.CurrentUser.CreateSubKey(
+                    @"Software\QuranKemenag");
+
+            if (key is null)
+                return;
+
+            key.SetValue(
+                "LastReadingSurah",
+                ayat.Surah);
+
+            key.SetValue(
+                "LastReadingAyat",
+                ayat.AyatNumber);
+
+            Debug.WriteLine(
+                $"[LAST READING SAVE] " +
+                $"Surah={ayat.Surah}, " +
+                $"Ayat={ayat.AyatNumber}");
+        }
+        catch (Exception ex)
+        {
+            Debug.WriteLine(
+                "[LAST READING SAVE ERROR]");
+
+            Debug.WriteLine(ex);
         }
     }
 }

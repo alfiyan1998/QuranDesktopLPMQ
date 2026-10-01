@@ -188,6 +188,11 @@ public sealed partial class MainWindow : Window
             view == ReaderView
                 ? Visibility.Visible
                 : Visibility.Collapsed;
+
+        BookmarkView.Visibility =
+            view == BookmarkView
+                ? Visibility.Visible
+                : Visibility.Collapsed;
     }
 
     private async void MainWindow_Activated(object sender, WindowActivatedEventArgs e)
@@ -241,13 +246,21 @@ public sealed partial class MainWindow : Window
                     Sidebar.HomeClicked -= Sidebar_HomeClicked;
                     Sidebar.SurahClicked -= Sidebar_SurahClicked;
                     Sidebar.PageClicked -= Sidebar_PageClicked;
+                    Sidebar.BookmarkClicked -= Sidebar_BookmarkClicked;
 
                     Sidebar.HomeClicked += Sidebar_HomeClicked;
                     Sidebar.SurahClicked += Sidebar_SurahClicked;
                     Sidebar.PageClicked += Sidebar_PageClicked;
+                    Sidebar.BookmarkClicked += Sidebar_BookmarkClicked;
 
                     Sidebar.JuzClicked -= Sidebar_JuzClicked;
                     Sidebar.JuzClicked += Sidebar_JuzClicked;
+
+                    BookmarkView.BookmarkOpened -= BookmarkView_BookmarkOpened;
+                    BookmarkView.BookmarkOpened += BookmarkView_BookmarkOpened;
+
+                    BookmarkView.BookmarkDeleted -= BookmarkView_BookmarkDeleted;
+                    BookmarkView.BookmarkDeleted += BookmarkView_BookmarkDeleted;
 
                     // =====================================================
                     // TOOLBAR
@@ -309,6 +322,9 @@ public sealed partial class MainWindow : Window
 
             // Verify count
             Debug.WriteLine($"Jumlah Surah : {vm.Surahs.Count}");
+
+            // Tampilkan Home sebagai halaman awal aplikasi.
+            ShowView(HomeView);
 
             // ----------------------------
             // Temporary test: gunakan MainViewModel.LoadAyatAsync untuk memuat ayat surah 1
@@ -613,6 +629,17 @@ public sealed partial class MainWindow : Window
 
         // Show existing juz list view
         ShowView(JuzView);
+    }
+
+    private async void Sidebar_BookmarkClicked(
+    object? sender,
+    EventArgs e)
+    {
+        Debug.WriteLine("[BOOKMARK] Bookmark diklik");
+
+        ShowView(BookmarkView);
+
+        await BookmarkView.RefreshBookmarksAsync();
     }
 
     private async void JuzView_JuzSelected(
@@ -1108,6 +1135,97 @@ public sealed partial class MainWindow : Window
             "[JUZ VIEW] Tab Surah diklik");
 
         ShowView(SurahView);
+    }
+
+    private async void BookmarkView_BookmarkOpened(
+    object? sender,
+    Bookmark bookmark)
+    {
+        if (App.Services is null)
+            return;
+
+        var vm =
+            App.Services.GetService<MainViewModel>();
+
+        if (vm is null)
+            return;
+
+        try
+        {
+            Debug.WriteLine(
+                $"[BOOKMARK NAVIGATION] " +
+                $"Surah={bookmark.Surah}, " +
+                $"Ayat={bookmark.Ayat}");
+
+            // Cari Surah berdasarkan nomor Surah
+            var surah =
+                vm.Surahs.FirstOrDefault(
+                    s => s.Id == bookmark.Surah);
+
+            if (surah is null)
+                return;
+
+            // Mode Ayat
+            vm.DisplayViewMode =
+                QuranDisplayMode.Ayat;
+
+            // Pilih Surah.
+            // Ini menggunakan mekanisme navigasi Surah yang sudah ada.
+            vm.SelectedSurah = surah;
+
+            // Tunggu proses Load Surah yang sudah dijalankan
+            // oleh OnSelectedSurahChanged().
+            await (vm.LastHandleSelectedSurahTask
+                ?? Task.CompletedTask);
+
+            // Cari ayat yang diminta dari daftar ayat Surah.
+            var ayat =
+                vm.Ayats.FirstOrDefault(
+                    a => a.Surah == bookmark.Surah &&
+                         a.AyatNumber == bookmark.Ayat);
+
+            if (ayat is null)
+                return;
+
+            // Pilih ayat.
+            // ReaderView yang sudah ada akan menangani
+            // scroll dan highlight.
+            vm.SelectedAyat = ayat;
+
+            // Tampilkan Reader.
+            ShowView(ReaderView);
+
+            Debug.WriteLine(
+                $"[BOOKMARK NAVIGATION] Reader dibuka: " +
+                $"Surah={surah.LatinName}, " +
+                $"Ayat={ayat.AyatNumber}");
+        }
+        catch (Exception ex)
+        {
+            Debug.WriteLine(
+                "[BOOKMARK NAVIGATION ERROR]");
+
+            Debug.WriteLine(ex);
+        }
+    }
+
+    private async void BookmarkView_BookmarkDeleted(
+    object? sender,
+    Bookmark bookmark)
+    {
+        try
+        {
+            await ReaderView.RefreshBookmarkStatusAsync(
+                bookmark.Surah,
+                bookmark.Ayat);
+        }
+        catch (Exception ex)
+        {
+            Debug.WriteLine(
+                "[BOOKMARK DELETE SYNC ERROR]");
+
+            Debug.WriteLine(ex);
+        }
     }
 
 }
