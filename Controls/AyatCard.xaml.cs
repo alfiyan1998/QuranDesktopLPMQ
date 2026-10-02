@@ -51,6 +51,7 @@ public sealed partial class AyatCard : UserControl
     private static FontFamily? _isyaratFont;
     public event EventHandler<Ayat>? AyatSelected;
     private BookmarkService? _bookmarkService;
+    public event EventHandler? LastReadingChanged;
 
 
     private readonly IFontManager _fontManager = new FontManager();
@@ -78,7 +79,26 @@ public sealed partial class AyatCard : UserControl
     DataContextChangedEventArgs args)
     {
         if (args.NewValue is not Ayat ayat)
+        {
+            // When DataContext is removed or the card is recycled,
+            // ensure the last-reading indicator does not retain
+            // visibility from a previous DataContext.
+            if (DispatcherQueue.HasThreadAccess)
+            {
+                PART_LastReadingIndicator.Visibility =
+                    Visibility.Collapsed;
+            }
+            else
+            {
+                DispatcherQueue.TryEnqueue(() =>
+                {
+                    PART_LastReadingIndicator.Visibility =
+                        Visibility.Collapsed;
+                });
+            }
+
             return;
+        }
 
         _ = LoadBookmarkStatusAsync(ayat);
 
@@ -163,6 +183,10 @@ public sealed partial class AyatCard : UserControl
             DispatcherQueue.TryEnqueue(
                 PositionAyatNumber);
         }
+
+        // Ensure last-reading indicator is evaluated for the new DataContext
+        // so recycled cards update their indicator state immediately.
+        UpdateLastReadingIndicator();
     }
 
 
@@ -1967,6 +1991,133 @@ Catatan Kaki: {EscapeHtml(ayat.TextFn.Trim())}
         {
             Debug.WriteLine(
                 $"[BOOKMARK] Gagal memuat status Surah={ayat.Surah}, Ayat={ayat.AyatNumber}: {ex}");
+        }
+    }
+
+    public void UpdateLastReadingIndicator()
+    {
+        if (DataContext is not Ayat ayat)
+            return;
+
+        try
+        {
+            using var key =
+                Microsoft.Win32.Registry.CurrentUser.OpenSubKey(
+                    @"Software\QuranKemenag");
+
+            if (key is null)
+            {
+                PART_LastReadingIndicator.Visibility =
+                    Visibility.Collapsed;
+                return;
+            }
+
+            var surahValue =
+                key.GetValue("LastReadingSurah");
+
+            var ayatValue =
+                key.GetValue("LastReadingAyat");
+
+            if (surahValue is null || ayatValue is null)
+            {
+                PART_LastReadingIndicator.Visibility =
+                    Visibility.Collapsed;
+                return;
+            }
+
+            int lastSurah =
+                Convert.ToInt32(surahValue);
+
+            int lastAyat =
+                Convert.ToInt32(ayatValue);
+
+            UpdateLastReadingIndicator(lastSurah, lastAyat);
+        }
+        catch (Exception ex)
+        {
+            Debug.WriteLine(
+                "[LAST READING INDICATOR ERROR]");
+
+            Debug.WriteLine(ex);
+
+            PART_LastReadingIndicator.Visibility =
+                Visibility.Collapsed;
+        }
+    }
+
+    public void UpdateLastReadingIndicator(int lastSurah, int lastAyat)
+    {
+        if (DataContext is not Ayat ayat)
+            return;
+
+        bool isLastReading =
+            ayat.Surah == lastSurah &&
+            ayat.AyatNumber == lastAyat;
+
+        if (DispatcherQueue.HasThreadAccess)
+        {
+            PART_LastReadingIndicator.Visibility =
+                isLastReading
+                    ? Visibility.Visible
+                    : Visibility.Collapsed;
+
+            return;
+        }
+
+        DispatcherQueue.TryEnqueue(() =>
+        {
+            PART_LastReadingIndicator.Visibility =
+                isLastReading
+                    ? Visibility.Visible
+                    : Visibility.Collapsed;
+        });
+    }
+    private void PART_LastReadingButton_Click(
+    object sender,
+    RoutedEventArgs e)
+    {
+        if (DataContext is not Ayat ayat)
+            return;
+
+        try
+        {
+            using var key =
+                Microsoft.Win32.Registry.CurrentUser.CreateSubKey(
+                    @"Software\QuranKemenag");
+
+            if (key is null)
+                return;
+
+            key.SetValue(
+                "LastReadingMode",
+                "Ayat");
+
+            key.SetValue(
+                "LastReadingSurah",
+                ayat.Surah);
+
+            key.SetValue(
+                "LastReadingAyat",
+                ayat.AyatNumber);
+
+            UpdateLastReadingIndicator();
+
+            Debug.WriteLine(
+    $"[LAST READING CHANGED] Surah={ayat.Surah}, Ayat={ayat.AyatNumber}");
+
+            LastReadingChanged?.Invoke(this, EventArgs.Empty);
+
+            Debug.WriteLine(
+                $"[LAST READING MARK] " +
+                $"Surah={ayat.Surah}, " +
+                $"Ayat={ayat.AyatNumber}");
+        }
+        catch (Exception ex)
+        {
+            Debug.WriteLine(
+                "[LAST READING MARK ERROR]");
+
+            Debug.WriteLine(ex);
         }
     }
 

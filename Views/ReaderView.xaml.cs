@@ -463,6 +463,12 @@ public sealed partial class ReaderView : UserControl
             card.AyatSelected +=
                 Card_AyatSelected;
 
+            card.LastReadingChanged -=
+       Card_LastReadingChanged;
+
+            card.LastReadingChanged +=
+                Card_LastReadingChanged;
+
 
             // Pastikan highlight juga sinkron.
             if (_vm is not null)
@@ -523,6 +529,75 @@ public sealed partial class ReaderView : UserControl
             ayat;
     }
 
+    private void Card_LastReadingChanged(
+    object? sender,
+    EventArgs e)
+    {
+        if (PART_ItemsControl is null)
+            return;
+
+        var cards =
+            FindAyatCards(PART_ItemsControl);
+
+       
+
+        try
+        {
+            using var key =
+                Microsoft.Win32.Registry.CurrentUser.OpenSubKey(
+                    @"Software\QuranKemenag");
+
+            if (key is null)
+            {
+                foreach (var card in cards)
+                {
+                    card.UpdateLastReadingIndicator();
+                }
+
+                return;
+            }
+
+            var surahValue =
+                key.GetValue("LastReadingSurah");
+
+            var ayatValue =
+                key.GetValue("LastReadingAyat");
+
+            if (surahValue is null || ayatValue is null)
+            {
+                foreach (var card in cards)
+                {
+                    card.UpdateLastReadingIndicator();
+                }
+
+                return;
+            }
+
+            int lastSurah =
+                Convert.ToInt32(surahValue);
+
+            int lastAyat =
+                Convert.ToInt32(ayatValue);
+
+            Debug.WriteLine(
+                $"[LAST READING REFRESH] " +
+                $"Registry={lastSurah}:{lastAyat}");
+
+            foreach (var card in cards)
+            {
+                card.UpdateLastReadingIndicator(
+                    lastSurah,
+                    lastAyat);
+            }
+        }
+        catch (Exception ex)
+        {
+            Debug.WriteLine(
+                "[LAST READING REFRESH ERROR]");
+
+            Debug.WriteLine(ex);
+        }
+    }
 
     // =========================================================
     // REMOVE CLICK HANDLERS
@@ -543,6 +618,9 @@ public sealed partial class ReaderView : UserControl
         {
             card.AyatSelected -=
                 Card_AyatSelected;
+
+            card.LastReadingChanged -=
+                Card_LastReadingChanged;
         }
     }
 

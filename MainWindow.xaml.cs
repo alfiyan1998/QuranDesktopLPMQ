@@ -167,7 +167,7 @@ public sealed partial class MainWindow : Window
     /// Menampilkan salah satu view utama dan menyembunyikan view lainnya.
     /// </summary>
     private void ShowView(
-        UserControl view)
+     UserControl view)
     {
         HomeView.Visibility =
             view == HomeView
@@ -180,9 +180,9 @@ public sealed partial class MainWindow : Window
                 : Visibility.Collapsed;
 
         JuzView.Visibility =
-           view == JuzView
-               ? Visibility.Visible
-               : Visibility.Collapsed;
+            view == JuzView
+                ? Visibility.Visible
+                : Visibility.Collapsed;
 
         ReaderView.Visibility =
             view == ReaderView
@@ -193,6 +193,21 @@ public sealed partial class MainWindow : Window
             view == BookmarkView
                 ? Visibility.Visible
                 : Visibility.Collapsed;
+
+        if (view == HomeView)
+        {
+            HomeView.RefreshLastReadingPosition();
+        }
+
+        // Expose a simple public way to show the ReaderView from other
+        // parts of the UI (e.g. HomeView) without duplicating navigation
+        // logic. This keeps ShowView encapsulated while allowing callers
+        // to request the Reader be displayed.
+    }
+
+    public void ShowReaderView()
+    {
+        ShowView(ReaderView);
     }
 
     private async void MainWindow_Activated(object sender, WindowActivatedEventArgs e)

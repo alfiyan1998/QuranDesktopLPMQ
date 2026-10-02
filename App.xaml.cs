@@ -31,6 +31,7 @@ public partial class App : Application
     public static IServiceProvider? Services { get; private set; }
 
     private Window? _mainWindow;
+    public static MainWindow? MainAppWindow { get; private set; }
 
     public App()
     {
@@ -263,6 +264,7 @@ public partial class App : Application
         _ = InitializeBookmarkDatabaseAsync();
 
         _mainWindow = new MainWindow();
+        MainAppWindow = _mainWindow as MainWindow;
         _mainWindow.Activate();
     }
 

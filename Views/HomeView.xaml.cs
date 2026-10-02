@@ -163,10 +163,24 @@ public sealed partial class HomeView : UserControl
             // Pilih ayat terakhir yang tersimpan.
             vm.SelectedAyatNumber = ayatNumber;
 
+            var ayat =
+                vm.Ayats.FirstOrDefault(
+                    a => a.Surah == surahNumber &&
+                         a.AyatNumber == ayatNumber);
+
+            if (ayat is not null)
+            {
+                vm.SelectedAyat = ayat;
+            }
+
             Debug.WriteLine(
                 $"[HOME CONTINUE] " +
                 $"Reader menuju {surah.LatinName} " +
                 $"Ayat {ayatNumber}");
+
+            // Ensure Reader view is displayed when continuing reading from Home.
+            var mainWindow = QuranKemenag.App.MainAppWindow;
+            mainWindow?.ShowReaderView();
         }
         catch (Exception ex)
         {
@@ -175,5 +189,10 @@ public sealed partial class HomeView : UserControl
 
             Debug.WriteLine(ex);
         }
+    }
+
+    public void RefreshLastReadingPosition()
+    {
+        LoadLastReadingPosition();
     }
 }

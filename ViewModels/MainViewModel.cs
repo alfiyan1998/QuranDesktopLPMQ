@@ -1149,7 +1149,7 @@ public sealed partial class MainViewModel : ViewModelBase
 
             try
             {
-                ReplaceAyats(ayats);
+            await ReplaceAyatsAsync(ayats);
 
                 // =================================================
                 // 3. RESTORE POSISI AYAT
@@ -1349,7 +1349,7 @@ public sealed partial class MainViewModel : ViewModelBase
             /*
              * MASUKKAN AYAT KE UI
              */
-            ReplaceAyats(list);
+            await ReplaceAyatsAsync(list);
 
             /*
              * Bentuk halaman yang dimiliki Surah.
@@ -1590,10 +1590,15 @@ public sealed partial class MainViewModel : ViewModelBase
 
     /// <summary>
     /// Mengganti seluruh isi ObservableCollection Ayats.
+    /// Returns a Task that completes when UI thread collection updates
+    /// and SelectedAyat assignment have been applied. This prevents
+    /// callers from continuing while a pending dispatcher action might
+    /// later overwrite selection.
     /// </summary>
-    private void ReplaceAyats(
+    private Task ReplaceAyatsAsync(
     IReadOnlyList<Ayat> ayats)
     {
+        var tcs = new TaskCompletionSource<int>();
         // Siapkan informasi header Surah
         // sebelum data masuk ke UI.
         PrepareSurahHeaders(ayats);
@@ -1620,6 +1625,8 @@ public sealed partial class MainViewModel : ViewModelBase
                 {
                     SelectedAyat = Ayats.FirstOrDefault();
                 }
+
+                tcs.SetResult(0);
             });
         }
         else
@@ -1632,7 +1639,11 @@ public sealed partial class MainViewModel : ViewModelBase
             }
 
             SelectedAyat = Ayats.FirstOrDefault();
+
+            tcs.SetResult(0);
         }
+
+        return tcs.Task;
     }
 
     #endregion
@@ -2368,11 +2379,7 @@ public sealed partial class MainViewModel : ViewModelBase
         {
             if (value is not null)
             {
-                SaveLastReadingPosition(value);
-
                 SelectedAyatNumber = value.AyatNumber;
-
-                // Pastikan posisi footer ikut diberitahukan ke UI.
                 OnPropertyChanged(nameof(CurrentAyatPosition));
             }
             else
@@ -2781,7 +2788,7 @@ public sealed partial class MainViewModel : ViewModelBase
             // Translation test logs suppressed.
 
             // 2. Simpan seluruh ayat ke collection reader
-            ReplaceAyats(ayats);
+            await ReplaceAyatsAsync(ayats);
 
             // Diagnostic dump suppressed.
 

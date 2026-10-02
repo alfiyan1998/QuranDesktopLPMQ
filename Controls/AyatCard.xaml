@@ -410,6 +410,8 @@
                 Margin="0,24,0,0"
                 Height="6"
                 Visibility="Collapsed"/>
+            
+            
 
 
             <!-- ===========================================================
@@ -425,57 +427,79 @@
                 BorderThickness="0,1,0,0"
                 HorizontalAlignment="Stretch">
 
-                <Grid>
+                <Grid RowSpacing="6">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
 
-                    <Grid.ColumnDefinitions>
+                    <!-- INDIKATOR TERAKHIR DIBACA -->
+                    <Border
+        x:Name="PART_LastReadingIndicator"
+        Grid.Row="0"
+        Visibility="Collapsed"
+        Background="#E8F5E9"
+        CornerRadius="8"
+        Padding="8,4"
+        HorizontalAlignment="Left">
 
-                        <!-- Salin -->
-                        <ColumnDefinition Width="Auto"/>
+                        <TextBlock
+            Text="📍 Terakhir Dibaca"
+            FontSize="11"
+            FontWeight="SemiBold"
+            Foreground="#2E7D32"/>
+                    </Border>
 
-                        <!-- Spacer -->
-                        <ColumnDefinition Width="*"/>
-
-                        <!-- Bookmark -->
-                        <ColumnDefinition Width="Auto"/>
-
-                    </Grid.ColumnDefinitions>
-
-
-                    <!-- =====================================================
-                         SALIN
-                         ===================================================== -->
-
-                    <Button
-                        x:Name="PART_CopyButton"
-                        Grid.Column="0"
-                        MinWidth="90"
-                        Height="36"
-                        Content="📋 Salin"
-                        Click="PART_CopyButton_Click"
-                        ToolTipService.ToolTip="Salin ayat"/>
-
-
-                    <!-- =====================================================
-                         SPACER
-                         ===================================================== -->
-
+                    <!-- TOMBOL -->
                     <Grid
-                        Grid.Column="1"/>
+        Grid.Row="1"
+        ColumnSpacing="8">
 
+                        <Grid.ColumnDefinitions>
 
-                    <!-- =====================================================
-                         BOOKMARK
-                         ===================================================== -->
+                            <!-- Salin -->
+                            <ColumnDefinition Width="Auto"/>
 
-                    <Button
-                        x:Name="PART_BookmarkButton"
-                        Grid.Column="2"
-                        MinWidth="110"
-                        Height="36"
-                        Content="🔖 Bookmark"
-                        ToolTipService.ToolTip="Bookmark ayat"
-                        Click="PART_BookmarkButton_Click"/>
-                    
+                            <!-- Terakhir Dibaca -->
+                            <ColumnDefinition Width="Auto"/>
+
+                            <!-- Bookmark -->
+                            <ColumnDefinition Width="*"/>
+
+                        </Grid.ColumnDefinitions>
+
+                        <!-- SALIN -->
+                        <Button
+            x:Name="PART_CopyButton"
+            Grid.Column="0"
+            MinWidth="90"
+            Height="36"
+            Content="📋 Salin"
+            Click="PART_CopyButton_Click"
+            ToolTipService.ToolTip="Salin ayat"/>
+
+                        <!-- TERAKHIR DIBACA -->
+                        <Button
+            x:Name="PART_LastReadingButton"
+            Grid.Column="1"
+            MinWidth="150"
+            Height="36"
+            Margin="8,0,0,0"
+            Content="📍 Terakhir Dibaca"
+            Click="PART_LastReadingButton_Click"
+            ToolTipService.ToolTip="Tandai ayat ini sebagai terakhir dibaca"/>
+
+                        <!-- BOOKMARK -->
+                        <Button
+            x:Name="PART_BookmarkButton"
+            Grid.Column="2"
+            MinWidth="110"
+            Height="36"
+            HorizontalAlignment="Right"
+            Content="🔖 Bookmark"
+            ToolTipService.ToolTip="Bookmark ayat"/>
+
+                    </Grid>
                 </Grid>
 
             </Border>
