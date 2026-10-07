@@ -497,6 +497,7 @@
             Height="36"
             HorizontalAlignment="Right"
             Content="🔖 Bookmark"
+            Click="PART_BookmarkButton_Click"
             ToolTipService.ToolTip="Bookmark ayat"/>
 
                     </Grid>

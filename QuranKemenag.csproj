@@ -65,7 +65,7 @@
 		<Content Include="Assets\Illuminations\Middle\middle_switch.png">
 			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 		</Content>
-		<Content Include="C:\Users\user\Downloads\LPMQ IsepMisbah (3)\LPMQ IsepMisbah.ttf" Link="Assets\Fonts\LPMQ IsepMisbah.ttf" />
+		
 		<Content Include="C:\Users\user\Downloads\LPMQ-ISYARAT.ttf" Link="Assets\Fonts\LPMQ-ISYARAT.ttf" />
 		<Content Include="C:\Users\user\Downloads\Lpmq_Hafs_01-Regular.ttf" Link="Assets\Fonts\Lpmq_Hafs_01-Regular.ttf" />
 		<Content Include="D:\Belajar\QuranKemenag\iluminasi\Hafs-Frame.png" Link="Assets\Images\Hafs\Hafs-Frame.png" />

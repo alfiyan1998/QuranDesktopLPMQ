@@ -2,19 +2,24 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using QuranKemenag.Models;
+using QuranKemenag.Services;
 using QuranKemenag.ViewModels;
 using System;
 using System.Diagnostics;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace QuranKemenag.Views;
 
 public sealed partial class HomeView : UserControl
 {
+    private BookmarkService? _bookmarkService;
+
     public HomeView()
     {
         this.InitializeComponent();
         Loaded += HomeView_Loaded;
+        _bookmarkService = App.Services?.GetService<BookmarkService>();
     }
 
     private void LoadLastReadingPosition()
@@ -97,6 +102,7 @@ public sealed partial class HomeView : UserControl
     RoutedEventArgs e)
     {
         LoadLastReadingPosition();
+        _ = RefreshBookmarkCountAsync();
     }
 
     private async void ContinueReadingButton_Click(
@@ -194,5 +200,32 @@ public sealed partial class HomeView : UserControl
     public void RefreshLastReadingPosition()
     {
         LoadLastReadingPosition();
+        _ = RefreshBookmarkCountAsync();
+    }
+
+    public async Task RefreshBookmarkCountAsync()
+    {
+        try
+        {
+            if (_bookmarkService is null)
+            {
+                BookmarkCountText.Text = "0";
+                return;
+            }
+
+            var list = await _bookmarkService.GetAllAsync();
+
+            int count = list?.Count ?? 0;
+
+            Debug.WriteLine($"[HOME BOOKMARK] Jumlah bookmark = {count}");
+
+            BookmarkCountText.Text = count.ToString();
+        }
+        catch (Exception ex)
+        {
+            Debug.WriteLine("[HOME BOOKMARK ERROR]");
+            Debug.WriteLine(ex);
+            BookmarkCountText.Text = "0";
+        }
     }
 }
