@@ -173,16 +173,22 @@ public sealed partial class AyatCard : UserControl
         UpdateHighlight();
 
         // Nomor ayat hanya ditampilkan untuk mode Unicode.
-        PART_AyatNumber.Visibility =
-    ayat.KodeFont == 0
-        ? Visibility.Visible
-        : Visibility.Collapsed;
+        //    PART_AyatNumber.Visibility =
+        //ayat.KodeFont == 0
+        //    ? Visibility.Visible
+        //    : Visibility.Collapsed;
 
-        if (ayat.KodeFont == 0)
-        {
-            DispatcherQueue.TryEnqueue(
-                PositionAyatNumber);
-        }
+        //    if (ayat.KodeFont == 0)
+        //    {
+        //        DispatcherQueue.TryEnqueue(
+        //            PositionAyatNumber);
+        //    }
+
+        // Nomor ayat ditampilkan di kedua mode (Computer Font & Handwritten).
+        PART_AyatNumber.Visibility = Visibility.Visible;
+
+        DispatcherQueue.TryEnqueue(
+            PositionAyatNumber);
 
         // Ensure last-reading indicator is evaluated for the new DataContext
         // so recycled cards update their indicator state immediately.
@@ -190,7 +196,7 @@ public sealed partial class AyatCard : UserControl
     }
 
 
-  
+
 
 
     // =========================================================
@@ -377,13 +383,13 @@ public sealed partial class AyatCard : UserControl
         if (DataContext is not Ayat ayat)
             return;
 
-        if (ayat.KodeFont != 0)
-        {
-            PART_AyatNumber.Visibility =
-                Visibility.Collapsed;
+        //if (ayat.KodeFont != 0)
+        //{
+        //    PART_AyatNumber.Visibility =
+        //        Visibility.Collapsed;
 
-            return;
-        }
+        //    return;
+        //}
 
         PART_AyatNumber.Visibility =
             Visibility.Visible;
@@ -1831,11 +1837,14 @@ Catatan Kaki: {EscapeHtml(ayat.TextFn.Trim())}
     object sender,
     SizeChangedEventArgs e)
     {
-        if (DataContext is Ayat ayat &&
-            ayat.KodeFont == 0)
-        {
-            PositionAyatNumber();
-        }
+        //if (DataContext is Ayat ayat &&
+        //    ayat.KodeFont == 0)
+        //{
+        //    PositionAyatNumber();
+        //}
+
+
+        PositionAyatNumber();
     }
 
     private void RenderHandwritten(Ayat ayat)
@@ -1857,16 +1866,46 @@ Catatan Kaki: {EscapeHtml(ayat.TextFn.Trim())}
         if (availableWidth <= 0)
             return;
 
+        //PART_HandwrittenCanvas.Children.Clear();
+
+        //var layout =
+        //    HandwrittenLayoutEngine.BuildLayout(
+        //        new[] { ayat },
+        //        kodeFont =>
+        //            _fontManager.GetSymbolFont(kodeFont),
+        //        ArabicFontSize,
+        //        availableWidth,
+        //        _handwrittenGlyphMeasurer);
+
         PART_HandwrittenCanvas.Children.Clear();
+
+        // Buang glyph lingkaran nomor ayat bawaan font (token pertama
+        // di Teks). Nomor ditampilkan lewat bingkai PART_AyatNumber
+        // seperti Computer Font.
+        var layoutAyat = ayat;
+
+        string rawTeks = ayat.Teks?.Trim() ?? string.Empty;
+        int firstSpace = rawTeks.IndexOfAny(new[] { ' ', '\u00A0' });
+
+        if (firstSpace == 1)
+        {
+            layoutAyat = new Ayat
+            {
+                KodeFont = ayat.KodeFont,
+                Teks = rawTeks.Substring(firstSpace + 1).TrimStart()
+            };
+        }
 
         var layout =
             HandwrittenLayoutEngine.BuildLayout(
-                new[] { ayat },
+                new[] { layoutAyat },
                 kodeFont =>
                     _fontManager.GetSymbolFont(kodeFont),
                 ArabicFontSize,
                 availableWidth,
                 _handwrittenGlyphMeasurer);
+
+
 
         // Ensure the canvas width matches the computed available text width so it
         // no longer retains a stale larger width and pushes glyphs outside the

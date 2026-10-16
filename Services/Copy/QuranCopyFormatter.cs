@@ -3,6 +3,7 @@ using QuranKemenag.Models;
 using QuranKemenag.Models.Copy;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Text;
 
@@ -396,26 +397,43 @@ public sealed class QuranCopyFormatter
     // =============================================================
 
     private static string BuildArabicText(
-        Ayat ayat,
-        CopyOptions options)
+    Ayat ayat,
+    CopyOptions options)
     {
         string text = ayat.Teks.Trim();
 
-        // ---------------------------------------------------------
-        // Tanda kurung
-        // ---------------------------------------------------------
+        // Handwritten = karakter pertama berada di area PUA font simbol.
+        bool isHandwritten =
+            text.Length > 0 &&
+            text[0] >= '\uE000' &&
+            text[0] <= '\uF8FF';
 
-        if (options.AddParentheses)
+        // Handwritten: glyph pertama = lingkaran nomor ayat.
+        // Tidak dicentang -> buang (hasil polos).
+        // Dicentang       -> biarkan, itu nomor dari database.
+        if (isHandwritten && !options.AddAyahNumber)
         {
-            text =
-                $"{OpenParenthesis} {text} {CloseParenthesis}";
+            int cut = text.IndexOfAny(new[] { ' ', '\u00A0' });
+
+            if (cut == 1)
+            {
+                text = text.Substring(cut + 1).TrimStart();
+            }
         }
 
-        // ---------------------------------------------------------
-        // Nomor ayat
-        // ---------------------------------------------------------
+        // Tanda kurung (handwritten ditata Word kiri-ke-kanan,
+        // jadi kurung ditukar supaya menghadap ke dalam)
+        if (options.AddParentheses)
+        {
+            text = isHandwritten
+                ? $"{CloseParenthesis} {text} {OpenParenthesis}"
+                : $"{OpenParenthesis} {text} {CloseParenthesis}";
+        }
 
-        if (options.AddAyahNumber)
+        //nomer ayat
+
+        // Angka Arab hanya untuk Computer Font.
+        if (options.AddAyahNumber && !isHandwritten)
         {
             string number =
                 ArabicNumberHelper.ToArabicNumber(
