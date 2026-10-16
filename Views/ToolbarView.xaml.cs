@@ -1,5 +1,6 @@
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
+using QuranKemenag.ViewModels;
 
 namespace QuranKemenag.Views;
 
@@ -63,8 +64,54 @@ public sealed partial class ToolbarView : UserControl
     object sender,
     RoutedEventArgs e)
     {
-        CopyRequested?.Invoke(this, e);
-    }
+        //sebelum
+        //CopyRequested?.Invoke(this, e);
+        //sesudah
+        if (!HasOpenedContent)
+        {
+            // Tombol Copy juga ada di flyout overflow (jendela sempit),
+            // jadi arahkan balon ke tombol yang terlihat.
+            FrameworkElement target =
+                ReferenceEquals(sender, CopyButton)
+                    ? CopyButton
+                    : OverflowButton;
+
+            ShowSelectFirstTip(target);
+            return;
+        }
+
+                CopyRequested?.Invoke(this, e);
+            }
+
+            /// <summary>
+            /// True jika sudah ada Surah, ayat, atau halaman yang dibuka.
+            /// </summary>
+            private bool HasOpenedContent =>
+                DataContext is MainViewModel vm &&
+                (vm.SelectedSurah is not null ||
+                 vm.SelectedAyat is not null ||
+                 vm.CurrentPage is not null);
+
+            private void ShowSelectFirstTip(FrameworkElement target)
+            {
+                SelectFirstTip.Target = target;
+                SelectFirstTip.IsOpen = true;
+            }
+
+            private void AyahComboBox_DropDownOpened(
+                object? sender,
+                object e)
+            {
+                if (HasOpenedContent)
+                    return;
+
+                // Jangan biarkan daftar kosong terbuka.
+                AyahComboBox.IsDropDownOpen = false;
+
+                ShowSelectFirstTip(AyahComboBox);
+            }
+
+    
 
     private void ToolbarGrid_SizeChanged(
     object sender,

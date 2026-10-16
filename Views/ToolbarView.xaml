@@ -51,7 +51,7 @@
 
             <!-- Judul aplikasi -->
             <TextBlock Grid.Column="1"
-                       Text="The Mushaf"
+                       Text="Mushaf"
                        VerticalAlignment="Center"
                        FontWeight="SemiBold"
                        Foreground="{StaticResource LpmqGreenDarkBrush}" />
@@ -85,7 +85,8 @@
                       SelectedValuePath="AyatNumber"
                       SelectedValue="{Binding SelectedAyatNumber, Mode=TwoWay}"
                       DisplayMemberPath="AyatNumber"
-                      PlaceholderText="Ayah" />
+                      PlaceholderText="Ayat" 
+                      DropDownOpened="AyahComboBox_DropDownOpened"/>
 
             <!-- Mode Tampilan -->
             <StackPanel x:Name="ModePanel"
@@ -196,6 +197,13 @@
                 FontFamily="Segoe Fluent Icons"
                 HorizontalAlignment="Right"
                 ToolTipService.ToolTip="Tampilkan/Sembunyikan Feature Panel" />
+
+            <!-- Pesan: pilih Surah/Juz dulu -->
+            <TeachingTip x:Name="SelectFirstTip"
+                         Title="Pilih Surah atau Juz dulu"
+                         Subtitle="Buka salah satu Surah atau Juz terlebih dahulu, baru pilih ayat atau salin."
+                         PreferredPlacement="Bottom"
+                         IsLightDismissEnabled="True" />
 
             <!-- Visual states for responsive toolbar -->
             <VisualStateManager.VisualStateGroups>
