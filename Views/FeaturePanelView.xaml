@@ -315,8 +315,8 @@ Margin="0,4,0,0">
 
                 </Expander> -->
                             
-                            <!--EDIT DIBAWAH-->
-                        </StackPanel>
+                            <!--Edit untuk menambahkan fitur baru di bawah ini -->
+                            </StackPanel>
                         </ContentControl>
                         
 
@@ -335,7 +335,7 @@ Margin="0,4,0,0">
                             </Grid>
 
                         </Expander>
-                        <!--edit salesai-->
+                        <!--edit salesai -->
 
             </StackPanel>
         </ScrollViewer>

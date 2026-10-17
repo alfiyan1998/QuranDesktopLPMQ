@@ -1028,7 +1028,7 @@ public sealed partial class MainWindow : Window
     //    }
     //}
 
-    //edit mulai
+    //edit untuk mencegah Toolbar_SurahSelectionRequested dipanggil saat sinkronisasi Juz/Ayat
     private async void Toolbar_SurahSelectionRequested(
     object sender,
     SelectionChangedEventArgs e)
@@ -1074,7 +1074,7 @@ public sealed partial class MainWindow : Window
             Debug.WriteLine(ex);
         }
     }
-    //edit selesai
+    //edit selesai 
 
     //private async void TestCopyDialogAsync()
     //{

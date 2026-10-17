@@ -94,7 +94,7 @@ public sealed partial class ToolbarView : UserControl
 
                 CopyRequested?.Invoke(this, e);
             }
-
+    //sebelum
     /// <summary>
     /// True jika sudah ada Surah, ayat, atau halaman yang dibuka.
     /// </summary>
@@ -103,7 +103,8 @@ public sealed partial class ToolbarView : UserControl
     //    (vm.SelectedSurah is not null ||
     //     vm.SelectedAyat is not null ||
     //     vm.CurrentPage is not null);
-    //edit mulai
+    //sesudah
+    //edit untuk menambahkan fitur lock overlay dan tip agar pengguna tahu harus membuka Surah/Ayat/Halaman dulu sebelum mengakses panel fitur
     private bool _isReaderActive;
 
     /// <summary>
@@ -120,6 +121,7 @@ public sealed partial class ToolbarView : UserControl
     private bool HasOpenedContent => _isReaderActive;
     //edit selesai
 
+    //sebelum
     //private void ShowSelectFirstTip(FrameworkElement target)
     //        {
     //            SelectFirstTip.Target = target;
@@ -138,7 +140,8 @@ public sealed partial class ToolbarView : UserControl
 
     //            ShowSelectFirstTip(AyahComboBox);
     //        }
-    //edit mulai agar tidak bug di persurah dan perjuz
+    //sesudah
+    //edit untuk timer agar balon otomatis hilang setelah beberapa detik
     private DispatcherQueueTimer? _tipTimer;
 
     private void ShowSelectFirstTip(FrameworkElement target)
@@ -162,6 +165,7 @@ public sealed partial class ToolbarView : UserControl
     }
     //edit selesai
 
+    //sebelum
     //private void GuardedComboBox_DropDownOpened(object? sender, object e)
     //{
     //    if (HasOpenedContent || sender is not ComboBox cb)
@@ -177,7 +181,8 @@ public sealed partial class ToolbarView : UserControl
 
     //    ShowSelectFirstTip(target);
     //}
-    //edit mulai agar tidak bug di persurah dan perjuz
+    //sesudah
+    //edit untuk tidak menutup dropdown secara langsung, tapi menunggu event selesai agar balon muncul setelah dropdown tertutup
     private void GuardedComboBox_DropDownOpened(object? sender, object e)
     {
         if (HasOpenedContent || sender is not ComboBox cb)

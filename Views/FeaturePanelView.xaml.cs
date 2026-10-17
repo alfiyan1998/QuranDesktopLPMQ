@@ -33,7 +33,7 @@
 //    }
 //}
 
-//edit mulai
+//edit untuk menambahkan fitur lock overlay dan tip agar pengguna tahu harus membuka Surah/Ayat/Halaman dulu sebelum mengakses panel fitur
 using System.ComponentModel;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
@@ -67,7 +67,8 @@ public sealed partial class FeaturePanelView : UserControl
     //    (_vm.SelectedSurah is not null ||
     //     _vm.SelectedAyat is not null ||
     //     _vm.CurrentPage is not null);
-    //edit mulai
+
+    //edit untuk menambahkan fitur lock overlay dan tip agar pengguna tahu harus membuka Surah/Ayat/Halaman dulu sebelum mengakses panel fitur
     private bool _isReaderActive;
 
     /// <summary>
@@ -80,7 +81,7 @@ public sealed partial class FeaturePanelView : UserControl
     }
 
     private bool HasOpenedContent => _isReaderActive;
-    //edit: menambahkan flag _isReaderActive untuk menandai apakah Reader sedang aktif
+    //edit selesai
 
 
     private void FeaturePanelView_DataContextChanged(
@@ -120,9 +121,10 @@ public sealed partial class FeaturePanelView : UserControl
 
         // Abu-abu sebagai petunjuk visual bahwa panel belum bisa dipakai.
         //SettingsPanel.IsEnabled = !locked;
+
         //edit: SettingsPanel.IsEnabled = true; // tetap bisa diakses, tapi overlay menutupi
         SettingsHost.IsEnabled = !locked;   
-        //editakhir
+        //edit selesai
         if (!locked)
             SelectFirstTip.IsOpen = false;
     }
@@ -135,6 +137,7 @@ public sealed partial class FeaturePanelView : UserControl
     //    SelectFirstTip.IsOpen = true;
     //    e.Handled = true;
     //}
+
     //edit menambahkan timer untuk menutup tip otomatis
     private DispatcherQueueTimer? _tipTimer;
 

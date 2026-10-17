@@ -256,17 +256,37 @@ public sealed partial class AyatCard : UserControl
 
 
     // =========================================================
-    // ARABIC FONT SIZE
+    // UKURAN FONT ARAB (DependencyProperty)
+    // =========================================================
+    //
+    // DependencyProperty adalah jenis "properti" khusus di WinUI yang
+    // bisa dipakai untuk binding XAML dan bisa memberi tahu kita
+    // ketika nilainya berubah.
+    //
+    // Properti ini menyimpan ukuran teks Arab untuk SATU kartu ayat.
+    // Nilainya diisi oleh ReaderView setiap kali user menggeser slider
+    // "Ukuran Teks Arab" atau mengganti Preset Tampilan:
+    //
+    //   Slider / Preset -> MainViewModel.ArabicFontSize
+    //                   -> ReaderView (card.ArabicFontSize = ...)
+    //                   -> AyatCard (properti di bawah ini)
     // =========================================================
 
     public static readonly DependencyProperty ArabicFontSizeProperty =
         DependencyProperty.Register(
-            nameof(ArabicFontSize),
-            typeof(double),
-            typeof(AyatCard),
-            new PropertyMetadata(42.0));
+            nameof(ArabicFontSize),   // nama properti: "ArabicFontSize"
+            typeof(double),           // tipe nilainya: angka desimal
+            typeof(AyatCard),         // dimiliki oleh class AyatCard
+            new PropertyMetadata(
+                42.0,                    // nilai awal (default) = 42
+                OnArabicFontSizeChanged  // dipanggil otomatis setiap nilainya berubah
+            ));
 
 
+    // Pembungkus agar properti mudah dipakai di kode seperti biasa:
+    //   card.ArabicFontSize = 47;     (menulis)
+    //   var size = card.ArabicFontSize; (membaca)
+    // Nilai sebenarnya disimpan oleh sistem DependencyProperty di atas.
     public double ArabicFontSize
     {
         get => (double)GetValue(ArabicFontSizeProperty);
@@ -274,6 +294,59 @@ public sealed partial class AyatCard : UserControl
         set => SetValue(
             ArabicFontSizeProperty,
             value);
+    }
+
+
+    // =========================================================
+    // CALLBACK: DIPANGGIL SAAT ArabicFontSize BERUBAH
+    // =========================================================
+    //
+    // Method ini dijalankan otomatis oleh WinUI setiap kali nilai
+    // ArabicFontSize berubah (misalnya dari 42 menjadi 47).
+    //
+    // Harus "static" karena aturan DependencyProperty. Parameter:
+    //   d -> kartu mana yang berubah
+    //   e -> berisi nilai lama (e.OldValue) dan nilai baru (e.NewValue)
+    //
+    // Di sini kita hanya meneruskan perintah ke kartu yang bersangkutan
+    // supaya tulisan handwritten digambar ulang dengan ukuran baru.
+    private static void OnArabicFontSizeChanged(
+        DependencyObject d,
+        DependencyPropertyChangedEventArgs e)
+    {
+        // Pastikan yang berubah memang AyatCard, lalu minta digambar ulang.
+        if (d is AyatCard card)
+            card.RefreshHandwritten();
+    }
+
+
+    /// <summary>
+    /// Menggambar ulang ayat Handwritten saat ukuran Arab berubah.
+    /// Mode Computer Font tidak perlu karena memakai binding FontSize.
+    /// </summary>
+    private void RefreshHandwritten()
+    {
+        // Hanya lanjut jika kartu ini sedang menampilkan ayat Handwritten.
+        //   - DataContext bukan Ayat -> belum ada data, tidak ada yang digambar
+        //   - KodeFont == 0          -> mode Computer Font (Unicode); TextBlock-nya
+        //                               sudah ikut berubah lewat binding FontSize,
+        //                               jadi tidak perlu digambar ulang
+        if (DataContext is not Ayat ayat || ayat.KodeFont == 0)
+            return;
+
+        // Ditunda sebentar lewat DispatcherQueue supaya tidak menggambar
+        // di tengah proses perubahan properti. Ini juga memberi kesempatan
+        // pada WinUI untuk menyelesaikan update lain lebih dulu.
+        DispatcherQueue.TryEnqueue(() =>
+        {
+            // Cek ulang karena selama menunggu, kartu ini bisa saja sudah
+            // dipakai ulang untuk ayat lain (recycling pada ListView) atau
+            // sudah berganti ke mode Computer Font.
+            if (DataContext is Ayat current && current.KodeFont != 0)
+                // Hapus gambar lama di Canvas, hitung ulang tata letak huruf
+                // dengan ukuran baru, lalu gambar kembali.
+                RenderHandwritten(current);
+        });
     }
 
 

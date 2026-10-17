@@ -15,7 +15,7 @@
             Visibility="Visible">
 
             <Grid.RowDefinitions>
-                <RowDefinition Height="88"/>
+                <RowDefinition Height="48"/>
                 <RowDefinition Height="*"/>
             </Grid.RowDefinitions>
 
@@ -24,10 +24,10 @@
 
             <Grid
                 Grid.Row="0"
-                Padding="12,12,8,8">
+                Padding="12,0,8,0">
 
                 <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="40"/>
+                    <ColumnDefinition Width="36"/>
                     <ColumnDefinition Width="*"/>
                     <ColumnDefinition Width="36"/>
                 </Grid.ColumnDefinitions>
@@ -37,8 +37,8 @@
 
                 <Image
                     Grid.Column="0"
-                    Width="40"
-                    Height="40"
+                    Width="36"
+                    Height="36"
                     Source="/Resources/Images/logo-kemenag.png"
                     Stretch="Uniform"
                     HorizontalAlignment="Left"
