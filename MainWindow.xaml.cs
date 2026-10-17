@@ -194,6 +194,11 @@ public sealed partial class MainWindow : Window
                 ? Visibility.Visible
                 : Visibility.Collapsed;
 
+        // Toolbar & Feature Panel hanya aktif saat Reader tampil.
+        bool readerActive = view == ReaderView;
+        Toolbar.SetReaderActive(readerActive);
+        FeaturePanel.SetReaderActive(readerActive);
+
         if (view == HomeView)
         {
             HomeView.RefreshLastReadingPosition();
@@ -894,6 +899,136 @@ public sealed partial class MainWindow : Window
         Debug.WriteLine("--------------------------------");
     }
 
+    // agar Toolbar_SurahSelectionRequested tidak dipanggil saat sinkronisasi Juz/Ayat
+
+    //private async void Toolbar_SurahSelectionRequested(
+    //object sender,
+    //SelectionChangedEventArgs e)
+    //{
+    //    if (e.AddedItems.Count == 0)
+    //        return;
+
+    //    if (App.Services is null)
+    //        return;
+
+    //    var vm =
+    //        App.Services.GetService<MainViewModel>();
+
+    //    if (vm is null)
+    //        return;
+
+    //    if (e.AddedItems[0] is not Surah surah)
+    //        return;
+
+    //    try
+    //    {
+    //        Debug.WriteLine(
+    //            "========================================");
+
+    //        Debug.WriteLine(
+    //            "[TOOLBAR SURAH] Surah dipilih");
+
+    //        Debug.WriteLine(
+    //            $"Surah = {surah.Id} - {surah.LatinName}");
+
+    //        // =====================================================
+    //        // 1. MODE AYAT
+    //        // =====================================================
+
+    //        // If the ViewModel is currently loading ayat (e.g. during Juz load),
+    //        // ignore toolbar selection changes that originate from programmatic
+    //        // updates to SelectedSurah. This prevents the UI handler from
+    //        // forcing a full surah load and overwriting the Juz context.
+    //        if (vm.IsLoadingAyat)
+    //        {
+    //            Debug.WriteLine(
+    //                "[TOOLBAR SURAH] Ignored SelectionChanged while IsLoadingAyat=true.");
+    //            return;
+    //        }
+
+    //        vm.DisplayViewMode =
+    //            QuranDisplayMode.Ayat;
+
+    //        // =====================================================
+    //        // 2. PILIH SURAH
+    //        // =====================================================
+    //        //
+    //        // Ini akan memicu:
+    //        //
+    //        // OnSelectedSurahChanged()
+    //        //        ↓
+    //        // HandleSelectedSurahChangedAsync()
+    //        //        ↓
+    //        // LoadAyatAsync()
+    //        //
+
+    //        vm.SelectedSurah = surah;
+
+    //        // =====================================================
+    //        // 3. TUNGGU SAMPAI DATA AYAT SELESAI
+    //        // =====================================================
+    //        //
+    //        // Karena OnSelectedSurahChanged() menjalankan
+    //        // async secara fire-and-forget, kita load di sini
+    //        // secara eksplisit supaya kita tahu kapan selesai.
+    //        //
+
+    //        // Await the async handler started by the ViewModel when SelectedSurah
+    //        // changed. This prevents invoking LoadAyatAsync twice (once via
+    //        // the handler and once explicitly) which caused duplicate loads.
+    //        await (vm.LastHandleSelectedSurahTask ?? Task.CompletedTask);
+
+    //        // =====================================================
+    //        // 4. PILIH AYAT PERTAMA
+    //        // =====================================================
+
+    //        var firstAyat =
+    //            vm.Ayats.FirstOrDefault();
+
+    //        if (firstAyat is not null)
+    //        {
+    //            vm.SelectedAyat =
+    //                firstAyat;
+    //        }
+
+    //        // =====================================================
+    //        // 5. PINDAH KE READER
+    //        // =====================================================
+
+    //        var _rootFe_before = this.Content as FrameworkElement;
+    //        Debug.WriteLine($"[LAYOUT DEBUG] BEFORE ShowView - MainWindow={(_rootFe_before is null ? 0 : _rootFe_before.ActualWidth)}x{(_rootFe_before is null ? 0 : _rootFe_before.ActualHeight)}");
+    //        Debug.WriteLine($"[LAYOUT DEBUG] BEFORE ShowView - ContentHost={ContentHost.ActualWidth}x{ContentHost.ActualHeight}");
+    //        Debug.WriteLine($"[LAYOUT DEBUG] BEFORE ShowView - ReaderView={ReaderView.ActualWidth}x{ReaderView.ActualHeight}");
+
+    //        ShowView(ReaderView);
+
+    //        var _rootFe_after = this.Content as FrameworkElement;
+    //        Debug.WriteLine($"[LAYOUT DEBUG] AFTER ShowView - MainWindow={(_rootFe_after is null ? 0 : _rootFe_after.ActualWidth)}x{(_rootFe_after is null ? 0 : _rootFe_after.ActualHeight)}");
+    //        Debug.WriteLine($"[LAYOUT DEBUG] AFTER ShowView - ContentHost={ContentHost.ActualWidth}x{ContentHost.ActualHeight}");
+    //        Debug.WriteLine($"[LAYOUT DEBUG] AFTER ShowView - ReaderView={ReaderView.ActualWidth}x{ReaderView.ActualHeight}");
+
+    //        Debug.WriteLine(
+    //            $"[TOOLBAR SURAH] Reader dibuka: " +
+    //            $"{surah.LatinName}");
+
+    //        Debug.WriteLine(
+    //            $"[TOOLBAR SURAH] " +
+    //            $"Jumlah ayat = {vm.Ayats.Count}");
+
+    //        Debug.WriteLine(
+    //            "========================================");
+    //    }
+    //    catch (Exception ex)
+    //    {
+    //        Debug.WriteLine(
+    //            "[TOOLBAR SURAH ERROR]");
+
+    //        Debug.WriteLine(
+    //            ex.ToString());
+    //    }
+    //}
+
+    //edit mulai
     private async void Toolbar_SurahSelectionRequested(
     object sender,
     SelectionChangedEventArgs e)
@@ -904,9 +1039,7 @@ public sealed partial class MainWindow : Window
         if (App.Services is null)
             return;
 
-        var vm =
-            App.Services.GetService<MainViewModel>();
-
+        var vm = App.Services.GetService<MainViewModel>();
         if (vm is null)
             return;
 
@@ -915,111 +1048,33 @@ public sealed partial class MainWindow : Window
 
         try
         {
-            Debug.WriteLine(
-                "========================================");
-
-            Debug.WriteLine(
-                "[TOOLBAR SURAH] Surah dipilih");
-
-            Debug.WriteLine(
-                $"Surah = {surah.Id} - {surah.LatinName}");
-
-            // =====================================================
-            // 1. MODE AYAT
-            // =====================================================
-
-            // If the ViewModel is currently loading ayat (e.g. during Juz load),
-            // ignore toolbar selection changes that originate from programmatic
-            // updates to SelectedSurah. This prevents the UI handler from
-            // forcing a full surah load and overwriting the Juz context.
-            if (vm.IsLoadingAyat)
-            {
-                Debug.WriteLine(
-                    "[TOOLBAR SURAH] Ignored SelectionChanged while IsLoadingAyat=true.");
-                return;
-            }
-
-            vm.DisplayViewMode =
-                QuranDisplayMode.Ayat;
-
-            // =====================================================
-            // 2. PILIH SURAH
-            // =====================================================
-            //
-            // Ini akan memicu:
-            //
-            // OnSelectedSurahChanged()
-            //        ↓
-            // HandleSelectedSurahChangedAsync()
-            //        ↓
-            // LoadAyatAsync()
-            //
-
-            vm.SelectedSurah = surah;
-
-            // =====================================================
-            // 3. TUNGGU SAMPAI DATA AYAT SELESAI
-            // =====================================================
-            //
-            // Karena OnSelectedSurahChanged() menjalankan
-            // async secara fire-and-forget, kita load di sini
-            // secara eksplisit supaya kita tahu kapan selesai.
-            //
-
-            // Await the async handler started by the ViewModel when SelectedSurah
-            // changed. This prevents invoking LoadAyatAsync twice (once via
-            // the handler and once explicitly) which caused duplicate loads.
-            await (vm.LastHandleSelectedSurahTask ?? Task.CompletedTask);
-
-            // =====================================================
-            // 4. PILIH AYAT PERTAMA
-            // =====================================================
-
-            var firstAyat =
-                vm.Ayats.FirstOrDefault();
-
-            if (firstAyat is not null)
-            {
-                vm.SelectedAyat =
-                    firstAyat;
-            }
-
-            // =====================================================
-            // 5. PINDAH KE READER
-            // =====================================================
-
-            var _rootFe_before = this.Content as FrameworkElement;
-            Debug.WriteLine($"[LAYOUT DEBUG] BEFORE ShowView - MainWindow={(_rootFe_before is null ? 0 : _rootFe_before.ActualWidth)}x{(_rootFe_before is null ? 0 : _rootFe_before.ActualHeight)}");
-            Debug.WriteLine($"[LAYOUT DEBUG] BEFORE ShowView - ContentHost={ContentHost.ActualWidth}x{ContentHost.ActualHeight}");
-            Debug.WriteLine($"[LAYOUT DEBUG] BEFORE ShowView - ReaderView={ReaderView.ActualWidth}x{ReaderView.ActualHeight}");
-
+            // 1. Langsung pindah ke Reader supaya user tidak melihat layar diam.
+            //    (Loading text sudah ada lewat IsLoadingAyat/LoadingAyatText.)
             ShowView(ReaderView);
 
-            var _rootFe_after = this.Content as FrameworkElement;
-            Debug.WriteLine($"[LAYOUT DEBUG] AFTER ShowView - MainWindow={(_rootFe_after is null ? 0 : _rootFe_after.ActualWidth)}x{(_rootFe_after is null ? 0 : _rootFe_after.ActualHeight)}");
-            Debug.WriteLine($"[LAYOUT DEBUG] AFTER ShowView - ContentHost={ContentHost.ActualWidth}x{ContentHost.ActualHeight}");
-            Debug.WriteLine($"[LAYOUT DEBUG] AFTER ShowView - ReaderView={ReaderView.ActualWidth}x{ReaderView.ActualHeight}");
+            // 2. Pastikan mode Ayat
+            vm.DisplayViewMode = QuranDisplayMode.Ayat;
 
-            Debug.WriteLine(
-                $"[TOOLBAR SURAH] Reader dibuka: " +
-                $"{surah.LatinName}");
+            // 3. Binding TwoWay biasanya sudah mengisi SelectedSurah.
+            //    Jika belum, set manual agar handler VM berjalan.
+            if (vm.SelectedSurah?.Id != surah.Id)
+                vm.SelectedSurah = surah;
 
-            Debug.WriteLine(
-                $"[TOOLBAR SURAH] " +
-                $"Jumlah ayat = {vm.Ayats.Count}");
+            // 4. Tunggu load ayat selesai
+            await (vm.LastHandleSelectedSurahTask ?? Task.CompletedTask);
 
-            Debug.WriteLine(
-                "========================================");
+            // 5. Pilih ayat pertama
+            var firstAyat = vm.Ayats.FirstOrDefault();
+            if (firstAyat is not null)
+                vm.SelectedAyat = firstAyat;
         }
         catch (Exception ex)
         {
-            Debug.WriteLine(
-                "[TOOLBAR SURAH ERROR]");
-
-            Debug.WriteLine(
-                ex.ToString());
+            Debug.WriteLine("[TOOLBAR SURAH ERROR]");
+            Debug.WriteLine(ex);
         }
     }
+    //edit selesai
 
     //private async void TestCopyDialogAsync()
     //{

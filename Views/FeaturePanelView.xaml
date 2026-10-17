@@ -48,9 +48,17 @@
 
 
 
-                    <StackPanel
-                        Spacing="16"
-                        Padding="4,8,4,12">
+                    <Grid x:Name="ContentRoot">
+
+                        <ContentControl x:Name="SettingsHost"
+                        IsTabStop="False"
+                        HorizontalContentAlignment="Stretch"
+                        VerticalContentAlignment="Top">
+
+                            <StackPanel
+                            x:Name="SettingsPanel"
+                            Spacing="16"
+                            Padding="4,8,4,12">
 
                         <!-- =====================================================
                          PRESET TAMPILAN
@@ -303,9 +311,31 @@ Margin="0,4,0,0">
 
                         </StackPanel>
 
-                    </StackPanel>
+                    <!--</StackPanel>
 
-                </Expander>
+                </Expander> -->
+                            
+                            <!--EDIT DIBAWAH-->
+                        </StackPanel>
+                        </ContentControl>
+                        
+
+                        <!-- Penutup interaksi + notice saat belum ada konten dibuka -->
+                        <Border x:Name="LockOverlay"
+                            Background="Transparent"
+                            Visibility="Collapsed"
+                            Tapped="LockOverlay_Tapped" />
+
+                        <TeachingTip x:Name="SelectFirstTip"
+                                 Title="Pilih Surah atau Juz dulu"
+                                 Subtitle="Buka salah satu Surah atau Juz terlebih dahulu, baru atur tampilan."
+                                 PreferredPlacement="Left"
+                                 IsLightDismissEnabled="True" />
+
+                            </Grid>
+
+                        </Expander>
+                        <!--edit salesai-->
 
             </StackPanel>
         </ScrollViewer>

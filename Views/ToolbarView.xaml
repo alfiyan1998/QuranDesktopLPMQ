@@ -66,7 +66,8 @@
                   DisplayMemberPath="LatinName"
                   IsTextSearchEnabled="True"
                   PlaceholderText="Surah"
-                  SelectionChanged="SurahComboBox_SelectionChanged" />
+                  SelectionChanged="SurahComboBox_SelectionChanged"
+                  DropDownOpened="SurahComboBox_DropDownOpened"/>
 
             <!-- Nama Arab Surah (di sebelah kanan ComboBox) -->
             <TextBlock Grid.Column="3"
@@ -86,7 +87,7 @@
                       SelectedValue="{Binding SelectedAyatNumber, Mode=TwoWay}"
                       DisplayMemberPath="AyatNumber"
                       PlaceholderText="Ayat" 
-                      DropDownOpened="AyahComboBox_DropDownOpened"/>
+                      DropDownOpened="GuardedComboBox_DropDownOpened"/>
 
             <!-- Mode Tampilan -->
             <StackPanel x:Name="ModePanel"
@@ -105,16 +106,19 @@
         Width="220"
         ItemsSource="{Binding DisplayModes}"
         SelectedItem="{Binding SelectedDisplayModeItem, Mode=TwoWay}"
-        DisplayMemberPath="DisplayName"/>
+        DisplayMemberPath="DisplayName"
+        DropDownOpened="GuardedComboBox_DropDownOpened"/>
 
             </StackPanel>
 
             <!-- Mode Tampilan (Ayat / Halaman) -->
             <StackPanel x:Name="ModeTampilanPanel" Grid.Column="6" Orientation="Horizontal" VerticalAlignment="Center" Spacing="8" Margin="8,0">
                 <TextBlock Text="Mode Tampilan" VerticalAlignment="Center" />
-                <ComboBox Width="120"
+                <ComboBox x:Name="DisplayViewModeComboBox"
+                          Width="120"
                           ItemsSource="{Binding QuranDisplayModes}"
-                          SelectedItem="{Binding DisplayViewMode, Mode=TwoWay}" />
+                          SelectedItem="{Binding DisplayViewMode, Mode=TwoWay}" 
+                          DropDownOpened="GuardedComboBox_DropDownOpened" />
             </StackPanel>
 
            
@@ -174,14 +178,16 @@
                                 <ComboBox Width="200"
                                           ItemsSource="{Binding DisplayModes}"
                                           SelectedItem="{Binding SelectedDisplayModeItem, Mode=TwoWay}"
-                                          DisplayMemberPath="DisplayName" />
+                                          DisplayMemberPath="DisplayName"
+                                          DropDownOpened="GuardedComboBox_DropDownOpened"/>
                             </StackPanel>
 
                             <StackPanel Orientation="Horizontal" Spacing="8" VerticalAlignment="Center">
                                 <TextBlock Text="Mode Tampilan" VerticalAlignment="Center" />
                                 <ComboBox Width="200"
                                           ItemsSource="{Binding QuranDisplayModes}"
-                                          SelectedItem="{Binding DisplayViewMode, Mode=TwoWay}" />
+                                          SelectedItem="{Binding DisplayViewMode, Mode=TwoWay}"
+                                          DropDownOpened="GuardedComboBox_DropDownOpened"/>
                             </StackPanel>
                         </StackPanel>
                     </Flyout>
