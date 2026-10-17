@@ -1352,9 +1352,15 @@ public sealed partial class CopyAyatDialog : UserControl
                         var powerPointCopyService =
                             new PowerPointCopyService();
 
+                        //sebelum
+                        //powerPointCopyService.CopyToPowerPoint(
+                        //    result);
 
+                        //sesudah edit
                         powerPointCopyService.CopyToPowerPoint(
-                            result);
+                        copyResult);
+
+
 
 
                         Debug.WriteLine(

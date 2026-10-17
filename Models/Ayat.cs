@@ -173,13 +173,28 @@ public class Ayat
     /// <summary>
     /// Jumlah ayat Surah dalam angka Arab.
     /// </summary>
+    
+    
     public string SurahTotalAyahArabic { get; set; } = string.Empty;
 
+    
     /// <summary>
     /// Bismillah ditampilkan atau tidak.
     /// At-Taubah (Surah 9) tidak memiliki Bismillah.
     /// </summary>
+    
     public bool ShowBismillah { get; set; }
+
+    //sesudah edit 
+    /// <summary>
+    /// Teks untuk oval kiri header surah, contoh: "آياتها ٧".
+    /// Menggabungkan kata "آياتها" (ayat-ayatnya) dengan jumlah ayat
+    /// dalam angka Arab. Kosong jika jumlah ayat belum diisi.
+    /// </summary>
+    public string SurahAyahCountLabel =>
+        string.IsNullOrWhiteSpace(SurahTotalAyahArabic)
+            ? string.Empty
+            : $"آياتها {SurahTotalAyahArabic}";
 
 
 

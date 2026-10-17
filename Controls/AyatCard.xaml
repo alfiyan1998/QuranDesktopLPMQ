@@ -78,47 +78,98 @@
                             Source="ms-appx:///Assets/Illumination/Standard/surah-header.png"
                             Stretch="Fill"/>
 
-
+                        <!--sebelumnya ada teks di atas iluminasi, tapi sekarang dihapus karena desain baru-->
                         <!-- =================================================
                              TEKS DI ATAS ILUMINASI
                              ================================================= -->
 
-                        <Grid
+                      <!-- <Grid
                             Margin="30,8">
 
-                            <Grid.ColumnDefinitions>
+                            <Grid.ColumnDefinitions> -->
 
                                 <!-- Jumlah ayat -->
-                                <ColumnDefinition Width="1.2*"/>
+                                <!--<ColumnDefinition Width="1.2*"/> -->
 
-                                <!-- Nama Surah -->
-                                <ColumnDefinition Width="2.5*"/>
+                        <!-- Nama Surah -->
+                                <!--<ColumnDefinition Width="2.5*"/> -->
 
-                                <!-- Makkiyah / Madaniyah -->
-                                <ColumnDefinition Width="1.2*"/>
+                        <!-- Makkiyah / Madaniyah -->
+                             <!--   <ColumnDefinition Width="1.2*"/> -->
 
+                            <!--</Grid.ColumnDefinitions> -->
+                        
+                        <!--sesudah edit-->
+                        <Grid Margin="0,8">
+
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="3.5*"/>
+                                <!-- 0: ruang kosong kiri    -->
+                                <ColumnDefinition Width="19*"/>
+                                <!-- 1: OVAL KIRI            -->
+                                <ColumnDefinition Width="5*"/>
+                                <!-- 2: ornamen pemisah      -->
+                                <ColumnDefinition Width="45*"/>
+                                <!-- 3: OVAL TENGAH          -->
+                                <ColumnDefinition Width="5*"/>
+                                <!-- 4: ornamen pemisah      -->
+                                <ColumnDefinition Width="19*"/>
+                                <!-- 5: OVAL KANAN           -->
+                                <ColumnDefinition Width="3.5*"/>
+                                <!-- 6: ruang kosong kanan   -->
                             </Grid.ColumnDefinitions>
 
 
                             <!-- =============================================
                                  JUMLAH AYAT
                                  ============================================= -->
-
-                            <TextBlock
+                            <!--sebelum-->
+                            <!-- <TextBlock
                                 Grid.Column="0"
                                 Text="{Binding SurahTotalAyahArabic}"
                                 FlowDirection="RightToLeft"
                                 FontSize="24"
                                 TextAlignment="Center"
                                 HorizontalAlignment="Center"
-                                VerticalAlignment="Center"/>
+                                VerticalAlignment="Center"/> -->
+                            <!--sesudah edit-->
+                            <Viewbox
+    Grid.Column="1"
+    Margin="22,0"
+    Stretch="Uniform"
+    StretchDirection="DownOnly"
+    HorizontalAlignment="Center"
+    VerticalAlignment="Center">
 
+                                <StackPanel
+        Orientation="Horizontal"
+        FlowDirection="RightToLeft"
+        Spacing="6"
+        VerticalAlignment="Center">
+
+                                    <!-- Kata "آياتها" (ayat-ayatnya) -->
+                                    <TextBlock
+            Text="آياتها"
+            FontFamily="ms-appx:///Assets/Fonts/LPMQ IsepMisbah.ttf#LPMQ Isep Misbah"
+            FontSize="30"
+            VerticalAlignment="Center"/>
+
+                                    <!-- Jumlah ayat dalam angka Arab, contoh: ٢٨٦ -->
+                                    <TextBlock
+            Text="{Binding SurahTotalAyahArabic}"
+            FontFamily="Traditional Arabic, Sakkal Majalla, Segoe UI"
+            FontSize="30"
+            VerticalAlignment="Center"/>
+
+                                </StackPanel>
+                            </Viewbox>
 
                             <!-- =============================================
                                  NAMA SURAH
                                  ============================================= -->
+                            <!--sebelum-->
 
-                            <TextBlock
+                            <!--<TextBlock
                                 Grid.Column="1"
                                 Text="{Binding SurahArabicName}"
                                 FlowDirection="RightToLeft"
@@ -127,14 +178,33 @@
                                 FontWeight="SemiBold"
                                 TextAlignment="Center"
                                 HorizontalAlignment="Center"
-                                VerticalAlignment="Center"/>
+                                VerticalAlignment="Center"/> -->
+                            <!--sesudah edit-->
+                            <Viewbox
+                            Grid.Column="3"
+                            Margin="24,0"
+                            Stretch="Uniform"
+                            StretchDirection="DownOnly"
+                            HorizontalAlignment="Center"
+                            VerticalAlignment="Center">
+
+                                <TextBlock
+                                Text="{Binding SurahArabicName}"
+                                FontFamily="ms-appx:///Assets/Fonts/LPMQ IsepMisbah.ttf#LPMQ Isep Misbah"
+                                FlowDirection="RightToLeft"
+                                FontSize="36"
+                                FontWeight="SemiBold"
+                                TextAlignment="Center"/>
+                            </Viewbox>
 
 
                             <!-- =============================================
                                  KATEGORI SURAH
                                  ============================================= -->
+                            
+                            <!--sebelum-->
 
-                            <TextBlock
+                            <!--<TextBlock
                                 Grid.Column="2"
                                 Text="{Binding SurahCategoryArabic}"
                                 FontFamily="ms-appx:///Assets/Fonts/LPMQ IsepMisbah.ttf#LPMQ Isep Misbah"
@@ -142,11 +212,27 @@
                                 FontSize="22"
                                 TextAlignment="Center"
                                 HorizontalAlignment="Center"
-                                VerticalAlignment="Center"/>
+                                VerticalAlignment="Center"/> -->
+                            <!--sesudah edit-->
+                            <Viewbox
+                                Grid.Column="5"
+                                Margin="14,0"
+                                Stretch="Uniform"
+                                StretchDirection="DownOnly"
+                                HorizontalAlignment="Center"
+                                VerticalAlignment="Center">
+
+                                   <TextBlock
+                                    Text="{Binding SurahCategoryArabic}"
+                                    FontFamily="ms-appx:///Assets/Fonts/LPMQ IsepMisbah.ttf#LPMQ Isep Misbah"
+                                    FlowDirection="RightToLeft"
+                                    FontSize="30"
+                                    TextAlignment="Center"/>
+                            </Viewbox>
 
                         </Grid>
 
-                    </Grid>
+                    </Grid> 
 
 
                     <!-- ===================================================
