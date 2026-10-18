@@ -69,7 +69,8 @@ public sealed partial class ToolbarView : UserControl
         }
 
         SurahSelectionRequested?.Invoke(
-            this,e);
+            this, e);
+
     }
 
     private void CopyButton_Click(

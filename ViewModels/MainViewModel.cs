@@ -95,6 +95,11 @@ public sealed partial class MainViewModel : ViewModelBase
     // programmatic synchronization originating from SelectedAyat updates.
     private bool _suppressSelectedSurahChanged;
 
+    // Menandai bahwa SelectedAyatNumber sedang diisi dari SelectedAyat
+    // (kode kita sendiri), bukan pilihan user di dropdown Ayat.
+    // Dipakai agar OnSelectedAyatNumberChanged tidak mencari ayat lagi.
+    private bool _suppressSelectedAyatNumberChanged;
+
     // UI dispatcher captured at construction time to ensure
     // ObservableCollection updates are performed on the UI thread.
     private readonly Microsoft.UI.Dispatching.DispatcherQueue _uiDispatcher;
@@ -162,7 +167,22 @@ public sealed partial class MainViewModel : ViewModelBase
                     if (SelectedAyat is not null && SelectedAyat.Surah == surahNumber)
                     {
                         if (SelectedAyatNumber != SelectedAyat.AyatNumber)
-                            SelectedAyatNumber = SelectedAyat.AyatNumber;
+                        //sebelumnya
+                        //SelectedAyatNumber = SelectedAyat.AyatNumber;
+
+                        //sesudah edit
+                        {
+                            // Hanya mencerminkan SelectedAyat, jangan cari ayat lagi.
+                            _suppressSelectedAyatNumberChanged = true;
+                            try
+                            {
+                                SelectedAyatNumber = SelectedAyat.AyatNumber;
+                            }
+                            finally
+                            {
+                                _suppressSelectedAyatNumberChanged = false;
+                            }
+                        }
                     }
                     else if (SelectedAyatNumber is int selNum)
                     {
@@ -2252,6 +2272,16 @@ public sealed partial class MainViewModel : ViewModelBase
         // do not treat it as a user-initiated Surah selection.
         if (_suppressSelectedSurahChanged)
         {
+
+            //edit 
+            // Perubahan ini berasal dari sinkronisasi ayat aktif
+            // (misalnya Next melewati batas surah pada Juz).
+            // Reader tidak dimuat ulang, TAPI daftar ayat di dropdown
+            // Ayat harus diganti ke surah baru. Tanpa ini daftarnya
+            // tertinggal di surah lama (An-Naba' 40 ayat padahal sudah
+            // di An-Nazi'at 46 ayat).
+            if (value is not null)
+                _ = LoadSurahAyatsAsync(value.Id);
             return;
         }
 
@@ -2371,21 +2401,32 @@ public sealed partial class MainViewModel : ViewModelBase
     {
         UpdateAyatPosition();
 
-        // Keep toolbar numeric selection in sync with the actual selected Ayat.
-        // Use AyatNumber as stable identifier so the toolbar ComboBox which
-        // binds to SelectedAyatNumber (SelectedValue) can resolve selection
-        // even when the instance comes from a different collection.
         try
         {
-            if (value is not null)
+            // Nomor ayat hanya MENCERMINKAN SelectedAyat.
+            // Tidak boleh memicu pencarian ayat baru.
+            _suppressSelectedAyatNumberChanged = true;
+
+            // Keep toolbar numeric selection in sync with the actual selected Ayat.
+            // Use AyatNumber as stable identifier so the toolbar ComboBox which
+            // binds to SelectedAyatNumber (SelectedValue) can resolve selection
+            // even when the instance comes from a different collection.
+            try
             {
-                SelectedAyatNumber = value.AyatNumber;
-                OnPropertyChanged(nameof(CurrentAyatPosition));
+                if (value is not null)
+                {
+                    SelectedAyatNumber = value.AyatNumber;
+                    OnPropertyChanged(nameof(CurrentAyatPosition));
+                }
+                else
+                {
+                    SelectedAyatNumber = null;
+                    OnPropertyChanged(nameof(CurrentAyatPosition));
+                }
             }
-            else
+            finally
             {
-                SelectedAyatNumber = null;
-                OnPropertyChanged(nameof(CurrentAyatPosition));
+                _suppressSelectedAyatNumberChanged = false;
             }
         }
         catch
@@ -2499,6 +2540,22 @@ public sealed partial class MainViewModel : ViewModelBase
     {
         _traceOnSelectedAyatNumberChangedCount++;
         Debug.WriteLine($"[TRACE AYAT NUMBER] OnSelectedAyatNumberChanged Value={value} Count={_traceOnSelectedAyatNumberChangedCount} Thread={Environment.CurrentManagedThreadId}");
+
+        //edit: Added
+        // PENGAMAN 1: perubahan ini datang dari SelectedAyat,
+        // jadi tidak ada yang perlu dicari.
+        if (_suppressSelectedAyatNumberChanged)
+            return;
+
+        // PENGAMAN 2: jika ayat aktif SUDAH bernomor sama, tidak ada
+        // yang perlu dicari. Pada Juz, nomor yang sama ada di banyak
+        // surah (An-Naba':5 dan An-Nazi'at:5). Mencari "ayat 5" di
+        // SelectedSurah yang kebetulan lain surah akan menimpa ayat
+        // yang sebenarnya benar. Pilihan user di dropdown Ayat tetap
+        // diproses karena nomornya berbeda dari ayat aktif.
+        if (value is int number && SelectedAyat?.AyatNumber == number)
+            return;
+
         try
         {
             if (value is null)
