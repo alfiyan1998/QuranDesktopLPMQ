@@ -248,6 +248,13 @@
                         TextAlignment="Center"
                         HorizontalAlignment="Center"
                         Margin="0,16,0,24"/>
+                    
+                    <!--edit tambahan bismilah handwriten-->
+                    <Canvas
+                        x:Name="PART_BismillahCanvas"
+                        Visibility="Collapsed"
+                        HorizontalAlignment="Center"
+                        Margin="0,16,0,24"/>
 
                 </StackPanel>
 

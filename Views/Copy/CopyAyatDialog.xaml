@@ -291,7 +291,8 @@
                                     <CheckBox
                                         x:Name="SelangSelingCheckBox"
                                         Content="Selang-seling"
-                                        IsEnabled="True"/>
+                                        IsEnabled="True"
+                                        Visibility="Collapsed"/>
 
                                     <CheckBox
                                         x:Name="NomorAyatCheckBox"

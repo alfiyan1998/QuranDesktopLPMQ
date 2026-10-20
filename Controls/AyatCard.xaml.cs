@@ -19,6 +19,9 @@ using QuranKemenag.Services.Font;
 
 using QuranKemenag.Services.Page;
 
+//edit tambahan
+using QuranKemenag.Services.Text;
+
 
 
 
@@ -157,11 +160,42 @@ public sealed partial class AyatCard : UserControl
         // =====================================================
         // BISMILLAH
         // =====================================================
+        //sebelumnya bismilahnya belum menyesuaikan font, sekarang sudah menyesuaikan font handwriten/atau unicode
+        //PART_Bismillah.Visibility =
+        //    ayat.ShowBismillah
+        //        ? Visibility.Visible
+        //        : Visibility.Collapsed;
+        //sesudah edit
+        // =====================================================
+        // BISMILLAH
+        // =====================================================
+        // Computer Font (KodeFont == 0) -> TextBlock Unicode.
+        // Handwritten   (KodeFont != 0) -> kanvas tulisan tangan.
+        // Hanya salah satu yang tampil, dan keduanya disembunyikan
+        // jika surah ini tidak memakai Bismillah (mis. At-Taubah).
+
+        bool isHandwrittenMode = ayat.KodeFont != 0;
 
         PART_Bismillah.Visibility =
-            ayat.ShowBismillah
+            ayat.ShowBismillah && !isHandwrittenMode
                 ? Visibility.Visible
                 : Visibility.Collapsed;
+
+        PART_BismillahCanvas.Visibility =
+            ayat.ShowBismillah && isHandwrittenMode
+                ? Visibility.Visible
+                : Visibility.Collapsed;
+
+        if (ayat.ShowBismillah && isHandwrittenMode)
+        {
+            // Pengambilan data bersifat async, jadi dijalankan di latar.
+            _ = RenderBismillahHandwrittenAsync();
+        }
+        else
+        {
+            // Bersihkan gambar lama (kartu bisa dipakai ulang untuk ayat lain).
+            PART_BismillahCanvas.Children.Clear();
+        }
 
 
         // =====================================================
@@ -345,7 +379,17 @@ public sealed partial class AyatCard : UserControl
             if (DataContext is Ayat current && current.KodeFont != 0)
                 // Hapus gambar lama di Canvas, hitung ulang tata letak huruf
                 // dengan ukuran baru, lalu gambar kembali.
+                //sebelum
+                //RenderHandwritten(current);
+            //sesdudah edit untuk menyesuaikan bismillah juga ikut berubah font handwriten atau computer font
+            {
                 RenderHandwritten(current);
+                //sebelum edit
+                // Bismillah mengikuti ukuran Arab yang sama.
+                //RefreshBismillahHandwritten();
+                // Hanya ayat yang mengikuti slider.
+                // Bismillah berukuran tetap, jadi tidak perlu digambar ulang.
+            }
         });
     }
 
@@ -2043,6 +2087,166 @@ Catatan Kaki: {EscapeHtml(ayat.TextFn.Trim())}
         }
     }
 
+    //edit tambahan untuk bismillah sesuai font tampil handwritten atau computer font
+    // =====================================================
+    // BISMILLAH HANDWRITTEN
+    // =====================================================
+
+    // Ukuran TETAP Bismillah tulisan tangan.
+    // Sengaja tidak memakai ArabicFontSize (slider "Ukuran Teks Arab"),
+    // supaya perilakunya sama dengan Bismillah pada mode Computer Font
+    // yang juga berukuran tetap. Ubah angka ini jika ingin Bismillah
+    // lebih besar atau lebih kecil.
+    private const double BismillahHandwrittenFontSize = 42;
+
+    // Nomor versi render. Dinaikkan setiap render baru dimulai.
+    // Pengambilan data bersifat async; jika selama menunggu kartu ini
+    // sudah dipakai ulang untuk ayat lain atau berganti mode, hasil
+    // lama dibuang agar tidak digambar di kartu yang salah.
+    private int _bismillahRenderVersion;
+
+    /// <summary>
+    /// Menggambar ulang Bismillah tulisan tangan jika kartu sedang
+    /// memakainya. Dipanggil saat ukuran area atau ukuran font berubah.
+    /// </summary>
+    private void RefreshBismillahHandwritten()
+    {
+        if (DataContext is Ayat ayat &&
+            ayat.ShowBismillah &&
+            ayat.KodeFont != 0)
+        {
+            _ = RenderBismillahHandwrittenAsync();
+        }
+    }
+
+    /// <summary>
+    /// Menggambar Bismillah tulisan tangan di PART_BismillahCanvas,
+    /// memakai mesin tata letak yang sama dengan ayat (HandwrittenLayoutEngine)
+    /// sehingga gaya huruf dan jarak antar glyph konsisten.
+    /// </summary>
+    private async Task RenderBismillahHandwrittenAsync()
+    {
+        int version = ++_bismillahRenderVersion;
+
+        try
+        {
+            // Diambil dari database sekali, lalu dipakai ulang (cache).
+            Ayat? bismillah =
+                await HandwrittenBismillahProvider.GetAsync();
+
+            // Sudah ada render yang lebih baru, atau kartu berganti
+            // ayat/mode selama menunggu: hasil ini kedaluwarsa.
+            if (version != _bismillahRenderVersion)
+                return;
+
+            if (DataContext is not Ayat current ||
+                !current.ShowBismillah ||
+                current.KodeFont == 0)
+            {
+                return;
+            }
+
+            // Data tidak tersedia: tampilkan teks Unicode sebagai cadangan
+            // agar banner tidak kosong.
+            if (bismillah is null)
+            {
+                PART_BismillahCanvas.Visibility = Visibility.Collapsed;
+                PART_Bismillah.Visibility = Visibility.Visible;
+                return;
+            }
+
+            // Lebar yang tersedia = lebar panel pembungkus (StackPanel
+            // header) dikurangi sedikit ruang kiri-kanan.
+            double availableWidth =
+                ((PART_BismillahCanvas.Parent as FrameworkElement)
+                    ?.ActualWidth ?? 0) - 32;
+
+            // Layout belum selesai: render ulang saat ukuran berubah
+            // (lihat PART_AyatArea_SizeChanged).
+            if (availableWidth <= 0)
+                return;
+
+            var layout =
+                HandwrittenLayoutEngine.BuildLayout(
+                    new[] { bismillah },
+                    kodeFont => _fontManager.GetSymbolFont(kodeFont),
+                    //sebelum: BismillahHandwrittenFontSize, // ukuran tetap
+                    //ArabicFontSize,   // ikut slider "Ukuran Teks Arab"
+                    //sesudah edit : ikut slider "Ukuran Teks Arab" agar Bismillah proporsional dengan ayat
+                    BismillahHandwrittenFontSize,   // ukuran tetap, tidak ikut slider
+                    availableWidth,
+                    _handwrittenGlyphMeasurer);
+
+            if (layout.Lines.Count == 0)
+                return;
+
+            // Mesin layout menaruh glyph rata kanan pada lebar yang tersedia.
+            // Agar Bismillah TEPAT DI TENGAH, kita ukur ujung kiri dan kanan
+            // seluruh glyph, lalu kanvas dibuat selebar isi itu saja
+            // (kanvas sendiri sudah HorizontalAlignment="Center").
+            double minLeft = double.MaxValue;
+            double maxRight = 0;
+
+            foreach (var line in layout.Lines)
+            {
+                foreach (var positioned in line.Glyphs)
+                {
+                    minLeft = Math.Min(minLeft, positioned.X);
+
+                    maxRight = Math.Max(
+                        maxRight,
+                        positioned.X + positioned.Glyph.Width);
+                }
+            }
+
+            PART_BismillahCanvas.Children.Clear();
+            PART_BismillahCanvas.Width = maxRight - minLeft;
+            PART_BismillahCanvas.Height = layout.TotalHeight;
+
+            foreach (var line in layout.Lines)
+            {
+                foreach (var positioned in line.Glyphs)
+                {
+                    var glyphVisual =
+                        new TextBlock
+                        {
+                            Text =
+                                positioned.Glyph.Character.ToString(),
+
+                            FontFamily =
+                                positioned.Glyph.Font,
+                            //sebelum: BismillahHandwrittenFontSize, // ukuran tetap
+                            //FontSize = ArabicFontSize,
+                            //sesudah edit : ikut slider "Ukuran Teks Arab" agar Bismillah proporsional dengan ayat
+                            // Harus sama dengan ukuran yang dipakai BuildLayout,
+                            // kalau tidak jarak antar glyph tidak pas.
+                            FontSize = BismillahHandwrittenFontSize,
+
+                            IsHitTestVisible =
+                                false
+                        };
+
+                    // Geser sebesar minLeft agar glyph paling kiri
+                    // berada di x = 0 pada kanvas.
+                    Canvas.SetLeft(
+                        glyphVisual,
+                        positioned.X - minLeft);
+
+                    Canvas.SetTop(
+                        glyphVisual,
+                        positioned.Y);
+
+                    PART_BismillahCanvas.Children.Add(glyphVisual);
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            Debug.WriteLine("[BISMILLAH HANDWRITTEN] Render gagal:");
+            Debug.WriteLine(ex);
+        }
+    }
+
     private void PART_AyatArea_SizeChanged(
     object sender,
     SizeChangedEventArgs e)
@@ -2067,6 +2271,11 @@ Catatan Kaki: {EscapeHtml(ayat.TextFn.Trim())}
                 return;
 
             RenderHandwritten(currentAyat);
+
+            // Bismillah juga digambar ulang karena lebar area berubah.
+            // Ini juga yang menyelesaikan render awal bila layout
+            // belum siap saat kartu pertama kali tampil.
+            RefreshBismillahHandwritten();
         });
     }
 
