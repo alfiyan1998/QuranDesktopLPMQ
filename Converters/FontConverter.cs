@@ -14,7 +14,7 @@ public sealed class FontConverter : IValueConverter
     public FontConverter()
     {
         _fontManager =
-            (IFontManager)App.Services.GetService(typeof(IFontManager))!;
+            (IFontManager)App.Services!.GetService(typeof(IFontManager))!;
     }
 
     public object Convert(

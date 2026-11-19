@@ -206,7 +206,7 @@ public static class FontHelper
         // =====================================================
 
         var manager =
-            App.Services.GetService(
+            App.Services?.GetService(
                 typeof(IFontManager))
             as IFontManager;
 

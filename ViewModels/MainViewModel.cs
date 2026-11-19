@@ -474,7 +474,7 @@ public sealed partial class MainViewModel : ViewModelBase
             // request-id guard to avoid races.
             _ = LoadJuzAsync(value.JuzNumber);
         }
-        catch (Exception ex)
+        catch (Exception)
         {
             // suppressed temporary diagnostic
         }

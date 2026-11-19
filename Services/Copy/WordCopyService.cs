@@ -80,7 +80,7 @@ public sealed class WordCopyService
             // 3. WORD VISIBLE
             // ====================================================
 
-            dynamic app = wordApp;
+            dynamic app = wordApp!;
 
             app.Visible = true;
 
@@ -213,7 +213,7 @@ public sealed class WordCopyService
             // 3. WORD VISIBLE
             // ====================================================
 
-            dynamic app = wordApp;
+            dynamic app = wordApp!;
 
             app.Visible = true;
 
@@ -787,7 +787,7 @@ public sealed class WordCopyService
         range.ParagraphFormat.SpaceAfter = 6;
         range.ParagraphFormat.LineSpacingRule = 0;
 
-        range = null;
+        //range = null;
     }
 
     // ============================================================
@@ -848,7 +848,7 @@ public sealed class WordCopyService
         // Hapus selection range
         // --------------------------------------------------------
 
-        range = null;
+        //range = null; 
     }
 
     // ============================================================
@@ -879,7 +879,7 @@ public sealed class WordCopyService
         range.ParagraphFormat.SpaceBefore = 0;
         range.ParagraphFormat.SpaceAfter = 4;
 
-        range = null;
+        //range = null;
     }
 
     // ============================================================
@@ -910,7 +910,7 @@ public sealed class WordCopyService
         range.ParagraphFormat.SpaceBefore = 6;
         range.ParagraphFormat.SpaceAfter = 0;
 
-        range = null;
+        //range = null;
     }
 
     // ============================================================

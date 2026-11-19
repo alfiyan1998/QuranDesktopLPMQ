@@ -17,7 +17,7 @@ namespace QuranKemenag.Services.Page
 
             if (IlluminationAssetRegistry.TryGetAsset(section.LayoutType, out var asset))
             {
-                Debug.WriteLine($"[ILLUMINATION] Surah={section.SurahNumber} Type={section.LayoutType} Asset={asset.FilePath}");
+                Debug.WriteLine($"[ILLUMINATION] Surah={section.SurahNumber} Type={section.LayoutType} Asset={asset?.FilePath}");
                 return asset;
             }
 

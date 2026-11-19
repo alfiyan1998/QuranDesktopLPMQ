@@ -619,7 +619,7 @@ public sealed partial class AyatCard : UserControl
         // -----------------------------------------------------
 
         var manager =
-            App.Services.GetService(
+            App.Services?.GetService(
                 typeof(IFontManager))
             as IFontManager;
 
@@ -1993,6 +1993,10 @@ Catatan Kaki: {EscapeHtml(ayat.TextFn.Trim())}
         //        ArabicFontSize,
         //        availableWidth,
         //        _handwrittenGlyphMeasurer);
+
+        // Kanvas belum siap: tidak ada yang digambar.
+        if (PART_HandwrittenCanvas is null)
+            return;
 
         PART_HandwrittenCanvas.Children.Clear();
 

@@ -17,7 +17,7 @@ public sealed partial class MushafPerHalamanView : UserControl
     {
         InitializeComponent();
 
-        ViewModel = App.Services.GetRequiredService<MushafPageViewModel>();
+        ViewModel = App.Services!.GetRequiredService<MushafPageViewModel>();
         DataContext = ViewModel;
 
         ViewModel.PropertyChanged += ViewModel_PropertyChanged;
@@ -43,7 +43,7 @@ public sealed partial class MushafPerHalamanView : UserControl
 
     private void ApplyFontForCurrentMode()
     {
-        var fontManager = App.Services.GetRequiredService<IFontManager>();
+        var fontManager = App.Services!.GetRequiredService<IFontManager>();
         var mode = ViewModel.SelectedDisplayModeItem?.Mode ?? DisplayMode.ComputerFont;
 
         if (mode == DisplayMode.ComputerFont)

@@ -44,6 +44,7 @@ public sealed class FontManager : IFontManager
 
         string fontName =
             $"Lpmq_Hafs_{kodeFont:00}";
+        
 
         string uri =
             $"ms-appx:///Assets/Fonts/{fontName}-Regular.ttf#{fontName}";

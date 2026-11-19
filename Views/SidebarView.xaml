@@ -239,8 +239,32 @@
 
                     </Button>
 
+                    <!-- ABOUT -->
 
-                    <!-- HEADER PENGATURAN -->
+                    <Button
+                        Click="AboutButton_Click"
+                        HorizontalContentAlignment="Left"
+                        Padding="12,10"
+                        Background="Transparent"
+                        BorderThickness="0">
+
+                                            <StackPanel
+                            Orientation="Horizontal"
+                            Spacing="12">
+
+                            <FontIcon FontFamily="Segoe Fluent Icons" Glyph="&#xE946;" FontSize="15" Width="24" />
+
+                                                <TextBlock
+                                Text="Tentang Aplikasi"
+                                VerticalAlignment="Center"
+                                FontSize="14"/>
+
+                                            </StackPanel>
+
+                    </Button>
+
+
+                    <!-- HEADER PENGATURAN --><!--
 
                     <TextBlock
                         Text="PENGATURAN"
@@ -250,7 +274,7 @@
                         Foreground="{ThemeResource NeutralTextSecondaryBrush}"/>
 
 
-                    <!-- SETTINGS -->
+                    --><!-- SETTINGS --><!--
 
                     <Button
                         Click="SettingsButton_Click"
@@ -275,7 +299,7 @@
                     </Button>
 
 
-                    <!-- ABOUT -->
+                    --><!-- ABOUT --><!--
 
                     <Button
                         IsEnabled="False"
@@ -297,7 +321,7 @@
 
                         </StackPanel>
 
-                    </Button>
+                    </Button>-->
 
                 </StackPanel>
 
@@ -438,6 +462,7 @@
 
                     <Button
                         Click="SettingsButton_Click"
+                        Visibility="Collapsed"
                         Width="48"
                         Height="44"
                         Padding="0"
@@ -452,15 +477,16 @@
 
 
                     <Button
+                        Click="AboutButton_Click"
                         Width="48"
                         Height="44"
                         Padding="0"
                         Background="Transparent"
                         BorderThickness="0"
-                        IsEnabled="False"
-                         ToolTipService.ToolTip="bantuan">
+                        
+                         ToolTipService.ToolTip="Tentang Aplikasi">
 
-                        <FontIcon FontFamily="Segoe Fluent Icons" Glyph="&#xE897;" FontSize="15" Width="24" />
+                        <FontIcon FontFamily="Segoe Fluent Icons" Glyph="&#xE946;" FontSize="15" Width="24" />
 
                     </Button>
 

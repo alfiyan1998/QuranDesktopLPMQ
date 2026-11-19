@@ -26,7 +26,7 @@ public sealed partial class JuzView : Page
         InitializeComponent();
 
         _juzRepository =
-            App.Services.GetRequiredService<JuzRepository>();
+            App.Services!.GetRequiredService<JuzRepository>();
 
         Loaded += JuzView_Loaded;
     }

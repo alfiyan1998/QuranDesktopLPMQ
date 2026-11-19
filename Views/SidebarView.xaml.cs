@@ -17,6 +17,10 @@ public sealed partial class SidebarView : UserControl
     public event EventHandler? BookmarkClicked;
     public event EventHandler? SettingsClicked;
 
+    // Dipicu saat tombol "Tentang Aplikasi" ditekan.
+    // MainWindow yang menangkap event ini dan membuka dialog.
+    public event EventHandler? AboutClicked;
+
     public event RoutedEventHandler? SidebarToggleRequested;
 
     public SidebarView()
@@ -78,5 +82,11 @@ public sealed partial class SidebarView : UserControl
         SettingsClicked?.Invoke(this, EventArgs.Empty);
     }
 
-    
+    // Dipanggil oleh tombol "Tentang Aplikasi" (sidebar lebar dan ringkas).
+    // Hanya meneruskan klik sebagai event; MainWindow yang membuka dialog.
+    private void AboutButton_Click(object sender, RoutedEventArgs e)
+    {
+        AboutClicked?.Invoke(this, EventArgs.Empty);
+    }
+
 }

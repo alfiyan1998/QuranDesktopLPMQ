@@ -15,6 +15,8 @@
 		<WindowsAppSDKSelfContained>true</WindowsAppSDKSelfContained>
 		<EnableMsixTooling>false</EnableMsixTooling>
 		<Nullable>enable</Nullable>
+		<NoWarn>$(NoWarn);NETSDK1206;MVVMTK0045</NoWarn>
+		<MSBuildWarningsAsMessages>$(MSBuildWarningsAsMessages);NETSDK1206</MSBuildWarningsAsMessages>
 		<ImplicitUsings>enable</ImplicitUsings>
 		<!-- Menyalin file appsettings.json ke folder output saat build -->
 		<ContentTargetFolders>.</ContentTargetFolders>
@@ -28,6 +30,7 @@
 		<None Remove="Database\mushaf_layout.db" />
 		<None Remove="Database\quran.kemenag" />
 		<None Remove="Resources\Fonts.xaml" />
+		<None Remove="Views\AboutDialog.xaml" />
 		<None Remove="Views\Copy\CopyAyatDialog.xaml" />
 		<None Remove="Views\MushafPerHalamanView.xaml" />
 		<None Remove="Views\ReaderView.xaml" />
@@ -156,6 +159,11 @@
 	  <Content Update="Resources\Images\logo-kemenag.png">
 	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 	  </Content>
+	</ItemGroup>
+	<ItemGroup>
+	  <Page Update="Views\AboutDialog.xaml">
+	    <Generator>MSBuild:Compile</Generator>
+	  </Page>
 	</ItemGroup>
 	<ItemGroup>
 	  <Page Update="Views\Copy\CopyAyatDialog.xaml">

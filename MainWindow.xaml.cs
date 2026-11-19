@@ -273,6 +273,12 @@ public sealed partial class MainWindow : Window
                     Sidebar.PageClicked += Sidebar_PageClicked;
                     Sidebar.BookmarkClicked += Sidebar_BookmarkClicked;
 
+                    // Tombol "Tentang Aplikasi" di sidebar.
+                    // "-=" dulu baru "+=" agar tidak terdaftar ganda
+                    // bila blok ini dijalankan lebih dari sekali.
+                    Sidebar.AboutClicked -= Sidebar_AboutClicked;
+                    Sidebar.AboutClicked += Sidebar_AboutClicked;
+
                     Sidebar.JuzClicked -= Sidebar_JuzClicked;
                     Sidebar.JuzClicked += Sidebar_JuzClicked;
 
@@ -651,6 +657,58 @@ public sealed partial class MainWindow : Window
         ShowView(JuzView);
     }
 
+    // =====================================================
+    // TENTANG APLIKASI
+    // =====================================================
+
+    /// <summary>
+    /// Membuka dialog "Tentang Aplikasi" saat tombol "i" di sidebar
+    /// ditekan (sidebar lebar maupun ringkas).
+    ///
+    /// Pola yang sama dengan dialog Salin Ayat: ContentDialog yang
+    /// membungkus sebuah UserControl. Dialog tampil DI ATAS halaman yang
+    /// sedang dibuka, sehingga tidak mengubah halaman aktif atau
+    /// navigasi apa pun.
+    ///
+    /// Tampilan: Views/AboutDialog.xaml
+    /// Isi teks: Constants/AboutInfo.cs (edit di sana, bukan di sini)
+    /// </summary>
+    private async void Sidebar_AboutClicked(
+        object? sender,
+        EventArgs e)
+    {
+        try
+        {
+            var dialog =
+                new ContentDialog
+                {
+                    // Judul pada bilah atas dialog.
+                    Title = "Tentang Aplikasi",
+
+                    // Isi dialog: tata letak yang diisi dari AboutInfo.
+                    Content = new AboutDialog(),
+
+                    // Satu tombol untuk menutup.
+                    CloseButtonText = "Tutup",
+
+                    DefaultButton = ContentDialogButton.Close,
+
+                    // ContentDialog di WinUI 3 wajib diberi XamlRoot
+                    // agar tahu jendela mana yang menampilkannya.
+                    XamlRoot = Content.XamlRoot
+                };
+
+            await dialog.ShowAsync();
+        }
+        catch (Exception ex)
+        {
+            // Gagal menampilkan dialog tidak boleh menghentikan aplikasi.
+            Debug.WriteLine("[ABOUT] Gagal menampilkan dialog:");
+            Debug.WriteLine(ex);
+        }
+    }
+
+
     private async void Sidebar_BookmarkClicked(
     object? sender,
     EventArgs e)
@@ -838,7 +896,7 @@ public sealed partial class MainWindow : Window
         try
         {
             var repository =
-                App.Services.GetRequiredService<IQuranRepository>();
+                App.Services!.GetRequiredService<IQuranRepository>();
 
             await JuzRepositoryDebugTest.RunAsync(repository);
         }

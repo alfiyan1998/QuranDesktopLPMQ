@@ -37,7 +37,7 @@ namespace QuranKemenag.Converters
             {
                 // Asset belum tersedia di project — biarkan Image
                 // control kosong daripada membuat aplikasi crash.
-                return null;
+                return null!;
             }
         }
 

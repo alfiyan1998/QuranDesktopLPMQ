@@ -1,0 +1,93 @@
+<UserControl
+    x:Class="QuranKemenag.Views.AboutDialog"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+    <!-- =================================================================
+         TAMPILAN "TENTANG APLIKASI"
+
+         File ini hanya mengatur KERANGKA: header (logo, nama, versi),
+         wadah isi, dan hak cipta.
+
+         ISI (judul, paragraf, daftar butir) TIDAK ditulis di sini.
+         Isi dibuat oleh AboutDialog.xaml.cs dari Constants/AboutInfo.cs
+         ke dalam BlocksPanel. Untuk mengubah teks, edit AboutInfo.cs.
+
+         ScrollViewer: jika isi panjang, dialog bisa digulir dan tidak
+         melebihi tinggi layar.
+         ================================================================= -->
+
+    <ScrollViewer
+        MaxHeight="520"
+        VerticalScrollBarVisibility="Auto">
+
+        <StackPanel
+            Width="480"
+            Spacing="20"
+            Padding="0,0,12,0">
+
+
+            <!-- =========================================================
+                 HEADER: logo + nama aplikasi + versi (rata tengah)
+                 ========================================================= -->
+
+            <StackPanel
+                Orientation="Horizontal"
+                Spacing="16"
+                HorizontalAlignment="Center">
+
+                <Image
+                    Width="64"
+                    Height="64"
+                    Source="/Resources/Images/logo-kemenag.png"
+                    Stretch="Uniform"/>
+
+                <StackPanel
+                    VerticalAlignment="Center"
+                    Spacing="2">
+
+                    <!-- Diisi dari AboutInfo.AppName -->
+                    <TextBlock
+                        x:Name="AppNameText"
+                        FontSize="20"
+                        FontWeight="Bold"
+                        TextWrapping="Wrap"/>
+
+                    <!-- Diisi otomatis dari nomor versi proyek -->
+                    <TextBlock
+                        x:Name="VersionText"
+                        Opacity="0.7"/>
+
+                </StackPanel>
+
+            </StackPanel>
+
+
+            <!-- =========================================================
+                 WADAH ISI
+                 Judul, paragraf, dan daftar butir dibuat oleh kode
+                 (BuildBlocks di AboutDialog.xaml.cs) dari AboutInfo.Blocks.
+                 ========================================================= -->
+
+            <StackPanel
+                x:Name="BlocksPanel"
+                Spacing="12"/>
+
+
+            <!-- =========================================================
+                 HAK CIPTA (opsional)
+                 Disembunyikan otomatis jika AboutInfo.Copyright kosong.
+                 ========================================================= -->
+
+            <TextBlock
+                x:Name="CopyrightText"
+                FontSize="12"
+                Opacity="0.6"
+                TextAlignment="Center"
+                TextWrapping="Wrap"/>
+
+        </StackPanel>
+
+    </ScrollViewer>
+
+</UserControl>
