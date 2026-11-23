@@ -385,6 +385,7 @@
                                 <!-- Judul -->
                                 <TextBlock
                                     Text="Bahasa Isyarat"
+                                    Visibility="Collapsed"
                                     FontSize="15"
                                     FontWeight="SemiBold"
                                     Margin="0,0,0,10"/>
@@ -397,7 +398,7 @@
                                     FontSize="{Binding IsyaratFontSize, ElementName=Root}"
                                     LineHeight="36"
                                     TextWrapping="Wrap"
-                                    TextAlignment="Right"
+                                    TextAlignment="Left"
                                     FlowDirection="RightToLeft"
                                     HorizontalAlignment="Stretch"/>
 
@@ -561,7 +562,22 @@
 
                         </Grid.ColumnDefinitions>
 
-                        <!-- SALIN -->
+                    <!-- SALIN -->
+                        
+                        <!--alinan agar berfungsi dengan baik-->
+                        <!--<Button
+                        x:Name="PART_CopyButton"
+                        Grid.Column="0"
+                        MinWidth="90"
+                        Height="36"
+                        Content="📋 Salin"
+                        Click="PART_CopyButton_Click"
+                        ToolTipService.ToolTip="Salin ayat"/>-->
+                        
+                        <!--edit-->
+
+                        <!-- SALIN: klik tombol akan membuka menu pilihan tujuan -->
+                        <!-- SALIN: simpan ayat ke clipboard (lalu tempel di Word / PowerPoint) -->
                         <Button
             x:Name="PART_CopyButton"
             Grid.Column="0"
@@ -569,7 +585,31 @@
             Height="36"
             Content="📋 Salin"
             Click="PART_CopyButton_Click"
-            ToolTipService.ToolTip="Salin ayat"/>
+            ToolTipService.ToolTip="Salin ayat ke clipboard, lalu tempel di Word atau PowerPoint"/>
+
+                        <!-- Menu yang muncul saat tombol diklik --><!--
+                            <Button.Flyout>
+                                <MenuFlyout>
+
+                                    --><!-- Pilihan 1: kirim ke Microsoft Word --><!--
+                                    <MenuFlyoutItem
+                                        Text="Microsoft Word"
+                                        Click="CopyToWordMenuItem_Click"/>
+
+                                    --><!-- Pilihan 2: kirim ke Microsoft PowerPoint --><!--
+                                    <MenuFlyoutItem
+                                        Text="Power Point"
+                                        Click="CopyToPowerPointMenuItem_Click"/>
+
+                                </MenuFlyout>
+                            </Button.Flyout>
+
+                        </Button>-->
+
+                        <!-- TERAKHIR DIBACA -->
+
+
+                        <!--akhir edit-->
 
                         <!-- TERAKHIR DIBACA -->
                         <Button
@@ -592,6 +632,7 @@
             Content="🔖 Bookmark"
             Click="PART_BookmarkButton_Click"
             ToolTipService.ToolTip="Bookmark ayat"/>
+
 
                     </Grid>
                 </Grid>

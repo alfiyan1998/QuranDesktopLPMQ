@@ -31,6 +31,7 @@
 		<None Remove="Database\quran.kemenag" />
 		<None Remove="Resources\Fonts.xaml" />
 		<None Remove="Views\AboutDialog.xaml" />
+		<None Remove="Views\AboutView.xaml" />
 		<None Remove="Views\Copy\CopyAyatDialog.xaml" />
 		<None Remove="Views\MushafPerHalamanView.xaml" />
 		<None Remove="Views\ReaderView.xaml" />
@@ -78,6 +79,12 @@
 		
 		<!-- edit mulai -->
 		<Content Include="Assets\Images\Hafs\*.png">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</Content>
+		<Content Include="Assets\Images\home-banner.png">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</Content>
+		<Content Include="Assets\Images\about-header-final.png">
 			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 		</Content>
 		<Content Include="Assets\Fonts\*.ttf">
@@ -159,6 +166,11 @@
 	  <Content Update="Resources\Images\logo-kemenag.png">
 	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 	  </Content>
+	</ItemGroup>
+	<ItemGroup>
+	  <Page Update="Views\AboutView.xaml">
+	    <Generator>MSBuild:Compile</Generator>
+	  </Page>
 	</ItemGroup>
 	<ItemGroup>
 	  <Page Update="Views\AboutDialog.xaml">

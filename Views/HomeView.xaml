@@ -7,368 +7,321 @@
         HorizontalScrollBarVisibility="Disabled"
         VerticalScrollBarVisibility="Auto">
 
-        <Grid Padding="32">
+        <Grid Padding="24,16,24,24" RowSpacing="16">
 
             <Grid.RowDefinitions>
-                <RowDefinition Height="Auto" />
-                <RowDefinition Height="Auto" />
-                <RowDefinition Height="Auto" />
-                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
             </Grid.RowDefinitions>
 
 
-            <!-- ========================================= -->
-            <!-- HEADER -->
-            <!-- ========================================= -->
+            <!-- ======================================= -->
+            <!-- 1. HOME BANNER                          -->
+            <!-- ======================================= -->
+
+            <!-- HOME BANNER -->
+            <Border
+    Grid.Row="0"
+    CornerRadius="14"
+    Background="Transparent"
+    BorderThickness="0"
+    Padding="0"
+    HorizontalAlignment="Stretch">
+
+                <Image
+        Source="ms-appx:///Assets/Images/home-banner.png"
+        Stretch="Uniform"
+        HorizontalAlignment="Stretch"
+        VerticalAlignment="Center"/>
+
+            </Border>
+
+
+            <!-- ======================================= -->
+            <!-- 2. WELCOME SECTION                      -->
+            <!-- ======================================= -->
 
             <StackPanel
-                Grid.Row="0"
+                Grid.Row="1"
                 HorizontalAlignment="Center"
-                Margin="0,10,0,28">
+                Spacing="6"
+                Margin="0,8,0,8">
 
                 <TextBlock
-                    Text="بِسْمِ اللَّهِ الرَّحْمَنِ الرَّحِيمِ"
-                    FontSize="30"
-                    HorizontalAlignment="Center"
-                    TextAlignment="Center" />
-
-                <TextBlock
-                    Text="Selamat Datang di Quran Kemenag"
+                    Text="Selamat Datang di Qur’an Kemenag"
                     FontSize="28"
                     FontWeight="SemiBold"
+                    Foreground="{StaticResource LpmqGreenDarkBrush}"
                     HorizontalAlignment="Center"
-                    Margin="0,12,0,0" />
+                    TextAlignment="Center"
+                    TextWrapping="Wrap"/>
 
                 <TextBlock
-                    Text="Baca, pelajari, dan pahami Al-Qur'an"
+                    Text="Temukan ketenangan dengan membaca, mempelajari, dan memahami Al-Qur’an."
                     FontSize="14"
-                    Opacity="0.65"
+                    Foreground="{StaticResource NeutralTextSecondaryBrush}"
                     HorizontalAlignment="Center"
-                    Margin="0,6,0,0" />
+                    TextAlignment="Center"
+                    TextWrapping="Wrap"/>
 
             </StackPanel>
 
 
-            <!-- ========================================= -->
-            <!-- CARD UTAMA -->
-            <!-- ========================================= -->
+            <!-- ======================================= -->
+            <!-- 3. MAIN ACTIVITY CARDS                  -->
+            <!-- ======================================= -->
 
             <Grid
-                Grid.Row="1"
-                ColumnSpacing="20"
-                Margin="0,0,0,24">
+                Grid.Row="2"
+                ColumnSpacing="16">
 
                 <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="*" />
-                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="*"/>
                 </Grid.ColumnDefinitions>
 
 
-                <!-- Lanjutkan Bacaan -->
+                <!-- =================================== -->
+                <!-- CONTINUE READING                    -->
+                <!-- =================================== -->
 
                 <Border
                     Grid.Column="0"
-                    Padding="24"
-                    CornerRadius="14"
+                    Background="{StaticResource LpmqGreenSoftBrush}"
+                    BorderBrush="{StaticResource LpmqGreenLightBrush}"
                     BorderThickness="1"
-                    BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}">
+                    CornerRadius="16"
+                    Padding="22">
 
-                    <StackPanel>
+                    <Grid>
 
-                        <TextBlock
-                            Text="📖  Lanjutkan Bacaan"
-                            FontSize="20"
-                            FontWeight="SemiBold" />
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
 
-                        <TextBlock
-                            Text="Terakhir Anda membaca"
-                            FontSize="13"
-                            Opacity="0.6"
-                            Margin="0,12,0,0" />
 
-                        <TextBlock
-                            x:Name="LastReadingSurahText"
-                            Text="Belum ada bacaan"
-                            FontSize="24"
-                            FontWeight="SemiBold"
-                            Margin="0,4,0,0" />
+                        <!-- Reading Information -->
 
-                        <TextBlock
-                            x:Name="LastReadingAyatText"
-                            Text="Mulai membaca Al-Qur'an"
-                            FontSize="15"
-                            Opacity="0.7"
-                            Margin="0,2,0,0" />
+                        <StackPanel
+                            Grid.Column="0"
+                            Spacing="7">
 
-                        <Button
-                            Content="Lanjutkan Membaca  →"
-                            HorizontalAlignment="Left"
-                            Margin="0,20,0,0"
-                            Padding="18,10"
-                            Click="ContinueReadingButton_Click" />
+                            <StackPanel
+                                Orientation="Horizontal"
+                                Spacing="12">
 
-                    </StackPanel>
+                                <Border
+                                    Width="48"
+                                    Height="48"
+                                    CornerRadius="12"
+                                    Background="{StaticResource NeutralSurfaceBrush}">
+
+                                    <FontIcon
+                                        Glyph="&#xE736;"
+                                        FontSize="25"
+                                        Foreground="{StaticResource LpmqGreenBrush}"
+                                        HorizontalAlignment="Center"
+                                        VerticalAlignment="Center"/>
+
+                                </Border>
+
+                                <StackPanel
+                                    VerticalAlignment="Center"
+                                    Spacing="2">
+
+                                    <TextBlock
+                                        Text="Lanjutkan Bacaan"
+                                        FontSize="20"
+                                        FontWeight="SemiBold"
+                                        Foreground="{StaticResource NeutralTextPrimaryBrush}"/>
+
+                                    <TextBlock
+                                        Text="Terakhir Anda membaca"
+                                        FontSize="13"
+                                        Foreground="{StaticResource NeutralTextSecondaryBrush}"/>
+
+                                </StackPanel>
+
+                            </StackPanel>
+
+
+                            <TextBlock
+                                x:Name="LastReadingSurahText"
+                                Text="Belum ada bacaan"
+                                FontSize="27"
+                                FontWeight="Bold"
+                                Foreground="{StaticResource LpmqGreenDarkBrush}"
+                                Margin="0,8,0,0"
+                                TextWrapping="Wrap"/>
+
+                            <TextBlock
+                                x:Name="LastReadingAyatText"
+                                Text="Mulai membaca Al-Qur’an"
+                                FontSize="14"
+                                Foreground="{StaticResource NeutralTextSecondaryBrush}"/>
+
+
+                            <!-- Continue Button -->
+
+                            <Button
+                                Content="Lanjutkan Membaca    →"
+                                HorizontalAlignment="Left"
+                                Margin="0,12,0,0"
+                                Padding="22,11"
+                                MinHeight="42"
+                                Background="{StaticResource LpmqGreenBrush}"
+                                Foreground="White"
+                                BorderThickness="0"
+                                Click="ContinueReadingButton_Click"/>
+
+                        </StackPanel>
+
+
+                        <!-- Decorative Icon -->
+
+                        <FontIcon
+                            Grid.Column="1"
+                            Glyph="&#xE736;"
+                            FontSize="76"
+                            Opacity="0.10"
+                            Foreground="{StaticResource LpmqGreenDarkBrush}"
+                            VerticalAlignment="Center"
+                            HorizontalAlignment="Center"
+                            Margin="8,0,4,0"/>
+
+                    </Grid>
 
                 </Border>
 
 
-                <!-- Bookmark -->
+                <!-- =================================== -->
+                <!-- BOOKMARK                            -->
+                <!-- =================================== -->
 
                 <Border
                     Grid.Column="1"
-                    Padding="24"
-                    CornerRadius="14"
+                    Background="{StaticResource NeutralBackgroundBrush}"
+                    BorderBrush="{StaticResource LpmqGreenLightBrush}"
                     BorderThickness="1"
-                    BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}">
+                    CornerRadius="16"
+                    Padding="22">
 
-                    <StackPanel>
+                    <Grid>
 
-                        <TextBlock
-                            Text="🔖  Bookmark"
-                            FontSize="20"
-                            FontWeight="SemiBold" />
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
 
-                        <TextBlock
-                            Text="Ayat yang Anda simpan"
-                            FontSize="13"
-                            Opacity="0.6"
-                            Margin="0,12,0,0" />
 
-                        <TextBlock
-                            x:Name="BookmarkCountText"
-                            Text="0"
-                            FontSize="30"
-                            FontWeight="SemiBold"
-                            Margin="0,2,0,0" />
+                        <!-- Bookmark Information -->
 
-                        <TextBlock
-                            Text="bookmark"
-                            FontSize="13"
-                            Opacity="0.6" />
+                        <StackPanel
+                            Grid.Column="0"
+                            Spacing="7">
 
-                        <Button
-                            Content="Lihat Bookmark  →"
-                            HorizontalAlignment="Left"
-                            Margin="0,20,0,0"
-                            Padding="18,10" />
+                            <StackPanel
+                                Orientation="Horizontal"
+                                Spacing="12">
 
-                    </StackPanel>
+                                <Border
+                                    Width="48"
+                                    Height="48"
+                                    CornerRadius="12"
+                                    Background="{StaticResource LpmqGreenSoftBrush}">
+
+                                    <FontIcon
+                                        Glyph="&#xE734;"
+                                        FontSize="25"
+                                        Foreground="{StaticResource LpmqGreenBrush}"
+                                        HorizontalAlignment="Center"
+                                        VerticalAlignment="Center"/>
+
+                                </Border>
+
+                                <StackPanel
+                                    VerticalAlignment="Center"
+                                    Spacing="2">
+
+                                    <TextBlock
+                                        Text="Bookmark"
+                                        FontSize="20"
+                                        FontWeight="SemiBold"
+                                        Foreground="{StaticResource NeutralTextPrimaryBrush}"/>
+
+                                    <TextBlock
+                                        Text="Ayat yang Anda simpan"
+                                        FontSize="13"
+                                        Foreground="{StaticResource NeutralTextSecondaryBrush}"/>
+
+                                </StackPanel>
+
+                            </StackPanel>
+
+
+                            <TextBlock
+                                x:Name="BookmarkCountText"
+                                Text="0"
+                                FontSize="34"
+                                FontWeight="Bold"
+                                Foreground="{StaticResource LpmqGreenDarkBrush}"
+                                Margin="0,8,0,0"/>
+
+                            <TextBlock
+                                Text="bookmark"
+                                FontSize="14"
+                                Foreground="{StaticResource NeutralTextSecondaryBrush}"/>
+
+
+                            <!-- Bookmark Button -->
+
+                            <Button
+                                Content="Lihat Bookmark    →"
+                                Click="ViewBookmarksButton_Click"
+                                HorizontalAlignment="Left"
+                                Margin="0,12,0,0"
+                                Padding="22,11"
+                                MinHeight="42"
+                                Background="{StaticResource NeutralSurfaceBrush}"
+                                Foreground="{StaticResource LpmqGreenDarkBrush}"
+                                BorderBrush="{StaticResource LpmqGreenBrush}"
+                                BorderThickness="1"/>
+
+                        </StackPanel>
+
+
+                        <!-- Decorative Bookmark Icon -->
+
+                        <FontIcon
+                            Grid.Column="1"
+                            Glyph="&#xE734;"
+                            FontSize="76"
+                            Opacity="0.10"
+                            Foreground="{StaticResource LpmqGreenBrush}"
+                            VerticalAlignment="Center"
+                            HorizontalAlignment="Center"
+                            Margin="8,0,4,0"/>
+
+                    </Grid>
 
                 </Border>
 
             </Grid>
 
 
-            <!-- ========================================= -->
-            <!-- SEARCH -->
-            <!-- ========================================= -->
+            <!-- ======================================= -->
+            <!-- HIDDEN SEARCH CONTROL                   -->
+            <!-- Keep for existing code-behind references -->
+            <!-- ======================================= -->
 
-            <Border
-                Grid.Row="2"
-                Padding="24"
-                CornerRadius="14"
-                BorderThickness="1"
-                BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
-                Margin="0,0,0,24">
-
-                <StackPanel>
-
-                    <TextBlock
-                        Text="🔎  Cari Al-Qur'an"
-                        FontSize="20"
-                        FontWeight="SemiBold" />
-
-                    <TextBlock
-                        Text="Cari surah, ayat, atau kata kunci..."
-                        FontSize="13"
-                        Opacity="0.6"
-                        Margin="0,4,0,12" />
-
-                    <Grid>
-
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="*" />
-                            <ColumnDefinition Width="Auto" />
-                        </Grid.ColumnDefinitions>
-
-                        <TextBox
-                            Grid.Column="0"
-                            x:Name="HomeSearchBox"
-                            PlaceholderText="Cari surah, ayat, atau kata kunci..."
-                            MinHeight="44" />
-
-                        <Button
-                            Grid.Column="1"
-                            Content="Cari"
-                            Margin="10,0,0,0"
-                            Padding="24,10"
-                            MinHeight="44" />
-
-                    </Grid>
-
-                </StackPanel>
-
-            </Border>
-
-
-            <!-- ========================================= -->
-            <!-- AKSES CEPAT -->
-            <!-- ========================================= -->
-
-            <StackPanel
-                Grid.Row="3">
-
-                <TextBlock
-                    Text="Akses Cepat"
-                    FontSize="22"
-                    FontWeight="SemiBold" />
-
-                <TextBlock
-                    Text="Pilih menu untuk mulai menjelajahi Al-Qur'an"
-                    FontSize="13"
-                    Opacity="0.6"
-                    Margin="0,4,0,16" />
-
-                <Grid
-                    ColumnSpacing="12">
-
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="*" />
-                        <ColumnDefinition Width="*" />
-                        <ColumnDefinition Width="*" />
-                        <ColumnDefinition Width="*" />
-                    </Grid.ColumnDefinitions>
-
-
-                    <!-- Surah -->
-
-                    <Border
-                        Grid.Column="0"
-                        Padding="18"
-                        CornerRadius="12"
-                        BorderThickness="1"
-                        BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}">
-
-                        <StackPanel>
-
-                            <TextBlock
-                                Text="📖"
-                                FontSize="28" />
-
-                            <TextBlock
-                                Text="Surah"
-                                FontSize="17"
-                                FontWeight="SemiBold"
-                                Margin="0,10,0,0" />
-
-                            <TextBlock
-                                Text="Daftar seluruh surah"
-                                FontSize="12"
-                                Opacity="0.6"
-                                TextWrapping="Wrap" />
-
-                        </StackPanel>
-
-                    </Border>
-
-
-                    <!-- Juz -->
-
-                    <Border
-                        Grid.Column="1"
-                        Padding="18"
-                        CornerRadius="12"
-                        BorderThickness="1"
-                        BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}">
-
-                        <StackPanel>
-
-                            <TextBlock
-                                Text="🔢"
-                                FontSize="28" />
-
-                            <TextBlock
-                                Text="Juz"
-                                FontSize="17"
-                                FontWeight="SemiBold"
-                                Margin="0,10,0,0" />
-
-                            <TextBlock
-                                Text="Juz 1 - 30"
-                                FontSize="12"
-                                Opacity="0.6" />
-
-                        </StackPanel>
-
-                    </Border>
-
-
-                    <!-- Mushaf -->
-
-                    <Border
-                        Grid.Column="2"
-                        Padding="18"
-                        CornerRadius="12"
-                        BorderThickness="1"
-                        BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}">
-
-                        <StackPanel>
-
-                            <TextBlock
-                                Text="📑"
-                                FontSize="28" />
-
-                            <TextBlock
-                                Text="Mushaf"
-                                FontSize="17"
-                                FontWeight="SemiBold"
-                                Margin="0,10,0,0" />
-
-                            <TextBlock
-                                Text="Membaca per halaman"
-                                FontSize="12"
-                                Opacity="0.6"
-                                TextWrapping="Wrap" />
-
-                        </StackPanel>
-
-                    </Border>
-
-
-                    <!-- Bookmark -->
-
-                    <Border
-                        Grid.Column="3"
-                        Padding="18"
-                        CornerRadius="12"
-                        BorderThickness="1"
-                        BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}">
-
-                        <StackPanel>
-
-                            <TextBlock
-                                Text="🔖"
-                                FontSize="28" />
-
-                            <TextBlock
-                                Text="Bookmark"
-                                FontSize="17"
-                                FontWeight="SemiBold"
-                                Margin="0,10,0,0" />
-
-                            <TextBlock
-                                Text="Ayat yang Anda simpan"
-                                FontSize="12"
-                                Opacity="0.6"
-                                TextWrapping="Wrap" />
-
-                        </StackPanel>
-
-                    </Border>
-
-                </Grid>
-
-            </StackPanel>
+            <TextBox
+                x:Name="HomeSearchBox"
+                Visibility="Collapsed"
+                Width="0"
+                Height="0"
+                IsTabStop="False"/>
 
         </Grid>
 

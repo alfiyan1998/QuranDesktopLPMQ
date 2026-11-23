@@ -46,6 +46,7 @@
             x:Name="PART_ItemsControl"
             Grid.Row="0"
             ItemsSource="{Binding Ayats}"
+            ContainerContentChanging="PART_ItemsControl_ContainerContentChanging"
             Visibility="{Binding IsAyatView,
                 Converter={StaticResource BoolToVisibilityConverter}}"
             SelectionMode="None"

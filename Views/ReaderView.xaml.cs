@@ -14,6 +14,7 @@ using System.Collections.Specialized;
 using System.ComponentModel;
 using System.Linq;
 using System.Diagnostics;
+using SQLitePCL;
 
 
 
@@ -327,6 +328,27 @@ public sealed partial class ReaderView : UserControl
             card.IsyaratFontSize =
                 _vm.IsyaratFontSize;
         }
+    }
+
+    //update 
+    // Kartu yang baru dibuat (saat scroll / pindah ayat) langsung
+    // mengikuti pengaturan tampilan terbaru.
+    private void PART_ItemsControl_ContainerContentChanging(
+        ListViewBase sender,
+        ContainerContentChangingEventArgs args)
+    {
+        if (_vm is null)
+            return;
+
+        if (args.ItemContainer?.ContentTemplateRoot is not AyatCard card)
+            return;
+
+        card.ShowTranslation = _vm.ShowTranslation;
+        card.ShowIsyarat = _vm.ShowIsyarat;
+
+        card.ArabicFontSize = _vm.ArabicFontSize;
+        card.TranslationFontSize = _vm.TranslationFontSize;
+        card.IsyaratFontSize = _vm.IsyaratFontSize;
     }
 
 

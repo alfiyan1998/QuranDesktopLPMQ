@@ -197,6 +197,27 @@ public sealed partial class HomeView : UserControl
         }
     }
 
+    //BOOKMARK 
+    private async void ViewBookmarksButton_Click(
+    object sender,
+    RoutedEventArgs e)
+    {
+        try
+        {
+            var mainWindow = QuranKemenag.App.MainAppWindow;
+
+            if (mainWindow is null)
+                return;
+
+            await mainWindow.ShowBookmarkViewAsync();
+        }
+        catch (Exception ex)
+        {
+            Debug.WriteLine("[HOME BOOKMARK OPEN ERROR]");
+            Debug.WriteLine(ex);
+        }
+    }
+
     public void RefreshLastReadingPosition()
     {
         LoadLastReadingPosition();

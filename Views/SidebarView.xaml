@@ -189,7 +189,7 @@
 
                     <!-- HALAMAN -->
 
-                    <Button
+                    <!--<Button
                         Click="PageButton_Click"
                         HorizontalContentAlignment="Left"
                         Padding="12,10"
@@ -212,7 +212,7 @@
 
                         </StackPanel>
 
-                    </Button>
+                    </Button>-->
 
 
                     <!-- BOOKMARK -->
@@ -242,19 +242,20 @@
                     <!-- ABOUT -->
 
                     <Button
+                        x:Name="ExpandedAboutItem"
                         Click="AboutButton_Click"
                         HorizontalContentAlignment="Left"
                         Padding="12,10"
                         Background="Transparent"
                         BorderThickness="0">
 
-                                            <StackPanel
+                            <StackPanel
                             Orientation="Horizontal"
                             Spacing="12">
 
                             <FontIcon FontFamily="Segoe Fluent Icons" Glyph="&#xE946;" FontSize="15" Width="24" />
 
-                                                <TextBlock
+                                <TextBlock
                                 Text="Tentang Aplikasi"
                                 VerticalAlignment="Center"
                                 FontSize="14"/>
@@ -430,6 +431,8 @@
                         <FontIcon FontFamily="Segoe Fluent Icons" Glyph="&#xE736;" FontSize="15" Width="24" />
 
                     </Button>
+                    
+                    <!--Halaman
 
 
                     <Button
@@ -444,6 +447,8 @@
                         <FontIcon FontFamily="Segoe Fluent Icons" Glyph="&#xE8A5;" FontSize="15" Width="24" />
 
                     </Button>
+                    
+                    end Halaman-->
 
 
                     <Button
@@ -477,6 +482,7 @@
 
 
                     <Button
+                        x:Name="CompactAboutItem"
                         Click="AboutButton_Click"
                         Width="48"
                         Height="44"

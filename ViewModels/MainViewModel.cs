@@ -315,8 +315,17 @@ public sealed partial class MainViewModel : ViewModelBase
     /// <summary>
     /// Daftar mode tampilan Quran.
     /// </summary>
+
+
+    /// halaman
+    //public IEnumerable<QuranDisplayMode> QuranDisplayModes { get; } =
+    //    Enum.GetValues<QuranDisplayMode>();
+    //halaman end
+
     public IEnumerable<QuranDisplayMode> QuranDisplayModes { get; } =
-        Enum.GetValues<QuranDisplayMode>();
+       new[] { QuranDisplayMode.Ayat };
+
+
 
     /// <summary>
     /// Daftar Juz (1..30) untuk binding di Toolbar.

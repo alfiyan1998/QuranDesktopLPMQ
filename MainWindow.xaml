@@ -117,6 +117,12 @@
                 x:Name="MushafPerHalamanView"
                 Visibility="Collapsed" />
 
+            <!-- TENTANG APLIKASI -->
+
+            <views:AboutView
+                x:Name="AboutView"
+                Visibility="Collapsed" />
+
         </Grid>
 
 

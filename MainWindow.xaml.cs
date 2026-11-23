@@ -26,6 +26,8 @@ public sealed partial class MainWindow : Window
     private bool _isSidebarVisible = true;
     private bool _isPanelVisible = true;
     private MainViewModel? _vmRef;
+    //TENTANG APLIKASI
+    private bool _wasAboutActive;
 
     // Responsive adaptive state for Feature Panel
     private enum AdaptiveState { Wide, Medium, Compact }
@@ -73,6 +75,15 @@ public sealed partial class MainWindow : Window
         Toolbar.SetResponsiveState(
             _adaptiveState == AdaptiveState.Wide,
             _adaptiveState == AdaptiveState.Compact);
+
+        //TENTANG APLIKASI 
+        if (AboutView.Visibility == Visibility.Visible)
+        {
+            PanelColumn.Width = new GridLength(0);
+            FeaturePanel.Visibility = Visibility.Collapsed;
+            _isPanelVisible = false;
+            return;
+        }
 
         switch (_adaptiveState)
         {
@@ -194,10 +205,37 @@ public sealed partial class MainWindow : Window
                 ? Visibility.Visible
                 : Visibility.Collapsed;
 
+        //TENTANG APLIKASI
+        AboutView.Visibility =
+        view == AboutView ? Visibility.Visible : Visibility.Collapsed;
+
+        bool aboutActive = view == AboutView;
+
+        Grid.SetColumnSpan(ContentHost, aboutActive ? 2 : 1);
+
+        Toolbar.Visibility =
+            aboutActive ? Visibility.Collapsed : Visibility.Visible;
+
         // Toolbar & Feature Panel hanya aktif saat Reader tampil.
         bool readerActive = view == ReaderView;
         Toolbar.SetReaderActive(readerActive);
         FeaturePanel.SetReaderActive(readerActive);
+
+        //TENTANG APLIKASI
+        if (aboutActive)
+        {
+            FeaturePanel.Visibility = Visibility.Collapsed;
+            PanelColumn.Width = new GridLength(0);
+            _isPanelVisible = false;
+        }
+        else if (_wasAboutActive)
+        {
+            ApplyFeaturePanelResponsiveLayout();
+        }
+
+        _wasAboutActive = aboutActive;
+
+        Sidebar.SetAboutSelected(aboutActive);
 
         if (view == HomeView)
         {
@@ -383,6 +421,14 @@ public sealed partial class MainWindow : Window
                "ERROR MAIN WINDOW:");
             Debug.WriteLine(ex.ToString());
         }
+    }
+
+    //Bookmark 
+    public async Task ShowBookmarkViewAsync()
+    {
+        ShowView(BookmarkView);
+
+        await BookmarkView.RefreshBookmarksAsync();
     }
 
     /// <summary>Menampilkan/menyembunyikan Sidebar saat tombol hamburger ditekan.</summary>
@@ -673,39 +719,47 @@ public sealed partial class MainWindow : Window
     /// Tampilan: Views/AboutDialog.xaml
     /// Isi teks: Constants/AboutInfo.cs (edit di sana, bukan di sini)
     /// </summary>
-    private async void Sidebar_AboutClicked(
-        object? sender,
-        EventArgs e)
+
+    //kode lama untuk membuka dialog tentang aplikasi
+    //private async void Sidebar_AboutClicked(
+    //    object? sender,
+    //    EventArgs e)
+    //{
+    //    try
+    //    {
+    //        var dialog =
+    //            new ContentDialog
+    //            {
+    //                // Judul pada bilah atas dialog.
+    //                Title = "Tentang Aplikasi",
+
+    //                // Isi dialog: tata letak yang diisi dari AboutInfo.
+    //                Content = new AboutDialog(),
+
+    //                // Satu tombol untuk menutup.
+    //                CloseButtonText = "Tutup",
+
+    //                DefaultButton = ContentDialogButton.Close,
+
+    //                // ContentDialog di WinUI 3 wajib diberi XamlRoot
+    //                // agar tahu jendela mana yang menampilkannya.
+    //                XamlRoot = Content.XamlRoot
+    //            };
+
+    //        await dialog.ShowAsync();
+    //    }
+    //    catch (Exception ex)
+    //    {
+    //        // Gagal menampilkan dialog tidak boleh menghentikan aplikasi.
+    //        Debug.WriteLine("[ABOUT] Gagal menampilkan dialog:");
+    //        Debug.WriteLine(ex);
+    //    }
+    //}
+
+    //kode baru untuk membuka dialog tentang aplikasi
+    private void Sidebar_AboutClicked(object? sender, EventArgs e)
     {
-        try
-        {
-            var dialog =
-                new ContentDialog
-                {
-                    // Judul pada bilah atas dialog.
-                    Title = "Tentang Aplikasi",
-
-                    // Isi dialog: tata letak yang diisi dari AboutInfo.
-                    Content = new AboutDialog(),
-
-                    // Satu tombol untuk menutup.
-                    CloseButtonText = "Tutup",
-
-                    DefaultButton = ContentDialogButton.Close,
-
-                    // ContentDialog di WinUI 3 wajib diberi XamlRoot
-                    // agar tahu jendela mana yang menampilkannya.
-                    XamlRoot = Content.XamlRoot
-                };
-
-            await dialog.ShowAsync();
-        }
-        catch (Exception ex)
-        {
-            // Gagal menampilkan dialog tidak boleh menghentikan aplikasi.
-            Debug.WriteLine("[ABOUT] Gagal menampilkan dialog:");
-            Debug.WriteLine(ex);
-        }
+        ShowView(AboutView);
     }
 
 

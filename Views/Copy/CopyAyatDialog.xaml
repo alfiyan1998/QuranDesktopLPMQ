@@ -234,7 +234,7 @@
 
                         <CheckBox
                             x:Name="SignLanguageCheckBox"
-                            Content="Bahasa Isyarat"/>
+                            Content="Quran Isyarat"/>
 
 
                     </StackPanel>

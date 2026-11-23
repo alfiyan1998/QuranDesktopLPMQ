@@ -123,8 +123,10 @@
                                     IsEnabled="{Binding IsAyatView}"
                                     OnContent=""
                                     OffContent=""
+                                    MinWidth="0"
+                                    Margin="12,-6,0,0"
                                     HorizontalAlignment="Right"
-                                    VerticalAlignment="Center" />
+                                    VerticalAlignment="Top" />
 
                             </Grid>
 
@@ -147,7 +149,7 @@
                                     Spacing="2">
 
                                     <TextBlock
-                                        Text="Bahasa Isyarat"
+                                        Text="Quran Isyarat"
                                         FontWeight="SemiBold"
                                         TextWrapping="Wrap" />
 
@@ -163,8 +165,10 @@
                                     IsEnabled="{Binding IsAyatView}"
                                     OnContent=""
                                     OffContent=""
+                                    MinWidth="0"
+                                    Margin="12,-6,0,0"
                                     HorizontalAlignment="Right"
-                                    VerticalAlignment="Center" />
+                                    VerticalAlignment="Top" />
 
                             </Grid>
 
@@ -272,7 +276,7 @@ Margin="0,4,0,0">
     Margin="0,4,0,0">
 
                             <TextBlock
-        Text="Ukuran Teks Bahasa Isyarat"
+        Text="Ukuran Teks Quran Isyarat"
         FontWeight="SemiBold"
         TextWrapping="Wrap" />
 

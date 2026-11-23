@@ -1,6 +1,7 @@
 ﻿using QuranKemenag.Models.Copy;
 using System;
 using System.Diagnostics;
+using System.Reflection.Metadata;
 using System.Runtime.InteropServices;
 
 namespace QuranKemenag.Services.Copy;
@@ -343,9 +344,178 @@ public sealed class WordCopyService
             lines);
     }
 
+    //Export diword dan powerpoint kanan kiri 
+    private static bool IsHandwrittenFont(string? fontFamily)
+    {
+        return !string.IsNullOrEmpty(fontFamily) &&
+               fontFamily.StartsWith(
+                   "Lpmq_Hafs_",
+                   StringComparison.OrdinalIgnoreCase);
+    }
+
+    private static string ToLogicalRtlText(string text)
+    {
+        char[] chars = text.Trim().ToCharArray();
+
+        Array.Reverse(chars);
+
+        // U+202E = paksa kanan-ke-kiri, U+202C = akhiri.
+        return "\u202E" + new string(chars) + "\u202C";
+    }
+
     // ============================================================
     // INSERT COPY BLOCKS
     // ============================================================
+
+    //tambahan salinan edit
+
+    // ============================================================
+    // COPY TO CLIPBOARD (Word tersembunyi yang dipakai ulang)
+    // ============================================================
+
+    // Word tersembunyi untuk fitur Salin. Dibiarkan hidup selama
+    // aplikasi berjalan supaya isi clipboard tetap lengkap berformat.
+    private static object? _clipboardWordApp;
+
+    // Mengambil Word tersembunyi: dipakai ulang jika masih hidup,
+    // dibuat baru jika belum ada atau sudah tertutup.
+    private static dynamic GetClipboardWord()
+    {
+        // Jika sudah ada, tes apakah masih hidup.
+        if (_clipboardWordApp != null)
+        {
+            try
+            {
+                // Membaca Version akan error jika Word sudah tertutup.
+                _ = ((dynamic)_clipboardWordApp).Version;
+
+                return _clipboardWordApp;
+            }
+            catch
+            {
+                // Sudah tertutup: buat yang baru.
+                _clipboardWordApp = null;
+            }
+        }
+
+        // Cari tipe COM Word; null berarti Word tidak terpasang.
+        Type? wordType =
+            Type.GetTypeFromProgID(
+                "Word.Application");
+
+        if (wordType == null)
+        {
+            throw new InvalidOperationException(
+                "Microsoft Word tidak ditemukan.");
+        }
+
+        // Buat instance Word BARU (terpisah dari Word yang Anda pakai).
+        _clipboardWordApp =
+            Activator.CreateInstance(
+                wordType);
+
+        dynamic app = _clipboardWordApp!;
+
+        // Jangan tampilkan jendela Word ini.
+        app.Visible = false;
+
+        // Jangan munculkan pesan / dialog apa pun.
+        app.DisplayAlerts = 0;
+
+        return app;
+    }
+
+    // Menyalin hasil format ke CLIPBOARD lewat Word tersembunyi.
+    // Hasilnya bisa ditempel (Ctrl+V) di Word atau PowerPoint.
+    // Mengembalikan true jika berhasil.
+    public bool CopyToClipboard(
+        CopyResult result)
+    {
+        // Tidak ada isi: tidak ada yang disalin.
+        if (result == null || result.IsEmpty)
+            return false;
+
+        try
+        {
+            // Ambil (atau buat) Word tersembunyi.
+            dynamic app = GetClipboardWord();
+
+            // Pakai dokumen yang ada, atau buat dokumen baru.
+            dynamic document;
+
+            if (app.Documents.Count > 0)
+                document = app.Documents.Item(1);
+            else
+                document = app.Documents.Add();
+
+            // Kosongkan isi dokumen dari salinan sebelumnya.
+            document.Content.Delete();
+
+            // Taruh kursor di akhir (dokumen sekarang kosong).
+            dynamic selection = app.Selection;
+
+            selection.Collapse(0);
+
+            // Isi memakai kode yang sama dengan Copy toolbar
+            // (font Arab, terjemahan, isyarat, dst).
+            InsertCopyBlocks(
+                selection,
+                result);
+
+            // Salin seluruh isi dokumen ke clipboard.
+            document.Content.Copy();
+
+            return true;
+        }
+        catch (Exception ex)
+        {
+            // Catat error di jendela Output Visual Studio.
+            Debug.WriteLine(
+                "[WORD CLIPBOARD] ERROR:");
+
+            Debug.WriteLine(ex);
+
+            // Buang Word yang bermasalah agar dibuat ulang berikutnya.
+            _clipboardWordApp = null;
+
+            return false;
+        }
+    }
+
+    // Menutup Word tersembunyi. Panggil SAAT APLIKASI DITUTUP.
+    public static void ShutdownClipboardWord()
+    {
+        try
+        {
+            if (_clipboardWordApp != null)
+            {
+                dynamic app = _clipboardWordApp;
+
+                // Tutup semua dokumen tanpa menyimpan (0 = jangan simpan).
+                try
+                {
+                    app.Documents.Close(0);
+                }
+                catch
+                {
+                    // Abaikan.
+                }
+
+                // Tutup Word tersembunyi.
+                app.Quit(0);
+            }
+        }
+        catch
+        {
+            // Abaikan: aplikasi sedang ditutup.
+        }
+        finally
+        {
+            _clipboardWordApp = null;
+        }
+    }
+
+    //akhir edit
 
     private static void InsertCopyBlocks(
         dynamic selection,
@@ -356,11 +526,32 @@ public sealed class WordCopyService
             if (string.IsNullOrWhiteSpace(block.Text))
                 continue;
 
+            //kodenya kalo pake ini terbalik saaat export 
+
+            //int start =
+            //    GetSelectionStart(selection);
+
+            //selection.TypeText(
+            //    block.Text);
+
+            //int end =
+            //    GetSelectionStart(selection);
+
+            string textToInsert = block.Text;
+
+            // Handwritten: balik ke urutan logis + paksa kanan-ke-kiri,
+            // supaya saat terpotong jadi 2 baris, awal ayat ada di atas.
+            if (block.Type == CopyBlockType.Arabic &&
+                IsHandwrittenFont(block.FontFamily))
+            {
+                textToInsert = ToLogicalRtlText(block.Text);
+            }
+
             int start =
                 GetSelectionStart(selection);
 
             selection.TypeText(
-                block.Text);
+                textToInsert);
 
             int end =
                 GetSelectionStart(selection);

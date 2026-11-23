@@ -1,0 +1,402 @@
+<UserControl
+    x:Class="QuranKemenag.Views.AboutView"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+    <ScrollViewer
+        VerticalScrollBarVisibility="Auto"
+        HorizontalScrollBarVisibility="Disabled"
+        ZoomMode="Disabled">
+
+        <Grid
+            Padding="24,12,24,18"
+            RowSpacing="12">
+
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+
+            <!-- ================================= -->
+            <!-- 1. PAGE TITLE                     -->
+            <!-- ================================= -->
+
+
+
+            <!-- ================================= -->
+            <!-- 2. APPLICATION BANNER             -->
+            <!-- ================================= -->
+
+            <!-- APPLICATION BANNER -->
+            <!-- APPLICATION BANNER -->
+            <Image
+    Grid.Row="1"
+    Source="ms-appx:///Assets/Images/about-header-final.png"
+    Stretch="Uniform"
+    HorizontalAlignment="Stretch"
+    VerticalAlignment="Center"
+    Margin="0,0,0,2"/>
+
+
+            <!-- ================================= -->
+            <!-- 3. APPLICATION DESCRIPTION        -->
+            <!-- ================================= -->
+
+            <Border
+                Grid.Row="2"
+                Style="{StaticResource CardBorderStyle}"
+                Padding="16,14">
+
+                <StackPanel Spacing="7">
+
+                    <TextBlock
+                        Text="Tentang Aplikasi"
+                        FontSize="19"
+                        FontWeight="SemiBold"
+                        Foreground="{StaticResource LpmqGreenDarkBrush}"/>
+
+                    <TextBlock
+                        Text="Qur’an Kemenag Desktop adalah aplikasi mushaf Al-Qur’an digital berbasis komputer (Windows) yang dikembangkan pada tahun 2026 oleh Kementerian Agama Republik Indonesia c.q. Lajnah Pentashihan Mushaf Al-Qur’an. Aplikasi ini dirancang untuk memudahkan masyarakat, akademisi, pengajar, serta penyusun presentasi dalam membaca, mempelajari, dan mengutip ayat-ayat Al-Qur’an secara praktis dan fleksibel. Dengan antarmuka yang modern, bersih, dan intuitif, aplikasi ini menyediakan berbagai navigasi membaca lengkap serta penyesuaian tampilan yang dapat diatur sesuai kebutuhan pengguna."
+                        FontSize="15"
+                        LineHeight="23"
+                        TextWrapping="Wrap"
+                        Foreground="{StaticResource NeutralTextSecondaryBrush}"/>
+
+                </StackPanel>
+            </Border>
+
+
+            <!-- ================================= -->
+            <!-- 4. FEATURES AND DEVELOPMENT TEAM  -->
+            <!-- ================================= -->
+
+            <Grid
+                Grid.Row="3"
+                ColumnSpacing="14"
+                RowSpacing="12">
+
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="1.35*"/>
+                    <ColumnDefinition Width="1*"/>
+                </Grid.ColumnDefinitions>
+
+
+                <!-- MAIN FEATURES -->
+
+                <Border
+                    Grid.Column="0"
+                    Style="{StaticResource CardBorderStyle}"
+                    Padding="16,14">
+
+                    <StackPanel Spacing="12">
+
+                        <TextBlock
+                            Text="Fitur Utama &amp; Keunggulan"
+                            FontSize="19"
+                            FontWeight="SemiBold"
+                            Foreground="{StaticResource LpmqGreenDarkBrush}"/>
+
+
+                        <!-- Feature 1 -->
+
+                        <Border
+                            Background="{StaticResource LpmqGreenSoftBrush}"
+                            CornerRadius="9"
+                            Padding="13,12">
+
+                            <StackPanel Spacing="7">
+
+                                <StackPanel
+                                    Orientation="Horizontal"
+                                    Spacing="9">
+
+                                    <FontIcon
+                                        Glyph="&#xE736;"
+                                        FontSize="19"
+                                        Foreground="{StaticResource LpmqGreenBrush}"/>
+
+                                    <TextBlock
+                                        Text="Navigasi &amp; Kemudahan Akses Bacaan"
+                                        FontWeight="SemiBold"
+                                        FontSize="15"
+                                        TextWrapping="Wrap"/>
+
+                                </StackPanel>
+
+                                <TextBlock
+                                    Text="• Pilihan mode pembacaan: Per Surah, Per Juz, maupun Per Halaman (Mushaf) dengan iluminasi (sedang proses pengembangan).&#10;• Lanjutkan bacaan dan bookmark: penanda otomatis untuk melanjutkan bacaan terakhir serta menyimpan ayat favorit/penting.&#10;• Pencarian cepat untuk menemukan surah, ayat, atau kata kunci tertentu."
+                                    TextWrapping="Wrap"
+                                    FontSize="14"
+                                    LineHeight="21"
+                                    Foreground="{StaticResource NeutralTextSecondaryBrush}"/>
+
+                            </StackPanel>
+                        </Border>
+
+
+                        <!-- Feature 2 -->
+
+                        <Border
+                            Background="{StaticResource NeutralBackgroundBrush}"
+                            CornerRadius="9"
+                            Padding="13,12">
+
+                            <StackPanel Spacing="7">
+
+                                <StackPanel
+                                    Orientation="Horizontal"
+                                    Spacing="9">
+
+                                    <FontIcon
+                                        Glyph="&#xE8C8;"
+                                        FontSize="19"
+                                        Foreground="{StaticResource LpmqGreenBrush}"/>
+
+                                    <TextBlock
+                                        Text="Fitur Ekspor &amp; Penyalinan Teks"
+                                        FontWeight="SemiBold"
+                                        FontSize="15"
+                                        TextWrapping="Wrap"/>
+
+                                </StackPanel>
+
+                                <TextBlock
+                                    Text="• Tombol Copy pada navigasi atas untuk menyalin ayat-ayat yang dipilih pengguna.&#10;• Hasil salinan dirancang agar mudah ditempel ke Microsoft Word maupun PowerPoint."
+                                    TextWrapping="Wrap"
+                                    FontSize="14"
+                                    LineHeight="21"
+                                    Foreground="{StaticResource NeutralTextSecondaryBrush}"/>
+
+                            </StackPanel>
+                        </Border>
+
+
+                        <!-- Feature 3 -->
+
+                        <Border
+                            Background="{StaticResource LpmqGreenSoftBrush}"
+                            CornerRadius="9"
+                            Padding="13,12">
+
+                            <StackPanel Spacing="7">
+
+                                <StackPanel
+                                    Orientation="Horizontal"
+                                    Spacing="9">
+
+                                    <FontIcon
+                                        Glyph="&#xE713;"
+                                        FontSize="19"
+                                        Foreground="{StaticResource LpmqGreenBrush}"/>
+
+                                    <TextBlock
+                                        Text="Kustomisasi &amp; Tampilan Interaktif"
+                                        FontWeight="SemiBold"
+                                        FontSize="15"
+                                        TextWrapping="Wrap"/>
+
+                                </StackPanel>
+
+                                <TextBlock
+                                    Text="• Pengaturan jenis font (Computer Font) dan mode tampilan.&#10;• Dukungan tampilan terjemahan serta Al-Qur’an isyarat untuk aksesibilitas yang lebih luas.&#10;• Pengaturan ukuran teks Arab, terjemahan, dan bahasa isyarat secara terpisah."
+                                    TextWrapping="Wrap"
+                                    FontSize="14"
+                                    LineHeight="21"
+                                    Foreground="{StaticResource NeutralTextSecondaryBrush}"/>
+
+                            </StackPanel>
+                        </Border>
+
+                    </StackPanel>
+                </Border>
+
+
+                <!-- DEVELOPMENT TEAM -->
+
+                <Border
+                    Grid.Column="1"
+                    Style="{StaticResource CardBorderStyle}"
+                    Padding="16,14">
+
+                    <StackPanel Spacing="12">
+
+                        <StackPanel
+                            Orientation="Horizontal"
+                            Spacing="9">
+
+                            <FontIcon
+                                Glyph="&#xE716;"
+                                FontSize="20"
+                                Foreground="{StaticResource LpmqGreenBrush}"/>
+
+                            <TextBlock
+                                Text="Tim Pengembang"
+                                FontSize="19"
+                                FontWeight="SemiBold"
+                                Foreground="{StaticResource LpmqGreenDarkBrush}"/>
+
+                        </StackPanel>
+
+
+                        <Grid ColumnSpacing="14">
+
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="1.1*"/>
+                                <ColumnDefinition Width="0.9*"/>
+                            </Grid.ColumnDefinitions>
+
+
+                            <!-- RESPONSIBLE TEAM -->
+
+                            <StackPanel
+                                Grid.Column="0"
+                                Spacing="8">
+
+                                <TextBlock
+                                    Text="Kepala LPMQ (Penanggung Jawab)"
+                                    FontWeight="SemiBold"
+                                    FontSize="13"
+                                    TextWrapping="Wrap"/>
+
+                                <TextBlock
+                                    Text="Dr. H. Abdul Aziz Sidqi, M.Ag."
+                                    FontSize="13"
+                                    TextWrapping="Wrap"
+                                    Foreground="{StaticResource NeutralTextSecondaryBrush}"/>
+
+                                <Rectangle
+                                    Height="1"
+                                    Fill="{StaticResource NeutralBorderBrush}"/>
+
+
+                                <TextBlock
+                                    Text="Koordinator Digitalisasi Al-Qur’an dan Produk Kajian"
+                                    FontWeight="SemiBold"
+                                    FontSize="13"
+                                    TextWrapping="Wrap"/>
+
+                                <TextBlock
+                                    Text="Dr. H. Zarkasi Afif, M.A."
+                                    FontSize="13"
+                                    TextWrapping="Wrap"
+                                    Foreground="{StaticResource NeutralTextSecondaryBrush}"/>
+
+                                <Rectangle
+                                    Height="1"
+                                    Fill="{StaticResource NeutralBorderBrush}"/>
+
+
+                                <TextBlock
+                                    Text="Ketua Tim"
+                                    FontWeight="SemiBold"
+                                    FontSize="13"/>
+
+                                <TextBlock
+                                    Text="Agus Nurul Saripudin, S.Kom."
+                                    FontSize="13"
+                                    TextWrapping="Wrap"
+                                    Foreground="{StaticResource NeutralTextSecondaryBrush}"/>
+
+                                <Rectangle
+                                    Height="1"
+                                    Fill="{StaticResource NeutralBorderBrush}"/>
+
+
+                                <TextBlock
+                                    Text="Sekretaris Tim"
+                                    FontWeight="SemiBold"
+                                    FontSize="13"/>
+
+                                <TextBlock
+                                    Text="Alfiyan Nugraha, S.Kom."
+                                    FontSize="13"
+                                    TextWrapping="Wrap"
+                                    Foreground="{StaticResource NeutralTextSecondaryBrush}"/>
+
+                            </StackPanel>
+
+
+                            <!-- MEMBERS -->
+
+                            <StackPanel
+                                Grid.Column="1"
+                                Spacing="8">
+
+                                <TextBlock
+                                    Text="Anggota"
+                                    FontWeight="SemiBold"
+                                    FontSize="14"/>
+
+                                <TextBlock
+                                    Text="• Anoraga Widi Okka, S.T.&#10;• Asri Asrori, S.T.&#10;• Zulfikar Al Farisi, S.Kom.&#10;• Febi Tri Hardiyanto, S.Kom.&#10;• Muhammad Zamroni Ahbab, S.S.I.&#10;• Salim Rusydi Cahyono, Lc.&#10;• Muhammad Hilman Hirzi, S.Ag."
+                                    FontSize="13"
+                                    LineHeight="21"
+                                    TextWrapping="Wrap"
+                                    Foreground="{StaticResource NeutralTextSecondaryBrush}"/>
+
+                            </StackPanel>
+
+                        </Grid>
+
+                    </StackPanel>
+                </Border>
+
+            </Grid>
+
+
+            <!-- ================================= -->
+            <!-- 5. FOOTER                         -->
+            <!-- ================================= -->
+
+            <Border
+                Grid.Row="4"
+                BorderBrush="{StaticResource NeutralBorderBrush}"
+                BorderThickness="0,1,0,0"
+                Padding="0,10,0,0">
+
+                <Grid ColumnSpacing="16">
+
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+
+
+                    <StackPanel
+                        Grid.Column="0"
+                        Spacing="3">
+
+                        <TextBlock
+                            Text="Kementerian Agama Republik Indonesia"
+                            FontWeight="SemiBold"
+                            FontSize="12"/>
+
+                        <TextBlock
+                            Text="Lajnah Pentashihan Mushaf Al-Qur’an (LPMQ)"
+                            FontSize="11"
+                            Foreground="{StaticResource NeutralTextSecondaryBrush}"/>
+
+                    </StackPanel>
+
+
+                    <TextBlock
+                        Grid.Column="1"
+                        Text="© 2026 Kementerian Agama RI. Semua hak dilindungi."
+                        FontSize="11"
+                        VerticalAlignment="Center"
+                        HorizontalAlignment="Right"
+                        TextWrapping="Wrap"
+                        Foreground="{StaticResource NeutralTextSecondaryBrush}"/>
+
+                </Grid>
+
+            </Border>
+
+        </Grid>
+
+    </ScrollViewer>
+
+</UserControl>

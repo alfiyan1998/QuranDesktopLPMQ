@@ -373,6 +373,7 @@
 
 //sesudah edit untuk menyalin hasil Copy ke Microsoft PowerPoint dengan format lengkap (font, ukuran, arah baca, perataan) seperti pada Word
 using System;
+using System.ComponentModel.DataAnnotations;
 using System.Diagnostics;
 using System.Runtime.InteropServices;
 using QuranKemenag.Models.Copy;
@@ -419,7 +420,7 @@ public sealed class PowerPointCopyService
     /// kurung ditukar kembali khusus untuk PowerPoint.
     /// Ubah ke false bila di PowerPoint Anda kurungnya justru jadi salah.
     /// </summary>
-    private const bool FlipBracketsForHandwritten = true;
+    private const bool FlipBracketsForHandwritten = false;
 
     // Nilai konstanta bawaan PowerPoint (enum COM), ditulis sebagai angka
     // karena kita memakai "dynamic" tanpa referensi Interop.
@@ -830,12 +831,31 @@ public sealed class PowerPointCopyService
 
             // Tulisan tangan: kurung ornamen ditukar kembali      // <-- BARU
             // (khusus PowerPoint, lihat FlipBracketsForHandwritten).
-            if (FlipBracketsForHandwritten &&
-                block.Type == CopyBlockType.Arabic &&
+
+            //untuk merapihkan export font handwriten agar dari kanan ke kiri
+
+            //if (FlipBracketsForHandwritten &&
+            //    block.Type == CopyBlockType.Arabic &&
+            //    IsHandwrittenFont(block.FontFamily))
+            //{
+            //    text = FlipOrnateBrackets(text);
+            //}
+
+            //Edit awal
+            // Tulisan tangan: balik ke urutan logis + paksa kanan-ke-kiri,
+            // supaya saat terpotong jadi 2 baris, awal ayat ada di atas.
+            if (block.Type == CopyBlockType.Arabic &&
                 IsHandwrittenFont(block.FontFamily))
             {
-                text = FlipOrnateBrackets(text);
+                text = ToLogicalRtlText(text);
+
+                // Hanya jika kurung ornamen salah arah (lihat konstanta).
+                if (FlipBracketsForHandwritten)
+                {
+                    text = FlipOrnateBrackets(text);
+                }
             }
+            //Edit akhir
 
             // InsertAfter menambahkan teks di akhir dan mengembalikan
             // TextRange HANYA untuk teks yang baru dimasukkan.
@@ -921,6 +941,40 @@ public sealed class PowerPointCopyService
         return new string(chars);
     }
 
+    //Powerpoint dari kanan ke kiri
+    // Mengubah teks tulisan tangan dari urutan "visual" (kiri-ke-kanan)
+    // menjadi urutan "logis" (kata pertama dulu), lalu memaksa tiap
+    // glyph dibaca kanan-ke-kiri tanpa karakter yang tampil sebagai kotak.
+    private static string ToLogicalRtlText(string text)
+    {
+        // Ambil karakter satu per satu, buang spasi di awal dan akhir.
+        char[] chars = text.Trim().ToCharArray();
+
+        // Balik urutannya: dari visual (kiri-ke-kanan)
+        // menjadi logis (kata pertama di awal).
+        Array.Reverse(chars);
+
+        // Penampung hasil (lebih cepat daripada menyambung string).
+        var result = new System.Text.StringBuilder(chars.Length * 2);
+
+        foreach (char c in chars)
+        {
+            // Tulis karakter apa adanya.
+            result.Append(c);
+
+            // Glyph kata tulisan tangan ada di area "Private Use"
+            // (U+E000 sampai U+F8FF). Setelah tiap glyph, tambahkan
+            // tanda kanan-ke-kiri U+200F (tidak terlihat) agar PowerPoint
+            // menata glyph ini dari kanan ke kiri.
+            if (c >= '\uE000' && c <= '\uF8FF')
+            {
+                result.Append('\u200F');
+            }
+        }
+
+        // Kembalikan teks yang sudah diatur.
+        return result.ToString();
+    }
 
     // ============================================================
     // 7. FORMAT PER JENIS BLOK

@@ -28,6 +28,35 @@ public sealed partial class SidebarView : UserControl
         this.InitializeComponent();
     }
 
+    //TENTANG APLIKASI 
+    public void SetAboutSelected(bool isSelected)
+    {
+        if (isSelected)
+        {
+            var selectedBackground =
+                (Microsoft.UI.Xaml.Media.Brush)Application.Current.Resources["LpmqGreenSoftBrush"];
+
+            var selectedForeground =
+                (Microsoft.UI.Xaml.Media.Brush)Application.Current.Resources["LpmqGreenDarkBrush"];
+
+            ExpandedAboutItem.Background = selectedBackground;
+            CompactAboutItem.Background = selectedBackground;
+
+            ExpandedAboutItem.Foreground = selectedForeground;
+            CompactAboutItem.Foreground = selectedForeground;
+        }
+        else
+        {
+            // Hapus nilai yang kita atur, supaya kembali ke warna bawaan tema.
+            ExpandedAboutItem.Background =
+                new Microsoft.UI.Xaml.Media.SolidColorBrush(Microsoft.UI.Colors.Transparent);
+            CompactAboutItem.Background =
+                new Microsoft.UI.Xaml.Media.SolidColorBrush(Microsoft.UI.Colors.Transparent);
+
+            ExpandedAboutItem.ClearValue(Control.ForegroundProperty);
+            CompactAboutItem.ClearValue(Control.ForegroundProperty);
+        }
+    }
 
 
     public void SetPaneOpen(bool isOpen)
