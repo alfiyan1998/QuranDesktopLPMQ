@@ -331,7 +331,7 @@
                                     FontSize="14"/>
 
                                 <TextBlock
-                                    Text="• Anoraga Widi Okka, S.T.&#10;• Asri Asrori, S.T.&#10;• Zulfikar Al Farisi, S.Kom.&#10;• Febi Tri Hardiyanto, S.Kom.&#10;• Muhammad Zamroni Ahbab, S.S.I.&#10;• Salim Rusydi Cahyono, Lc.&#10;• Muhammad Hilman Hirzi, S.Ag."
+                                    Text="• Asri Asrori, S.T.&#10;• Zulfikar Al Farisi, S.Kom.&#10;• Febi Tri Hardiyanto, S.Kom.&#10;• Anoraga Widi Okka, S.T.&#10;• Muhammad Zamroni Ahbab, S.S.I.&#10;• Salim Rusydi Cahyono, Lc.&#10;• Muhammad Hilman Hirzi, S.Ag."
                                     FontSize="13"
                                     LineHeight="21"
                                     TextWrapping="Wrap"

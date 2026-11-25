@@ -21,10 +21,11 @@ using QuranKemenag.Services.Page;
 
 using QuranKemenag.Models.Copy;     // CopyOptions, CopyTarget, ArabicCopyFont
 using QuranKemenag.Services.Copy;   // QuranCopyFormatter, WordCopyService, PowerPointCopyService
-using System.Diagnostics;           // Debug.WriteLine
+         // Debug.WriteLine
 
 //edit tambahan
 using QuranKemenag.Services.Text;
+using System.Net.NetworkInformation;
 
 
 
@@ -1357,94 +1358,96 @@ public sealed partial class AyatCard : UserControl
     //        package);
     //}
 
-    //edit
+    ////edit boleh dihapus jika tidak digunakan
 
-    // =========================================================
-    // SALIN SATU AYAT (Word / PowerPoint)
-    // =========================================================
+    //// =========================================================
+    //// SALIN SATU AYAT (Word / PowerPoint)
+    //// =========================================================
 
-    // Inti fitur Salin: menyalin SATU ayat memakai jalur yang sama
-    // dengan tombol Copy di toolbar, supaya font Arab (Computer /
-    // Handwritten) persis sama dengan yang tampil di layar.
-    //
-    // 'target' = tujuan (Word atau PowerPoint).
-    // Mengembalikan true jika berhasil, false jika gagal.
-    private bool TryCopyAyat(
-        Ayat ayat,
-        CopyTarget target)
-    {
-        try
-        {
-            // Siapkan opsi penyalinan sesuai kondisi layar saat ini.
-            var options = new CopyOptions
-            {
-                // Teks Arab selalu ikut.
-                IncludeArabic = true,
+    //// Inti fitur Salin: menyalin SATU ayat memakai jalur yang sama
+    //// dengan tombol Copy di toolbar, supaya font Arab (Computer /
+    //// Handwritten) persis sama dengan yang tampil di layar.
+    ////
+    //// 'target' = tujuan (Word atau PowerPoint).
+    //// Mengembalikan true jika berhasil, false jika gagal.
+    //private bool TryCopyAyat(
+    //    Ayat ayat,
+    //    CopyTarget target)
+    //{
+    //    try
+    //    {
+    //        // Siapkan opsi penyalinan sesuai kondisi layar saat ini.
+    //        var options = new CopyOptions
+    //        {
+    //            // Teks Arab selalu ikut.
+    //            IncludeArabic = true,
 
-                // Terjemahan ikut jika toggle "Terjemahan" menyala.
-                IncludeTranslation = ShowTranslation,
+    //            // Terjemahan ikut jika toggle "Terjemahan" menyala.
+    //            IncludeTranslation = ShowTranslation,
 
-                // Isyarat ikut jika toggle "Quran Isyarat" menyala.
-                IncludeSignLanguage = ShowIsyarat,
+    //            // Isyarat ikut jika toggle "Quran Isyarat" menyala.
+    //            IncludeSignLanguage = ShowIsyarat,
 
-                // KodeFont 0 = Computer Font, selain 0 = Handwritten.
-                // Dengan ini font yang disalin mengikuti mode ayat.
-                ArabicFont = ayat.KodeFont == 0
-                    ? ArabicCopyFont.ComputerFont
-                    : ArabicCopyFont.Handwritten,
+    //            // KodeFont 0 = Computer Font, selain 0 = Handwritten.
+    //            // Dengan ini font yang disalin mengikuti mode ayat.
+    //            ArabicFont = ayat.KodeFont == 0
+    //                ? ArabicCopyFont.ComputerFont
+    //                : ArabicCopyFont.Handwritten,
 
-                // Kurung ornamen dan nomor ayat ikut tersalin
-                // (ubah ke false jika tidak diinginkan).
-                AddParentheses = true,
-                AddAyahNumber = true,
+    //            // Kurung ornamen dan nomor ayat ikut tersalin
+    //            // (ubah ke false jika tidak diinginkan).
+    //            AddParentheses = true,
+    //            AddAyahNumber = true,
 
-                // Tidak menambahkan tulisan "Al-Fatihah/1: 1".
-                AddSurahAyah = false,
+    //            // Tidak menambahkan tulisan "Al-Fatihah/1: 1".
+    //            AddSurahAyah = false,
 
-                // Tujuan penyalinan.
-                Target = target
-            };
+    //            // Tujuan penyalinan.
+    //            Target = target
+    //        };
 
-            // Formatter yang SAMA dengan dialog Copy di toolbar.
-            var formatter = new QuranCopyFormatter();
+    //        // Formatter yang SAMA dengan dialog Copy di toolbar.
+    //        var formatter = new QuranCopyFormatter();
 
-            // Format satu ayat saja menjadi blok-blok (Arab, terjemahan, dst).
-            var copyResult = formatter.FormatBlocks(
-                new List<Ayat> { ayat },
-                options,
-                null);
+    //        // Format satu ayat saja menjadi blok-blok (Arab, terjemahan, dst).
+    //        var copyResult = formatter.FormatBlocks(
+    //            new List<Ayat> { ayat },
+    //            options,
+    //            null);
 
-            // Kalau hasilnya kosong, anggap gagal (pakai cadangan).
-            if (copyResult.IsEmpty)
-                return false;
+    //        // Kalau hasilnya kosong, anggap gagal (pakai cadangan).
+    //        if (copyResult.IsEmpty)
+    //            return false;
 
-            // Kirim ke aplikasi tujuan.
-            if (target == CopyTarget.PowerPoint)
-            {
-                // Ke PowerPoint (PowerPoint dibuka jika belum terbuka).
-                new PowerPointCopyService()
-                    .CopyToPowerPoint(copyResult);
-            }
-            else
-            {
-                // Ke Word (Word dibuka jika belum terbuka).
-                new WordCopyService()
-                    .CopyToWord(copyResult);
-            }
+    //        // Kirim ke aplikasi tujuan.
+    //        if (target == CopyTarget.PowerPoint)
+    //        {
+    //            // Ke PowerPoint (PowerPoint dibuka jika belum terbuka).
+    //            new PowerPointCopyService()
+    //                .CopyToPowerPoint(copyResult);
+    //        }
+    //        else
+    //        {
+    //            // Ke Word (Word dibuka jika belum terbuka).
+    //            new WordCopyService()
+    //                .CopyToWord(copyResult);
+    //        }
 
-            // Berhasil.
-            return true;
-        }
-        catch (Exception ex)
-        {
-            // Catat error di jendela Output Visual Studio.
-            Debug.WriteLine("[SALIN AYAT] Gagal kirim:");
-            Debug.WriteLine(ex);
+    //        // Berhasil.
+    //        return true;
+    //    }
+    //    catch (Exception ex)
+    //    {
+    //        // Catat error di jendela Output Visual Studio.
+    //        Debug.WriteLine("[SALIN AYAT] Gagal kirim:");
+    //        Debug.WriteLine(ex);
 
-            // Gagal: pemanggil akan memakai cadangan clipboard.
-            return false;
-        }
-    }
+    //        // Gagal: pemanggil akan memakai cadangan clipboard.
+    //        return false;
+    //    }
+    //}
+
+    //akhir edit boleh dihapus jika tidak digunakan
 
     // Dipanggil saat menu "Ke Word" diklik.
     // =========================================================
@@ -1455,22 +1458,58 @@ public sealed partial class AyatCard : UserControl
     // Ayat disimpan ke clipboard dulu (seperti copy-paste biasa);
     // pengguna menempelnya sendiri dengan Ctrl+V di Word atau PowerPoint.
     private void PART_CopyButton_Click(
-        object sender,
-        RoutedEventArgs e)
+    object sender,
+    RoutedEventArgs e)
     {
         // Kartu ini harus berisi satu Ayat; kalau bukan, berhenti.
         if (DataContext is not Ayat ayat)
             return;
 
-        // Jalur utama: siapkan lewat Word tersembunyi agar font benar.
-        if (TryCopyAyatToClipboard(ayat))
-            return;
+        // Salin ke clipboard (HTML + teks biasa).
+        // Jika gagal, pakai cadangan clipboard lama.
+        if (!TryCopyAyatToClipboard(ayat))
+            CopyToClipboardFallback(ayat);
 
-        // Cadangan: clipboard biasa (kode lama) jika Word tidak ada.
-        CopyToClipboardFallback(ayat);
+        // Tampilkan petunjuk singkat di dekat tombol.
+        ShowCopyTip();
+    }
+
+    // Menampilkan petunjuk tempel di dekat tombol Salin.
+    private void ShowCopyTip()
+    {
+        // Isi petunjuk.
+        var tip = new Flyout
+        {
+            Content = new TextBlock
+            {
+                Text =
+                    "Tersalin. Saat menempel di Word / PowerPoint, " +
+                    "klik ikon (Ctrl) lalu pilih " +
+                    "\"Keep Source Formatting\" agar font ikut.",
+                TextWrapping = TextWrapping.Wrap,
+                MaxWidth = 260
+            }
+        };
+
+        // Tampilkan di dekat tombol Salin.
+        tip.ShowAt(PART_CopyButton);
+
+        // Tutup otomatis setelah 4 detik.
+        var timer = DispatcherQueue.CreateTimer();
+        timer.Interval = TimeSpan.FromSeconds(4);
+        timer.IsRepeating = false;
+        timer.Tick += (_, _) => tip.Hide();
+        timer.Start();
     }
 
     // Menyalin SATU ayat ke clipboard dengan font sesuai mode ayat.
+    // Mengembalikan true jika berhasil.
+
+    //edit 
+
+    // Menyalin SATU ayat ke clipboard (TANPA membuka Word / PowerPoint).
+    // Isinya disusun dari jalur yang sama dengan tombol Copy di toolbar,
+    // sehingga teks, nomor ayat, kurung, dan nama font-nya sama persis.
     // Mengembalikan true jika berhasil.
     private bool TryCopyAyatToClipboard(
         Ayat ayat)
@@ -1480,7 +1519,7 @@ public sealed partial class AyatCard : UserControl
             // Opsi mengikuti kondisi layar saat ini.
             var options = new CopyOptions
             {
-                // Teks Arab selalu ikut.
+                // Arab selalu ikut.
                 IncludeArabic = true,
 
                 // Terjemahan ikut jika toggle "Terjemahan" menyala.
@@ -1501,14 +1540,14 @@ public sealed partial class AyatCard : UserControl
                 // Tidak menambahkan tulisan "Al-Fatihah/1: 1".
                 AddSurahAyah = false,
 
-                // Tujuan Word (format yang dipakai formatter).
+                // Hanya menentukan aturan format teks.
                 Target = CopyTarget.Word
             };
 
-            // Formatter yang SAMA dengan dialog Copy di toolbar.
+            // Formatter yang SAMA dengan Copy toolbar.
             var formatter = new QuranCopyFormatter();
 
-            // Format satu ayat menjadi blok-blok (Arab, terjemahan, dst).
+            // Satu ayat menjadi blok-blok (Arab, terjemahan, dst).
             var copyResult = formatter.FormatBlocks(
                 new List<Ayat> { ayat },
                 options,
@@ -1518,9 +1557,28 @@ public sealed partial class AyatCard : UserControl
             if (copyResult.IsEmpty)
                 return false;
 
-            // Simpan ke clipboard lewat Word tersembunyi.
-            return new WordCopyService()
-                .CopyToClipboard(copyResult);
+            // Susun HTML (font tertulis di setiap blok).
+            string html = BuildClipboardHtml(copyResult);
+
+            // Versi teks biasa untuk aplikasi yang tidak mengerti HTML.
+            string plain = string.Join(
+                Environment.NewLine,
+                copyResult.Blocks
+                    .Where(b => b.Type != CopyBlockType.Separator &&
+                                !string.IsNullOrWhiteSpace(b.Text))
+                    .Select(b => b.Text.Trim()));
+
+            // Isi clipboard: HTML + teks biasa. RTF sengaja TIDAK
+            // dikirim supaya Word tidak memilih format yang salah.
+            var package = new DataPackage();
+
+            package.SetText(plain);
+            package.SetHtmlFormat(
+                HtmlFormatHelper.CreateHtmlFormat(html));
+
+            Clipboard.SetContent(package);
+
+            return true;
         }
         catch (Exception ex)
         {
@@ -1531,6 +1589,117 @@ public sealed partial class AyatCard : UserControl
             return false;
         }
     }
+
+    // Menyusun HTML dari blok-blok hasil formatter.
+    // Tiap blok ditulis dengan font-nya, dan nama font diulang untuk
+    // semua "slot" font Word (ascii, hansi, bidi, fareast) supaya
+    // karakter khusus tulisan tangan tidak jadi kotak.
+    private static string BuildClipboardHtml(
+        CopyResult result)
+    {
+        var html = new StringBuilder();
+
+        html.Append("<html><body>");
+
+        foreach (CopyBlock block in result.Blocks)
+        {
+            // Lewati pemisah dan blok kosong.
+            if (block.Type == CopyBlockType.Separator ||
+                string.IsNullOrWhiteSpace(block.Text))
+                continue;
+
+            // Nama font blok ini (cadangan: Aptos).
+            string font = string.IsNullOrWhiteSpace(block.FontFamily)
+                ? "Aptos"
+                : block.FontFamily;
+
+            string text = block.Text.Trim();
+
+            // Tulisan tangan: kurung ornamen perlu ditukar karena
+            // paragraf dibaca kanan-ke-kiri (sama seperti di PowerPoint).
+            // Blok Arab (Computer Font maupun Handwritten).
+            bool isArabic =
+                block.Type == CopyBlockType.Arabic;
+
+            // Blok Arab bertulisan tangan (font Hafs).
+            bool handwritten =
+                isArabic &&
+                font.StartsWith(
+                    "Lpmq_Hafs_",
+                    StringComparison.OrdinalIgnoreCase);
+
+            // Tulisan tangan: spasi tak terputus (U+00A0) hanya ada di
+            // Al-Fatihah ayat 1. Ubah ke spasi biasa seperti ayat lain,
+            // supaya arah tatanya sama.
+            if (handwritten)
+                text = text.Replace('\u00A0', ' ');
+
+            // Semua blok Arab: Word membalik arah kurung ornamen pada
+            // paragraf kanan-ke-kiri, jadi tukar kurungnya agar menghadap
+            // ke dalam (Computer Font dan Handwritten sama-sama perlu).
+            if (handwritten)
+                text = SwapOrnateBrackets(text);
+
+            
+
+            // Arab dan Isyarat dibaca kanan-ke-kiri; lainnya kiri-ke-kanan.
+            bool rtl =
+                block.IsRightToLeft ||
+                block.Type == CopyBlockType.Arabic ||
+                block.Type == CopyBlockType.SignLanguage;
+
+            string dir = rtl ? "rtl" : "ltr";
+            string align = rtl ? "right" : "left";
+
+            // Ukuran font dalam pt.
+            string size =
+                (block.FontSize > 0 ? block.FontSize : 12)
+                .ToString(
+                    "0.##",
+                    System.Globalization.CultureInfo.InvariantCulture);
+
+            // Paragraf + font untuk semua slot.
+            html.Append(
+                $"<p dir=\"{dir}\" style=\"text-align:{align}; " +
+                "margin:0 0 6pt 0;\">");
+
+            html.Append(
+                $"<span style=\"font-family:'{EscapeHtml(font)}'; " +
+                $"mso-ascii-font-family:'{EscapeHtml(font)}'; " +
+                $"mso-hansi-font-family:'{EscapeHtml(font)}'; " +
+                $"mso-bidi-font-family:'{EscapeHtml(font)}'; " +
+                $"mso-fareast-font-family:'{EscapeHtml(font)}'; " +
+                $"font-size:{size}pt; mso-bidi-font-size:{size}pt;\">");
+
+            html.Append(EscapeHtml(text));
+
+            html.Append("</span></p>");
+        }
+
+        html.Append("</body></html>");
+
+        return html.ToString();
+    }
+
+    // Menukar kurung ornamen ﴾ dan ﴿.
+    private static string SwapOrnateBrackets(
+        string text)
+    {
+        char[] chars = text.ToCharArray();
+
+        for (int i = 0; i < chars.Length; i++)
+        {
+            if (chars[i] == '\uFD3E')
+                chars[i] = '\uFD3F';
+            else if (chars[i] == '\uFD3F')
+                chars[i] = '\uFD3E';
+        }
+
+        return new string(chars);
+    }
+
+    //akhir edit 
+
 
     // Cadangan: dipakai hanya jika Word / PowerPoint tidak tersedia
     // atau terjadi error. Ini kode lama (teks biasa + RTF) yang

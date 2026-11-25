@@ -66,6 +66,7 @@
                   DisplayMemberPath="LatinName"
                   IsTextSearchEnabled="True"
                   PlaceholderText="Surah"
+                      PlaceholderForeground="{StaticResource NeutralTextPrimaryBrush}"
                   SelectionChanged="SurahComboBox_SelectionChanged"
                   DropDownOpened="SurahComboBox_DropDownOpened"/>
 
@@ -88,6 +89,7 @@
                       SelectedValue="{Binding SelectedAyatNumber, Mode=TwoWay}"
                       DisplayMemberPath="AyatNumber"
                       PlaceholderText="Ayat" 
+                      PlaceholderForeground="{StaticResource NeutralTextPrimaryBrush}"
                       DropDownOpened="GuardedComboBox_DropDownOpened"/>
 
             <!-- Mode Tampilan -->
@@ -128,7 +130,7 @@
             <Button
                 Grid.Column="7"
                 x:Name="CopyButton"
-                Content="Copy"
+                Content="Export"
                 ToolTipService.ToolTip="Salin ayat"
                 Click="CopyButton_Click" />
 
@@ -153,6 +155,7 @@
                                     DisplayMemberPath="LatinName"
                                     IsTextSearchEnabled="True"
                                     PlaceholderText="Surah"
+                                    PlaceholderForeground="{StaticResource NeutralTextPrimaryBrush}"
                                     SelectionChanged="SurahComboBox_SelectionChanged" />
                             </StackPanel>
 
@@ -165,7 +168,8 @@
                                     SelectedValuePath="AyatNumber"
                                     SelectedValue="{Binding SelectedAyatNumber, Mode=TwoWay}"
                                     DisplayMemberPath="AyatNumber"
-                                    PlaceholderText="Ayah" />
+                                    PlaceholderText="Ayah" 
+                                    PlaceholderForeground="{StaticResource NeutralTextPrimaryBrush}"/>
                             </StackPanel>
 
                             <Button

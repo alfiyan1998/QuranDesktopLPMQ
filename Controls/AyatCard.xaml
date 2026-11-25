@@ -564,7 +564,7 @@
 
                     <!-- SALIN -->
                         
-                        <!--alinan agar berfungsi dengan baik-->
+                        <!--salinan agar berfungsi dengan baik-->
                         <!--<Button
                         x:Name="PART_CopyButton"
                         Grid.Column="0"
@@ -573,10 +573,7 @@
                         Content="📋 Salin"
                         Click="PART_CopyButton_Click"
                         ToolTipService.ToolTip="Salin ayat"/>-->
-                        
-                        <!--edit-->
 
-                        <!-- SALIN: klik tombol akan membuka menu pilihan tujuan -->
                         <!-- SALIN: simpan ayat ke clipboard (lalu tempel di Word / PowerPoint) -->
                         <Button
             x:Name="PART_CopyButton"
@@ -585,31 +582,7 @@
             Height="36"
             Content="📋 Salin"
             Click="PART_CopyButton_Click"
-            ToolTipService.ToolTip="Salin ayat ke clipboard, lalu tempel di Word atau PowerPoint"/>
-
-                        <!-- Menu yang muncul saat tombol diklik --><!--
-                            <Button.Flyout>
-                                <MenuFlyout>
-
-                                    --><!-- Pilihan 1: kirim ke Microsoft Word --><!--
-                                    <MenuFlyoutItem
-                                        Text="Microsoft Word"
-                                        Click="CopyToWordMenuItem_Click"/>
-
-                                    --><!-- Pilihan 2: kirim ke Microsoft PowerPoint --><!--
-                                    <MenuFlyoutItem
-                                        Text="Power Point"
-                                        Click="CopyToPowerPointMenuItem_Click"/>
-
-                                </MenuFlyout>
-                            </Button.Flyout>
-
-                        </Button>-->
-
-                        <!-- TERAKHIR DIBACA -->
-
-
-                        <!--akhir edit-->
+            ToolTipService.ToolTip="Salin ayat ke clipboard, lalu tempel di Microsoft Word atau Microsoft PowerPoint"/>
 
                         <!-- TERAKHIR DIBACA -->
                         <Button
